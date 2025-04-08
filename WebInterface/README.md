@@ -23,3 +23,11 @@ Q: How should we do it? Which language/framework/whatever?
 A: You are free to choose! If you have no ideas, then idk, React? HTML+CSS+JS? Flask???
 
 Btw, after you decide on the language of your choice, don't forget to update .gitignore, otherwise we'll have to deal with .idea and stuff in the repo.
+
+### Running frontend
+1. Install `npm`
+2. Change directory to a `WebInterface`.
+3. Run `npm install`
+4. Then for local run of frontend use `npm run dev`
+5. For specifying host and port of backend (by default `localhost:8080`) use `VITE_API_HOST=0.0.0.0 VITE_API_PORT=8081 npm run dev`
+6. For specifying host and port of frontend (by default `localhost:5173`) use `VITE_DEV_HOST=0.0.0.0 VITE_DEV_PORT=5000 npm run dev`
