@@ -14,7 +14,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
     route("/features") {
         route("/v0") {
             get("/hello") {
-                val response = httpClient.get("${config.remote}/" + TODO())
+                val response = httpClient.get("${config.remote}/greet")
                 call.respondText(response.bodyAsText(), status = response.status)
             }
         }
