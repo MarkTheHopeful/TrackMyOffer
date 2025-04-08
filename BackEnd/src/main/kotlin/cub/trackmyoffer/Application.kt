@@ -2,8 +2,10 @@ package cub.trackmyoffer
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.routing.*
 
 fun main(args: Array<String>) = EngineMain.main(args)
@@ -17,6 +19,12 @@ fun Application.module() {
         engine {
             requestTimeout = 10_000
         }
+    }
+
+    // TODO: setup cors properly
+    install(CORS) {
+        anyHost()
+        allowHeader(HttpHeaders.ContentType)
     }
 
     routing {

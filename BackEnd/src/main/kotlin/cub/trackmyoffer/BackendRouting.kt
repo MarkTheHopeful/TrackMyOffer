@@ -18,10 +18,7 @@ fun Route.backendRouting() {
         }
 
         swaggerUI(path = "swagger", swaggerFile = "openapi.yaml") {
-            install(CORS) {
-                anyHost()
-                allowHeader(HttpHeaders.ContentType)
-            }
+
         }
     }
 }
