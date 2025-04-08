@@ -1,6 +1,6 @@
 interface ImportMetaEnv {
-    readonly HOST?: string;
-    readonly PORT?: string;
+    readonly VITE_API_HOST?: string;
+    readonly VITE_API_PORT?: string;
 }
 
 interface ImportMeta {

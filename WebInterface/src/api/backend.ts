@@ -1,5 +1,5 @@
-const host = import.meta.env.HOST ?? "localhost";
-const port = import.meta.env.PORT ?? "8080";
+const host = import.meta.env.VITE_API_HOST ?? "localhost";
+const port = import.meta.env.VITE_API_PORT ?? "8080";
 const API_BASE_URL = `http://${host}:${port}`;
 
 export async function fetchMessage(): Promise<string> {
