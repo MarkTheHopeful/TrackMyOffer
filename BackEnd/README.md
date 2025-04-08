@@ -32,6 +32,11 @@ It is possible to specify deployment port and host, as well as host and port of 
 PORT=8080 HOST=0.0.0.0 PROVIDER_PORT=8081 PROVIDER_HOST=0.0.0.0 ./gradlew run 
 ```
 
+After running, try requesting something e.g. via curl:
+```
+curl 0.0.0.0:8080/v0/hello
+```
+
 ## API Documentation
 
 The API is documented using the OpenAPI 3.0 specification. The specification file is located at:
