@@ -47,6 +47,12 @@ To get started with the Features Provider, follow these simple steps:
     uvicorn main:app --reload
     ```
 
+    You can also specify a custom port:
+
+    ```bash
+    uvicorn main:app --reload --port 8000
+    ```
+
 ### Run Tests
 
 Want to run the test suite? It's easy:
