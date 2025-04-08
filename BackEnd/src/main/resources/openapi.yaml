@@ -1,0 +1,61 @@
+openapi: 3.0.3
+info:
+  title: TrackMyOffer Backend API
+  description: |
+    This is the API specification for the TrackMyOffer backend service.
+    The service provides endpoints for the web interface and communicates with the feature service.
+  version: 0.0.1
+  contact:
+    name: TrackMyOffer Team
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+paths:
+  /v0/:
+    get:
+      summary: Root endpoint
+      description: Returns a simple greeting message
+      operationId: getRoot
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Hello World!"
+  /v0/hello:
+    get:
+      summary: Hello endpoint
+      description: Returns a greeting with the request origin
+      operationId: getHello
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Hello, 0:0:0:0:0:0:0:1:52788"
+  /features/v0/hello:
+    get:
+      summary: Feature hello endpoint
+      description: Calls the feature provider service to get a greeting
+      operationId: getFeatureHello
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Hello from feature provider!"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Error calling feature provider"
+components:
+  schemas: {}
