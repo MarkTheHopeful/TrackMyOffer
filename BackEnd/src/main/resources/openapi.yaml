@@ -42,6 +42,14 @@ paths:
       summary: Feature hello endpoint
       description: Calls the feature provider service to get a greeting
       operationId: getFeatureHello
+      parameters:
+        - name: name
+          in: query
+          description: The name to include in the greeting.
+          required: true
+          schema:
+            type: string
+            example: "Mark Ipatov"
       responses:
         '200':
           description: Successful operation
@@ -50,6 +58,13 @@ paths:
               schema:
                 type: string
                 example: "Hello from feature provider!"
+        '400':
+          description: Missing required query parameter "name"
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Missing query parameter: name"
         '500':
           description: Internal server error
           content:
