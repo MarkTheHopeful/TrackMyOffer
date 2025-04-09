@@ -16,11 +16,7 @@ A modern application for tracking job applications, creating CVs and managing jo
    ```
    npm install
    ```
-3. Copy the environment file:
-   ```
-   cp .env.example .env
-   ```
-4. Start the development server:
+3. Start the development server:
    ```
    npm run dev
    ```

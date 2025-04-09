@@ -1,4 +1,3 @@
-import logging
 import os
 
 import requests
@@ -50,10 +49,10 @@ def request_model(text: str) -> str | None:
             if "choices" in json_response:
                 return json_response["choices"][0]["message"]["content"]
 
-        logging.error(f"API Error: {response.status_code}, Response: {response.text}")
+        logger.error(f"API Error: {response.status_code}, Response: {response.text}")
 
     except Exception as e:
-        logging.error(f"Connection error: {e}")
+        logger.error(f"Connection error: {e}")
 
     return None
 
