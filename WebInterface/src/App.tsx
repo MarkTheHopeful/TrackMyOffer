@@ -23,12 +23,6 @@ function App() {
       default:
         return (
           <div className="max-w-7xl mx-auto">
-            <div className="flex justify-end mb-8">
-              <Button variant="secondary" className="flex items-center gap-2">
-                <UserIcon className="w-4 h-4" />
-                Log in / Register
-              </Button>
-            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               <div className="bg-white rounded-xl shadow-lg shadow-slate-200/50 border border-slate-200 p-6 hover:shadow-brand-100/50 hover:border-brand-200 transition-all">
                 <div className="mb-4">
@@ -104,12 +98,12 @@ function App() {
             <button className="p-2 hover:bg-brand-50 rounded-full text-slate-600 hover:text-brand-600 transition-colors">
               <BellIcon className="w-6 h-6" />
             </button>
-            {activeView === 'home' && (
-              <Button onClick={() => setActiveView('cv-builder')}>
-                <PlusIcon className="w-4 h-4 mr-2" />
-                New CV
+            {activeView === 'home' ? (
+              <Button variant="primary" className="flex items-center gap-2">
+                <UserIcon className="w-4 h-4" />
+                Log in / Register
               </Button>
-            )}
+            ) : null}
           </div>
         </header>
 
