@@ -1,0 +1,10 @@
+> Task :checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :compileKotlin UP-TO-DATE
+> Task :compileJava NO-SOURCE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+
+> Task :run
+2025-04-09 12:59:12.431 [main] INFO  Application - Autoreload is disabled because the development mode is off.
+2025-04-09 12:59:12.502 [main] INFO  Application - Application started in 0.145 seconds.
+2025-04-09 12:59:12.563 [DefaultDispatcher-worker-3] INFO  Application - Responding at http://0.0.0.0:8080

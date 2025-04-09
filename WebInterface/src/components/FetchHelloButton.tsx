@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { fetchHelloMessage } from "../api/backend";
+import { Button } from "./ui/button";
 
 export function FetchHelloButton() {
     const [result, setResult] = useState<string | null>(null);
@@ -16,10 +17,10 @@ export function FetchHelloButton() {
     };
 
     return (
-        <div>
-            <button onClick={handleClick}>Fetch Message</button>
-            {result && <p>Response: {result}</p>}
-            {error && <p style={{ color: "red" }}>{error}</p>}
+        <div className="space-y-2">
+            <Button onClick={handleClick} variant="secondary">Fetch Hello Message</Button>
+            {result && <p className="text-slate-700">Response: {result}</p>}
+            {error && <p className="text-red-500">{error}</p>}
         </div>
     );
-}
+} 

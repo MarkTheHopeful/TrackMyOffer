@@ -29,8 +29,9 @@ Run with
 It is possible to specify deployment port and host, as well as host and port of the feature provider 
 (below are defaults) via env:
 ```
-PORT=8080 HOST=0.0.0.0 PROVIDER_PORT=8081 PROVIDER_HOST=0.0.0.0 ./gradlew run 
+PORT=8080 HOST=0.0.0.0 PROVIDER_PORT=8000 PROVIDER_HOST=0.0.0.0 ./gradlew run 
 ```
+
 
 After running, try requesting something e.g. via curl:
 ```
