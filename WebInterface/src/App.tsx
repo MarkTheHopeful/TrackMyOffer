@@ -1,14 +1,15 @@
 import React from 'react';
 import { Navigation } from './components/navigation';
 import { Button } from './components/ui/button';
-import { BellIcon, FileTextIcon, PlusIcon, Sparkles, SearchIcon, UserIcon, ServerIcon } from 'lucide-react';
+import { BellIcon, FileTextIcon, Sparkles, SearchIcon, UserIcon, ServerIcon } from 'lucide-react';
 import { CVBuilder } from './components/cv-builder';
 import { ApiDemo } from './components/ApiDemo';
 import { CVReview } from './components/CVReview';
 import { CoverLetter } from './components/CoverLetter';
+import { ProfileForm } from './components/profile';
 
 function App() {
-  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo'>('home');
+  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo' | 'profile'>('home');
 
   const renderContent = () => {
     switch (activeView) {
@@ -20,6 +21,8 @@ function App() {
         return <CoverLetter />;
       case 'api-demo':
         return <ApiDemo />;
+      case 'profile':
+        return <ProfileForm />;
       default:
         return (
           <div className="max-w-7xl mx-auto">
@@ -90,9 +93,11 @@ function App() {
           <h1 className="text-2xl font-semibold text-slate-900">
             {activeView === 'home' ? 'Welcome back!' :
               activeView === 'cv-builder' ? 'CV Builder' :
-                activeView === 'cv-review' ? 'CV Review' :
-                  activeView === 'cover-letter' ? 'Cover Letter' :
-                    activeView === 'api-demo' ? 'API Demo' : 'Welcome'}
+                activeView === 'api-demo' ? 'API Demo' :
+                  activeView === 'profile' ? 'Profile' :
+                    activeView === 'cv-review' ? 'CV Review' :
+                      activeView === 'cover-letter' ? 'Cover Letter' :
+                        'Welcome'}
           </h1>
           <div className="flex items-center space-x-4">
             <button className="p-2 hover:bg-brand-50 rounded-full text-slate-600 hover:text-brand-600 transition-colors">
