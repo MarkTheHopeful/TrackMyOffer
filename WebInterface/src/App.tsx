@@ -4,9 +4,10 @@ import { Button } from './components/ui/button';
 import { BellIcon, FileTextIcon, PlusIcon, Sparkles, SearchIcon, UserIcon, ServerIcon } from 'lucide-react';
 import { CVBuilder } from './components/cv-builder';
 import { ApiDemo } from './components/ApiDemo';
+import { ProfileForm } from './components/profile';
 
 function App() {
-  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo'>('home');
+  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo' | 'profile'>('home');
 
   const renderContent = () => {
     switch (activeView) {
@@ -14,6 +15,8 @@ function App() {
         return <CVBuilder />;
       case 'api-demo':
         return <ApiDemo />;
+      case 'profile':
+        return <ProfileForm />;
       default:
         return (
           <div>
@@ -90,7 +93,8 @@ function App() {
           <h1 className="text-2xl font-semibold text-slate-900">
             {activeView === 'home' ? 'Welcome back!' :
               activeView === 'cv-builder' ? 'CV Builder' :
-                activeView === 'api-demo' ? 'API Demo' : 'Welcome'}
+                activeView === 'api-demo' ? 'API Demo' :
+                  activeView === 'profile' ? 'Profile' : 'Welcome'}
           </h1>
           <div className="flex items-center space-x-4">
             <button className="p-2 hover:bg-brand-50 rounded-full text-slate-600 hover:text-brand-600 transition-colors">
