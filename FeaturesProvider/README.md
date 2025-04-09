@@ -25,42 +25,67 @@ Btw, don't forget to update .gitignore
 
 ## How to run
 
-### Run the API
+### Easy Setup
 
-To get started with the Features Provider, follow these simple steps:
+We've provided scripts to make setup and running easy:
 
-1. First, install the required dependencies:
+1. Make sure you have Python 3.8+ installed on your system.
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+2. The API key is already set up in the `.env` file for convenience. You can use the provided key or replace it with your own.
 
-2. Set up your API key in your environment:
+4. Run the application using the provided script:
+   ```bash
+   ./run.sh
+   ```
 
-    ```bash
-    export API_KEY="your-api-key"
-    ```
+The script will automatically:
+- Create a virtual environment
+- Install all required dependencies
+- Start the server on port 8000
 
-3. Launch the API server:
+### Manual Setup
 
-    ```bash
-    uvicorn main:app --reload
-    ```
+If you prefer to set up manually:
+
+1. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   ```
+
+2. Activate the virtual environment:
+   
+   ```bash
+   source venv/bin/activate
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Ensure you have a `.env` file with the API key:
+   ```
+   API_KEY=your-api-key
+   ```
+
+5. Start the server:
+   ```bash
+   uvicorn main:app --reload
+   ```
+
+### API Endpoints
+
+- `GET /`: Basic health check
+- `POST /greet`: Accepts a JSON payload with a "name" field and returns an AI-generated greeting
 
 ### Run Tests
 
-Want to run the test suite? It's easy:
+To run the test suite:
 
-1. Install pytest if you haven't already:
-
-    ```bash
-    pip install pytest
-    ```
-
-2. Run the tests:
-
-    ```bash
-    pytest
-    ```
+1. Ensure you have the virtual environment activated
+2. Run:
+   ```bash
+   pytest
+   ```
 
 That's it! You're all set. 🚀
