@@ -1,7 +1,5 @@
 #!/bin/bash
 
-API_KEY=xxx
-
 trap "kill 0" SIGINT SIGTERM
 
 echo "Create directory to store logs..."
