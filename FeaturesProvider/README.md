@@ -87,5 +87,3 @@ To run the test suite:
    ```bash
    pytest
    ```
-
-That's it! You're all set. 🚀
