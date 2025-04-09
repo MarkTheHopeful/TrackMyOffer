@@ -78,6 +78,12 @@ If you prefer to set up manually:
 - `GET /`: Basic health check
 - `POST /greet`: Accepts a JSON payload with a "name" field and returns an AI-generated greeting
 
+    You can also specify a custom port:
+
+    ```bash
+    uvicorn main:app --reload --port 8000
+    ```
+
 ### Run Tests
 
 To run the test suite:
