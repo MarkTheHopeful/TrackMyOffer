@@ -7,8 +7,10 @@ export function FetchFeaturesHelloButton() {
     const [error, setError] = useState<string | null>(null);
 
     const handleClick = async () => {
+        console.log("FetchFeaturesHelloButton handleClick");
         try {
             const msg = await fetchFeaturesHelloMessage();
+            console.log("FetchFeaturesHelloButton msg", msg);
             setResult(msg);
             setError(null);
         } catch (e) {

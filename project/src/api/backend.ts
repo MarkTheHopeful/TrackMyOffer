@@ -11,7 +11,10 @@ export async function fetchHelloMessage(): Promise<string> {
 }
 
 export async function fetchFeaturesHelloMessage(): Promise<string> {
-    const response = await fetch(`${API_BASE_URL}/features/v0/hello?name=aboba`);
+    const url = `${API_BASE_URL}/features/v0/hello?name=aboba`;
+    console.log("fetchFeaturesHelloMessage", url);
+    const response = await fetch(url);
+    console.log("fetchFeaturesHelloMessage response", response);
     if (!response.ok) {
         throw new Error("Failed to fetch: " + response.statusText);
     }
