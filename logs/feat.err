@@ -1,11 +1,12 @@
 
 [notice] A new release of pip is available: 24.0 -> 25.0.1
 [notice] To update, run: pip install --upgrade pip
-INFO:     Started server process [81786]
+2025-04-09 14:06:10.244 | INFO     | ai:<module>:17 - API_KEY: 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
+INFO:     Started server process [88499]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 INFO:     Shutting down
 INFO:     Waiting for application shutdown.
 INFO:     Application shutdown complete.
-INFO:     Finished server process [81786]
+INFO:     Finished server process [88499]

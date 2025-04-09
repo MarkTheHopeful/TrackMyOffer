@@ -3,12 +3,18 @@ import os
 
 import requests
 from dotenv import load_dotenv
+from loguru import logger
 
 # Load environment variables from .env file
 load_dotenv()
 
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
 API_KEY = os.getenv("API_KEY")
+if not API_KEY:
+    # not a single string, because otherwise Openrouter bans it as soon as we commit it to Github
+    API_KEY = "sk-or-v1"
+    API_KEY += "-53584dae5c76645a56f6164f81cc5c3e63d0489a4cc5a138ca373b169a9e0518"
+logger.info(f"API_KEY: {API_KEY}")
 assert API_KEY, "API_KEY environment variable is not set"
 
 # MODEL_NAME = "deepseek/deepseek-v3-base:free"

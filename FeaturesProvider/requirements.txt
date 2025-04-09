@@ -3,3 +3,4 @@ uvicorn
 httpx
 requests
 python-dotenv
+loguru
