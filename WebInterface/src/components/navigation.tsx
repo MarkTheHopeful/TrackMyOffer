@@ -1,4 +1,4 @@
-import { BriefcaseIcon, FileTextIcon, HomeIcon, SettingsIcon, Sparkles, ServerIcon } from 'lucide-react';
+import { BriefcaseIcon, FileTextIcon, HomeIcon, SettingsIcon, Sparkles, ServerIcon, PenIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface NavItemProps {
@@ -55,6 +55,12 @@ export const Navigation = ({ activeView, setActiveView }: NavigationProps) => {
           label="CV Review"
           active={activeView === 'cv-review'}
           onClick={() => setActiveView('cv-review')}
+        />
+        <NavItem
+          icon={<PenIcon size={20} />}
+          label="Cover Letter"
+          active={activeView === 'cover-letter'}
+          onClick={() => setActiveView('cover-letter')}
         />
         <NavItem
           icon={<ServerIcon size={20} />}
