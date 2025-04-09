@@ -13,16 +13,7 @@ interface EducationEntry {
 
 export function ProfileForm() {
   const [activeTab, setActiveTab] = useState<'personal' | 'education' | 'social' | 'summary'>('personal');
-  const [educationEntries, setEducationEntries] = useState<EducationEntry[]>([
-    {
-      id: '1',
-      institution: '',
-      degree: '',
-      startDate: '',
-      endDate: '',
-      additionalInfo: ''
-    }
-  ]);
+  const [educationEntries, setEducationEntries] = useState<EducationEntry[]>([]);
   const [currentEducation, setCurrentEducation] = useState<EducationEntry>({
     id: '',
     institution: '',
@@ -157,7 +148,7 @@ export function ProfileForm() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">First Name and Patronymic</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">First Name</label>
               <input
                 type="text"
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
