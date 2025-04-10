@@ -120,3 +120,17 @@ Prerequisites: **Docker Desktop**
     - Login with: admin@example.com
     - Password: admin_password
     - To connect to your database, create a new server connection with the connection details above (use "postgres" as the hostname instead of "localhost")
+
+### How to check what is inside database
+
+1. Run this command to open postgres console:
+
+   ```bash
+   docker exec -it profiles_db psql -U features_user -d features_db
+   ```
+
+2. Make SQL-query to get some data:
+
+   ```sql
+   SELECT * FROM profiles;
+   ```
