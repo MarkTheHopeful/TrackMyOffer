@@ -95,7 +95,11 @@ To run the test suite:
    ```
 
 ### How to run database
-1. go to the database dir
+Prerequisites: **Docker Desktop**
+1. Run:
+    ```bash
+   cd database
+   ```
 2. Run:
     ```bash
     docker-compose up -d
