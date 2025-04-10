@@ -29,7 +29,7 @@ Btw, don't forget to update .gitignore
 
 We've provided scripts to make setup and running easy:
 
-1. Make sure you have Python 3.8+ installed on your system.
+1. Make sure you have Python 3.12 installed on your system.
 
 2. The API key is already set up in the `.env` file for convenience. You can use the provided key or replace it with your own.
 
@@ -96,21 +96,26 @@ To run the test suite:
 
 ### How to run database
 Prerequisites: **Docker Desktop**
-1. Run:
+1. Make sure to download Docker from https://www.docker.com/get-started/.
+2. Run:
     ```bash
    cd database
    ```
-2. Run:
+3. Run:
+    ```bash
+    docker compose up -d
+   ```
+   or 
     ```bash
     docker-compose up -d
    ```
-3. The database will be accessible at:
+4. The database will be accessible at:
     - Host: localhost
     - Port: 5432
     - Database: features_db
     - Username: features_user
     - Password: features_password
-4. If you included pgAdmin, you can access it at [http://localhost:5050](http://localhost:5050)
+5. If you included pgAdmin, you can access it at [http://localhost:5050](http://localhost:5050)
     - Login with: admin@example.com
     - Password: admin_password
     - To connect to your database, create a new server connection with the connection details above (use "postgres" as the hostname instead of "localhost")
