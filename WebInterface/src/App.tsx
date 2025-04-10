@@ -4,6 +4,7 @@ import { Button } from './components/ui/button';
 import { BellIcon, FileTextIcon, PlusIcon, Sparkles, SearchIcon, UserIcon, ServerIcon } from 'lucide-react';
 import { CVBuilder } from './components/cv-builder';
 import { ApiDemo } from './components/ApiDemo';
+import { LogIn } from './components/LogIn';
 import { CVReview } from './components/CVReview';
 import { CoverLetter } from './components/CoverLetter';
 
@@ -20,6 +21,8 @@ function App() {
         return <CoverLetter />;
       case 'api-demo':
         return <ApiDemo />;
+      case 'log-in':
+        return <LogIn />;
       default:
         return (
           <div className="max-w-7xl mx-auto">
@@ -99,7 +102,7 @@ function App() {
               <BellIcon className="w-6 h-6" />
             </button>
             {activeView === 'home' ? (
-              <Button variant="primary" className="flex items-center gap-2">
+              <Button variant="primary" className="flex items-center gap-2" onClick={() => setActiveView('log-in')}>
                 <UserIcon className="w-4 h-4" />
                 Log in / Register
               </Button>
