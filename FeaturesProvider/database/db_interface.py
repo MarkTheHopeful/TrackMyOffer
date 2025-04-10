@@ -71,11 +71,11 @@ class DatabaseManager:
             self.engine = create_engine("sqlite:///:memory:")
         else:
             # Get database connection details from environment variables
-            db_user = os.getenv("DB_USER", "postgres")
-            db_password = os.getenv("DB_PASSWORD", "postgres")
+            db_user = os.getenv("DB_USER", "features_user")
+            db_password = os.getenv("DB_PASSWORD", "features_password")
             db_host = os.getenv("DB_HOST", "localhost")
             db_port = os.getenv("DB_PORT", "5432")
-            db_name = os.getenv("DB_NAME", "trackmyoffer")
+            db_name = os.getenv("DB_NAME", "features_db")
 
             # Create database URL
             database_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
