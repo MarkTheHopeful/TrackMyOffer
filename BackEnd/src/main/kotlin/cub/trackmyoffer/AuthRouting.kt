@@ -22,6 +22,8 @@ import kotlinx.html.*
 import kotlinx.serialization.*
 
 fun Route.authRouting(httpClient: HttpClient) {
+    val vitePort = environment.config.propertyOrNull("ktor.frontend_vite.port")?.getString() ?: "5000"
+    val viteHost = environment.config.propertyOrNull("ktor.frontend_vite.host")?.getString() ?: "localhost"
 
     authenticate("google-oauth") {
         get("/login") {
@@ -47,8 +49,7 @@ fun Route.authRouting(httpClient: HttpClient) {
         val userSession: UserSession? = getSession(call)
         if (userSession != null) {
             val userInfo: UserInfo = getPersonalGreeting(httpClient, userSession)
-//            call.respondText("Hello, ${userInfo.name}! Welcome home!")
-            call.respondRedirect("http://localhost:5000/")
+            call.respondRedirect("http://$viteHost:$vitePort/")
         }
     }
 

@@ -31,6 +31,8 @@ val applicationHttpClient = HttpClient(CIO) {
 }
 
 fun Application.module() {
+    val oauthtHost = environment.config.propertyOrNull("ktor.oauth.host")?.getString() ?: "localhost"
+    val oauthPort = environment.config.propertyOrNull("ktor.oauth.port")?.getString() ?: "8080"
     val fProviderHost = environment.config.propertyOrNull("ktor.feature_provider.host")?.getString() ?: "0.0.0.0"
     val fProviderPort = environment.config.propertyOrNull("ktor.feature_provider.port")?.getString() ?: "8081"
 
@@ -65,7 +67,7 @@ fun Application.module() {
                     defaultScopes = listOf("profile", "email")
                 )
             }
-            urlProvider = { "http://localhost:8080/callback" }
+            urlProvider = { "http://$oauthtHost:$oauthPort/callback" }
         }
     }
 
