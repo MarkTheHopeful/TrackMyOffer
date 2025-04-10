@@ -77,6 +77,7 @@ If you prefer to set up manually:
 
 - `GET /`: Basic health check
 - `POST /greet`: Accepts a JSON payload with a "name" field and returns an AI-generated greeting
+- `POST /api/profile`: Create or update a user profile with personal information
 
     You can also specify a custom port:
 
