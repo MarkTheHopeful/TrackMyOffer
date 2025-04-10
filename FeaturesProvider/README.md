@@ -93,3 +93,20 @@ To run the test suite:
    ```bash
    pytest
    ```
+
+### How to run database
+1. go to the database dir
+2. Run:
+    ```bash
+    docker-compose up -d
+   ```
+3. The database will be accessible at:
+    - Host: localhost
+    - Port: 5432
+    - Database: features_db
+    - Username: features_user
+    - Password: features_password
+4. If you included pgAdmin, you can access it at [http://localhost:5050](http://localhost:5050)
+    - Login with: admin@example.com
+    - Password: admin_password
+    - To connect to your database, create a new server connection with the connection details above (use "postgres" as the hostname instead of "localhost")
