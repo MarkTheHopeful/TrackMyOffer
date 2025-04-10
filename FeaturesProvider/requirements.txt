@@ -2,7 +2,7 @@ fastapi
 uvicorn
 httpx
 requests
-python-dotenv==1.0.0
+python-dotenv
 loguru
-SQLAlchemy==2.0.25
-psycopg2-binary==2.9.9
+SQLAlchemy
+psycopg2-binary
