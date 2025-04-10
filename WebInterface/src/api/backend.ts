@@ -19,4 +19,15 @@ export async function fetchFeaturesHelloMessage(): Promise<string> {
         throw new Error("Failed to fetch: " + response.statusText);
     }
     return response.text();
-} 
+}
+
+export function authentify(): void {
+    window.location.href = `${API_BASE_URL}/login`;
+}
+// export async function authentify(): Promise<string> {
+    // const response = await fetch(`${API_BASE_URL}/login`);
+    // if (!response.ok) {
+    //     throw new Error("Failed to fetch: " + response.statusText);
+    // }
+    // return response.text();
+// }
