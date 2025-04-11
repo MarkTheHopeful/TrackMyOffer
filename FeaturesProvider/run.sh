@@ -37,7 +37,6 @@ echo "Activating virtual environment and installing dependencies..."
 source venv/bin/activate
 pip install -r requirements.txt
 
-
 # Run the application
 echo "Starting the Features Provider API..."
 uvicorn main:app --host 0.0.0.0 --port 8000

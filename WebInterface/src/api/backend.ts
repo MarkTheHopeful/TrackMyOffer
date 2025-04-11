@@ -21,13 +21,7 @@ export async function fetchFeaturesHelloMessage(): Promise<string> {
     return response.text();
 }
 
-export function authentify(): void {
+export async function authentify(): Promise<string | null> {
     window.location.href = `${API_BASE_URL}/login`;
+    return null;
 }
-// export async function authentify(): Promise<string> {
-    // const response = await fetch(`${API_BASE_URL}/login`);
-    // if (!response.ok) {
-    //     throw new Error("Failed to fetch: " + response.statusText);
-    // }
-    // return response.text();
-// }
