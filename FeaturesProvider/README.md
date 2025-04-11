@@ -134,3 +134,4 @@ Prerequisites: **Docker Desktop**
    ```sql
    SELECT * FROM profiles;
    ```
+
