@@ -1,6 +1,6 @@
 from ai import request_model
-from fastapi import FastAPI, HTTPException, status, Depends
 from database.db_interface import DatabaseManager
+from fastapi import Depends, FastAPI, HTTPException, status
 from models import ProfileCreate, ProfileResponse
 from sqlalchemy.orm import Session
 
@@ -9,10 +9,12 @@ app = FastAPI()
 # Initialize database manager
 db_manager = DatabaseManager()
 
+
 # Create tables on startup
 @app.on_event("startup")
 def startup_event():
     db_manager.create_tables()
+
 
 # Dependency to get database session
 def get_db():
@@ -45,7 +47,9 @@ def greet(payload: dict[str, str]) -> dict[str, str]:
     return {"message": greeting}
 
 
-@app.post("/api/profile", response_model=ProfileResponse, status_code=status.HTTP_201_CREATED)
+@app.post(
+    "/api/profile", response_model=ProfileResponse, status_code=status.HTTP_201_CREATED
+)
 def create_or_update_profile(profile: ProfileCreate, db: Session = Depends(get_db)):
     """
     Create or update a user profile.
@@ -54,10 +58,12 @@ def create_or_update_profile(profile: ProfileCreate, db: Session = Depends(get_d
     """
     # Check if profile with this email already exists
     existing_profile = db_manager.get_profile_by_email(db, profile.email)
-    
+
     if existing_profile:
         # Update existing profile
-        updated_profile = db_manager.update_profile(db, existing_profile.id, profile.dict())
+        updated_profile = db_manager.update_profile(
+            db, existing_profile.id, profile.dict()
+        )
         return updated_profile
     else:
         # Create new profile

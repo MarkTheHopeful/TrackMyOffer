@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Button } from "./ui/button";
-import {authentify, fetchHelloMessage} from "@/api/backend.ts";
+import { authentify, fetchHelloMessage } from "@/api/backend.ts";
 
 export function LogInButton() {
     const [result, setResult] = useState<string | null>(null);
