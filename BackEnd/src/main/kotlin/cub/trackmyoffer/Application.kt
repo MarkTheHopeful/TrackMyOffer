@@ -46,8 +46,7 @@ fun Application.module() {
 
     // TODO: setup cors properly
     install(CORS) {
-        allowHost("localhost:5000", schemes = listOf("http"))
-        allowHost("localhost:8080", schemes = listOf("http"))
+        anyHost()
         allowCredentials = true
         allowMethod(HttpMethod.Get)
         allowMethod(HttpMethod.Post)
