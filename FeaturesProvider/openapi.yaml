@@ -75,5 +75,154 @@ paths:
                     type: string
                     example: "AI service is currently unavailable"
 
+  /api/profile:
+    post:
+      summary: Create or update profile
+      description: Creates a new profile or updates existing one if email already exists
+      operationId: createOrUpdateProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileCreate'
+      responses:
+        '201':
+          description: Profile created or updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        loc:
+                          type: array
+                          items:
+                            type: string
+                        msg:
+                          type: string
+                        type:
+                          type: string
+
 components:
-  schemas: {}
+  schemas:
+    ProfileCreate:
+      type: object
+      required:
+        - first_name
+        - last_name
+        - email
+        - city
+        - state
+        - country
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          maxLength: 20
+        city:
+          type: string
+          minLength: 1
+          maxLength: 100
+        state:
+          type: string
+          minLength: 1
+          maxLength: 100
+        country:
+          type: string
+          minLength: 1
+          maxLength: 100
+        summary:
+          type: string
+          nullable: true
+
+    ProfileResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+          nullable: true
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        summary:
+          type: string
+          nullable: true
+
+    EducationCreate:
+      type: object
+      required:
+        - institution
+        - degree
+        - start_date
+      properties:
+        institution:
+          type: string
+          minLength: 1
+          maxLength: 255
+        degree:
+          type: string
+          minLength: 1
+          maxLength: 255
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        additional_info:
+          type: string
+          nullable: true
+
+    SocialMediaCreate:
+      type: object
+      properties:
+        linkedin_url:
+          type: string
+          maxLength: 255
+          nullable: true
+        github_url:
+          type: string
+          maxLength: 255
+          nullable: true
+        personal_website:
+          type: string
+          maxLength: 255
+          nullable: true
+        other_links:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true

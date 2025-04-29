@@ -29,7 +29,7 @@ Btw, don't forget to update .gitignore
 
 We've provided scripts to make setup and running easy:
 
-1. Make sure you have Python 3.8+ installed on your system.
+1. Make sure you have Python 3.12 installed on your system.
 
 2. The API key is already set up in the `.env` file for convenience. You can use the provided key or replace it with your own.
 
@@ -77,6 +77,7 @@ If you prefer to set up manually:
 
 - `GET /`: Basic health check
 - `POST /greet`: Accepts a JSON payload with a "name" field and returns an AI-generated greeting
+- `POST /api/profile`: Create or update a user profile with personal information
 
     You can also specify a custom port:
 
@@ -93,3 +94,44 @@ To run the test suite:
    ```bash
    pytest
    ```
+
+### How to run database
+Prerequisites: **Docker Desktop**
+1. Make sure to download Docker from https://www.docker.com/get-started/.
+2. Run:
+    ```bash
+   cd database
+   ```
+3. Run:
+    ```bash
+    docker compose up -d
+   ```
+   or 
+    ```bash
+    docker-compose up -d
+   ```
+4. The database will be accessible at:
+    - Host: localhost
+    - Port: 5432
+    - Database: features_db
+    - Username: features_user
+    - Password: features_password
+5. If you included pgAdmin, you can access it at [http://localhost:5050](http://localhost:5050)
+    - Login with: admin@example.com
+    - Password: admin_password
+    - To connect to your database, create a new server connection with the connection details above (use "postgres" as the hostname instead of "localhost")
+
+### How to check what is inside database
+
+1. Run this command to open postgres console:
+
+   ```bash
+   docker exec -it profiles_db psql -U features_user -d features_db
+   ```
+
+2. Make SQL-query to get some data:
+
+   ```sql
+   SELECT * FROM profiles;
+   ```
+

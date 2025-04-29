@@ -23,8 +23,9 @@ export async function fetchFeaturesHelloMessage(): Promise<string> {
     return response.text();
 }
 
-export function authentify(): void {
+export async function authentify(): Promise<string | null> {
     window.location.href = `${API_BASE_URL}/login`;
+    return null;
 }
 
 export async function checkAuthStatus(): Promise<{ authenticated: boolean; user?: UserContract }> {

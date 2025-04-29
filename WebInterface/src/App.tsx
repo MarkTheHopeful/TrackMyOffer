@@ -1,17 +1,18 @@
 import React from 'react';
 import { Navigation } from './components/navigation';
 import { Button } from './components/ui/button';
-import { BellIcon, FileTextIcon, PlusIcon, Sparkles, SearchIcon, UserIcon, ServerIcon } from 'lucide-react';
+import { BellIcon, FileTextIcon, Sparkles, SearchIcon, UserIcon, ServerIcon } from 'lucide-react';
+import { LogIn } from './components/LogIn';
 import { CVBuilder } from './components/cv-builder';
 import { ApiDemo } from './components/ApiDemo';
-import { LogIn } from './components/LogIn';
 import { CVReview } from './components/CVReview';
 import { CoverLetter } from './components/CoverLetter';
+import { ProfileForm } from './components/profile';
 import { checkAuthStatus } from './api/backend';
 import { LogOutButton } from "@/components/LogOutButton.tsx";
 
 function App() {
-  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo' | 'log-in' | 'log-out'>('home');
+  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo' | 'log-in' | 'log-out' | 'profile' >('home');
 
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 
@@ -42,6 +43,8 @@ function App() {
         return <LogIn />;
       case 'log-out':
         return <LogOutButton />;
+      case 'profile':
+        return <ProfileForm />;
       default:
         return (
           <div className="max-w-7xl mx-auto">
@@ -112,9 +115,11 @@ function App() {
           <h1 className="text-2xl font-semibold text-slate-900">
             {activeView === 'home' ? 'Welcome back!' :
               activeView === 'cv-builder' ? 'CV Builder' :
-                activeView === 'cv-review' ? 'CV Review' :
-                  activeView === 'cover-letter' ? 'Cover Letter' :
-                    activeView === 'api-demo' ? 'API Demo' : 'Welcome'}
+                activeView === 'api-demo' ? 'API Demo' :
+                  activeView === 'profile' ? 'Profile' :
+                    activeView === 'cv-review' ? 'CV Review' :
+                      activeView === 'cover-letter' ? 'Cover Letter' :
+                        'Welcome'}
           </h1>
           <div className="flex items-center space-x-4">
             <button className="p-2 hover:bg-brand-50 rounded-full text-slate-600 hover:text-brand-600 transition-colors">
