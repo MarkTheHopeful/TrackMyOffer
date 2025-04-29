@@ -66,25 +66,40 @@ fun Route.authRouting(httpClient: HttpClient) {
     }
 
     get("/home") {
-        val userSession: UserSession? = getSession(call)
-        if (userSession != null) {
-            val userInfo: UserInfo = getPersonalGreeting(httpClient, userSession)
+        val userSession: UserSession? = call.sessions.get()
+        if (userSession != null && validateToken(httpClient, userSession)) {
+            val userInfo: UserInfo = getUserInfo(httpClient, userSession)
             application.log.debug("User ${userInfo.email} redirected to frontend")
             call.respondRedirect("http://$viteHost:$vitePort/")
+        } else {
+            application.log.debug("Invalid or expired session, redirecting to login")
+            call.sessions.clear<UserSession>()
+            call.respondRedirect("/login")
         }
     }
 
     get("/auth/status") {
         val userSession: UserSession? = call.sessions.get()
         if (userSession != null) {
-            val userInfo: UserInfo = getPersonalGreeting(httpClient, userSession)
-            application.log.debug("Auth status check: authenticated for user ${userInfo.email}")
-            call.respond(
-                AuthStatusResponse(
-                    isAuthenticated = true,
-                    userData = userInfo
+            if (validateToken(httpClient, userSession)) {
+                val userInfo: UserInfo = getUserInfo(httpClient, userSession)
+                application.log.debug("Auth status check: authenticated for user ${userInfo.email}")
+                call.respond(
+                    AuthStatusResponse(
+                        isAuthenticated = true,
+                        userData = userInfo
+                    )
                 )
-            )
+            } else {
+                application.log.debug("Auth status check: token invalid or expired")
+                call.sessions.clear<UserSession>()
+                call.respond(
+                    AuthStatusResponse(
+                        isAuthenticated = false,
+                        userData = null
+                    )
+                )
+            }
         } else {
             application.log.debug("Auth status check: not authenticated")
             call.respond(
@@ -97,7 +112,19 @@ fun Route.authRouting(httpClient: HttpClient) {
     }
 }
 
-private suspend fun getPersonalGreeting(
+private suspend fun validateToken(httpClient: HttpClient, userSession: UserSession): Boolean {
+    return try {
+        httpClient.get("https://oauth2.googleapis.com/tokeninfo") {
+            url {
+                parameters.append("access_token", userSession.token)
+            }
+        }.status == HttpStatusCode.OK
+    } catch (e: Exception) {
+        false
+    }
+}
+
+private suspend fun getUserInfo(
     httpClient: HttpClient,
     userSession: UserSession
 ): UserInfo = httpClient.get("https://www.googleapis.com/oauth2/v2/userinfo") {
