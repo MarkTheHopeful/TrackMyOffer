@@ -37,11 +37,7 @@ You can customize the host, port, and API connection using environment variables
    ```
    npm install
    ```
-3. Copy the environment file:
-   ```
-   cp .env.example .env
-   ```
-4. Start the development server:
+3. Start the development server:
    ```
    npm run dev
    ```
