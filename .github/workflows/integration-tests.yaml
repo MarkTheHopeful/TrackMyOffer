@@ -2,13 +2,11 @@ name: Integration Tests
 
 on:
   push:
-    branches: [main, dev]
     paths:
       - ".github/workflows/integration-tests.yaml"
   pull_request:
-    branches: [main, dev]
-    paths-ignore:
-      - '**.md'
+    paths:
+      - ".github/workflows/integration-tests.yaml"
 
 jobs:
   integration:
