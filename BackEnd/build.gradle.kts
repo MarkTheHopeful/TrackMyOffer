@@ -32,6 +32,9 @@ dependencies {
     implementation("io.ktor:ktor-client-cio")
     implementation("io.ktor:ktor-client-cio-jvm:3.1.2")
 
+    implementation("io.ktor:ktor-server-call-logging")
+    implementation("io.ktor:ktor-client-logging")
+
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }
