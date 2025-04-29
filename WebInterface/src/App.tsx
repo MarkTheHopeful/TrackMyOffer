@@ -2,7 +2,6 @@ import React from 'react';
 import { Navigation } from './components/navigation';
 import { Button } from './components/ui/button';
 import { BellIcon, FileTextIcon, Sparkles, SearchIcon, UserIcon, ServerIcon } from 'lucide-react';
-import { LogIn } from './components/LogIn';
 import { CVBuilder } from './components/cv-builder';
 import { ApiDemo } from './components/ApiDemo';
 import { CVReview } from './components/CVReview';

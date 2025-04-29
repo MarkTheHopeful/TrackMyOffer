@@ -20,6 +20,7 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.request.*
 import kotlinx.html.*
 import kotlinx.serialization.*
+import io.ktor.server.application.log
 
 fun Route.authRouting(httpClient: HttpClient) {
     val vitePort = environment.config.propertyOrNull("ktor.frontend_vite.port")?.getString() ?: "5000"
@@ -27,6 +28,7 @@ fun Route.authRouting(httpClient: HttpClient) {
 
     authenticate("google-oauth") {
         get("/login") {
+            application.log.info("Initiating Google OAuth login")
             // Redirect to Google OAuth
         }
 
@@ -37,27 +39,28 @@ fun Route.authRouting(httpClient: HttpClient) {
                 principal.state?.let { state ->
                     call.sessions.set(UserSession(state, principal.accessToken))
                     call.respondRedirect("/home")
-                    println("callback")
+                    application.log.info("OAuth callback successful, session created")
                     return@get // Ensure no further response is sent
                 }
             }
 
+            application.log.warn("OAuth callback failed, redirecting to login")
             call.respondRedirect("/login")
         }
     }
 
     post("/logout") {
-        println("Logout request received")
+        application.log.info("Logout request received")
         val userSession: UserSession? = call.sessions.get()
         
         // Clear the session regardless of whether it exists
         call.sessions.clear<UserSession>()
         
         if (userSession != null) {
-            println("Valid session found and cleared")
+            application.log.info("Valid session found and cleared")
             call.respond(HttpStatusCode.OK, mapOf("status" to "success"))
         } else {
-            println("No valid session found")
+            application.log.info("No valid session found")
             call.respond(HttpStatusCode.OK, mapOf("status" to "already_logged_out"))
         }
     }
@@ -66,16 +69,16 @@ fun Route.authRouting(httpClient: HttpClient) {
         val userSession: UserSession? = getSession(call)
         if (userSession != null) {
             val userInfo: UserInfo = getPersonalGreeting(httpClient, userSession)
+            application.log.debug("User ${userInfo.email} redirected to frontend")
             call.respondRedirect("http://$viteHost:$vitePort/")
         }
     }
 
     get("/auth/status") {
-
         val userSession: UserSession? = call.sessions.get()
         if (userSession != null) {
             val userInfo: UserInfo = getPersonalGreeting(httpClient, userSession)
-            println("authenticated")
+            application.log.debug("Auth status check: authenticated for user ${userInfo.email}")
             call.respond(
                 AuthStatusResponse(
                     isAuthenticated = true,
@@ -83,7 +86,7 @@ fun Route.authRouting(httpClient: HttpClient) {
                 )
             )
         } else {
-            println("not authenticated")
+            application.log.debug("Auth status check: not authenticated")
             call.respond(
                 AuthStatusResponse(
                     isAuthenticated = false,

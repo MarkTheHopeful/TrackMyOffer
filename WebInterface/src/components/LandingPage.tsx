@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button } from './ui/button';
 import { Sparkles, FileText, Search, Shield } from 'lucide-react';
 
