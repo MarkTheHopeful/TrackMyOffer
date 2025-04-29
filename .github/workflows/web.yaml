@@ -2,6 +2,7 @@ name: Web Interface Tests
 
 on:
   push:
+    branches-ignore: [main]
     paths:
       - 'WebInterface/**'
       - '.github/workflows/web.yaml'

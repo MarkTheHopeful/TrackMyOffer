@@ -2,6 +2,7 @@ name: Backend Tests
 
 on:
   push:
+    branches-ignore: [main]
     paths:
       - 'BackEnd/**'
       - '.github/workflows/backend.yaml'
