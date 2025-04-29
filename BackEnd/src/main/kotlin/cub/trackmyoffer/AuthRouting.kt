@@ -37,11 +37,28 @@ fun Route.authRouting(httpClient: HttpClient) {
                 principal.state?.let { state ->
                     call.sessions.set(UserSession(state, principal.accessToken))
                     call.respondRedirect("/home")
+                    println("callback")
                     return@get // Ensure no further response is sent
                 }
             }
 
             call.respondRedirect("/login")
+        }
+    }
+
+    post("/logout") {
+        println("Logout request received")
+        val userSession: UserSession? = call.sessions.get()
+        
+        // Clear the session regardless of whether it exists
+        call.sessions.clear<UserSession>()
+        
+        if (userSession != null) {
+            println("Valid session found and cleared")
+            call.respond(HttpStatusCode.OK, mapOf("status" to "success"))
+        } else {
+            println("No valid session found")
+            call.respond(HttpStatusCode.OK, mapOf("status" to "already_logged_out"))
         }
     }
 
@@ -53,9 +70,27 @@ fun Route.authRouting(httpClient: HttpClient) {
         }
     }
 
-    get("/logout") {
-        call.sessions.clear<UserSession>()
-        call.respondRedirect("/login")
+    get("/auth/status") {
+
+        val userSession: UserSession? = call.sessions.get()
+        if (userSession != null) {
+            val userInfo: UserInfo = getPersonalGreeting(httpClient, userSession)
+            println("authenticated")
+            call.respond(
+                AuthStatusResponse(
+                    isAuthenticated = true,
+                    userData = userInfo
+                )
+            )
+        } else {
+            println("not authenticated")
+            call.respond(
+                AuthStatusResponse(
+                    isAuthenticated = false,
+                    userData = null
+                )
+            )
+        }
     }
 }
 
@@ -92,4 +127,10 @@ data class UserInfo(
     @SerialName("given_name") val givenName: String,
     @SerialName("family_name") val familyName: String,
     val picture: String
+)
+
+@Serializable
+data class AuthStatusResponse(
+    val isAuthenticated: Boolean,
+    val userData: UserInfo?
 )

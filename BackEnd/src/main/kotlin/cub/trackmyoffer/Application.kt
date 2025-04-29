@@ -8,7 +8,8 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.routing.*
 import io.ktor.client.call.*
-import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as ClientContentNegotiation
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation as ServerContentNegotiation
 import io.ktor.client.request.*
 import io.ktor.server.auth.*
 import io.ktor.server.html.*
@@ -23,7 +24,7 @@ import kotlinx.serialization.json.Json
 fun main(args: Array<String>) = EngineMain.main(args)
 
 val applicationHttpClient = HttpClient(CIO) {
-    install(ContentNegotiation) {
+    install(ClientContentNegotiation) {
         json(Json {
             ignoreUnknownKeys = true // Optional but recommended
         })
@@ -45,12 +46,28 @@ fun Application.module() {
 
     // TODO: setup cors properly
     install(CORS) {
-        anyHost()
+        allowHost("localhost:5000", schemes = listOf("http"))
+        allowHost("localhost:8080", schemes = listOf("http"))
+        allowCredentials = true
+        allowMethod(HttpMethod.Get)
+        allowMethod(HttpMethod.Post)
+        allowMethod(HttpMethod.Options)  // Important for preflight requests
         allowHeader(HttpHeaders.ContentType)
+        allowHeader(HttpHeaders.Authorization)
+        allowHeader(HttpHeaders.Accept)
+        exposeHeader(HttpHeaders.ContentType)
+        exposeHeader(HttpHeaders.Authorization)
     }
 
     install(Sessions) {
-        cookie<UserSession>("user_session")
+        cookie<UserSession>("user_session") {
+            cookie.path = "/"
+            cookie.secure = false // Set to true in production
+        }
+    }
+
+    install(ServerContentNegotiation) {
+        json()
     }
 
     install(Authentication) {

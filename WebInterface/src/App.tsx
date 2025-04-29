@@ -7,9 +7,26 @@ import { ApiDemo } from './components/ApiDemo';
 import { LogIn } from './components/LogIn';
 import { CVReview } from './components/CVReview';
 import { CoverLetter } from './components/CoverLetter';
+import { checkAuthStatus } from './api/backend';
+import { LogOutButton } from "@/components/LogOutButton.tsx";
 
 function App() {
-  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo'>('home');
+  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo' | 'log-in' | 'log-out'>('home');
+
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+
+  React.useEffect(() => {
+    console.log('Checking auth status...');
+    checkAuthStatus().then((status) => {
+      console.log('Auth status:', status.authenticated);
+      setIsLoggedIn(status.authenticated);
+    }).catch((err) => console.error('Auth check failed', err));
+  }, []);
+
+  // Add logging for activeView and isLoggedIn changes
+  React.useEffect(() => {
+    console.log('Button render conditions:', { activeView, isLoggedIn });
+  }, [activeView, isLoggedIn]);
 
   const renderContent = () => {
     switch (activeView) {
@@ -23,6 +40,8 @@ function App() {
         return <ApiDemo />;
       case 'log-in':
         return <LogIn />;
+      case 'log-out':
+        return <LogOutButton />;
       default:
         return (
           <div className="max-w-7xl mx-auto">
@@ -102,10 +121,18 @@ function App() {
               <BellIcon className="w-6 h-6" />
             </button>
             {activeView === 'home' ? (
-              <Button variant="primary" className="flex items-center gap-2" onClick={() => setActiveView('log-in')}>
-                <UserIcon className="w-4 h-4" />
-                Log in / Register
-              </Button>
+                isLoggedIn ? (
+                    <Button variant="primary" className="flex items-center gap-2" onClick={() => setActiveView('log-out')}>
+                      <UserIcon className="w-4 h-4" />
+                      Log out
+                    </Button>
+                ) :
+                (
+                    <Button variant="primary" className="flex items-center gap-2" onClick={() => setActiveView('log-in')}>
+                      <UserIcon className="w-4 h-4" />
+                      Log in / Register
+                    </Button>
+                )
             ) : null}
           </div>
         </header>

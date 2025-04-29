@@ -1,15 +1,12 @@
-import { useState } from "react";
-import { authentify } from "@/api/backend.ts";
+import { useState } from 'react';;
+import { logout } from "@/api/backend.ts";
 
-export function LogInButton() {
-    const [result, setResult] = useState<string | null>(null);
+export function LogOutButton() {
     const [error, setError] = useState<string | null>(null);
 
     const handleClick = async () => {
         try {
-            const response = await authentify();
-            console.log("LogIn response:", response);
-            setResult(response);
+            logout();
             setError(null);
         } catch (error) {
             console.error("Error during login:", error);
@@ -20,9 +17,8 @@ export function LogInButton() {
     return (
         <div className="space-y-2">
             <button onClick={handleClick} className="bg-blue-500 text-white px-4 py-2 rounded">
-                Log In
+                Log Out
             </button>
-            {result && <p className="text-slate-700">Response: {result}</p>}
             {error && <p className="text-red-500">{error}</p>}
         </div>
     );
