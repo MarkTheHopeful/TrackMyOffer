@@ -14,11 +14,7 @@ export const PrivacyAndTerms = () => {
                 <h3 className="text-lg font-semibold mt-4">1. Verantwortlicher</h3>
                 <p className="text-slate-700">Verantwortlicher im Sinne der DSGVO ist:</p>
                 <ul className="list-disc pl-6 text-slate-700">
-                    <li>[Ihr Unternehmensname]</li>
-                    <li>[Adresse]</li>
-                    <li>[Telefonnummer]</li>
-                    <li>[E-Mail-Adresse]</li>
-                    <li>[Handelsregister-Nummer, falls zutreffend]</li>
+                    <li>tkudashev [at] constructor [dot] university</li>
                 </ul>
                 <h3 className="text-lg font-semibold mt-4">2. Erhebung und Verarbeitung personenbezogener Daten</h3>
                 <p className="text-slate-700">Wir erheben und verarbeiten folgende Kategorien personenbezogener
@@ -204,11 +200,7 @@ export const PrivacyAndTerms = () => {
             <h3 className="text-lg font-semibold mt-4">1. Data Controller</h3>
             <p className="text-slate-700">The controller under the GDPR is:</p>
             <ul className="list-disc pl-6 text-slate-700">
-            <li>[Your Company Name]</li>
-            <li>[Address]</li>
-            <li>[Phone Number]</li>
-            <li>[Email Address]</li>
-            <li>[Commercial Register Number, if applicable]</li>
+            <li>tkudashev [at] constructor [dot] university</li>
             </ul>
 
             <h3 className="text-lg font-semibold mt-4">2. Collection and Processing of Personal Data</h3>
