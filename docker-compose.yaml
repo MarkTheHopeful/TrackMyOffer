@@ -24,6 +24,9 @@ services:
     build: ./FeaturesProvider
     ports:
       - "3002:3002"
+    environment:
+      - DB_HOST=features_db
+      - DB_PORT=5432
     env_file:
       - ./FeaturesProvider/.env
     depends_on:
