@@ -25,6 +25,25 @@ Btw, don't forget to update .gitignore
 
 ## How to run
 
+### Docker
+
+The easiest way to run the application is using Docker:
+
+1. Build the Docker image:
+   ```bash
+   docker build -t features-provider .
+   ```
+
+2. Run the Docker container:
+   ```bash
+   docker run -p 8000:8000 features-provider
+   ```
+
+You can customize the host, port, and API key using environment variables:
+   ```bash
+   docker run -p 9000:9000 -e PORT=9000 -e HOST=0.0.0.0 -e API_KEY=your-api-key features-provider
+   ```
+
 ### Easy Setup
 
 We've provided scripts to make setup and running easy:
@@ -53,7 +72,7 @@ If you prefer to set up manually:
    ```
 
 2. Activate the virtual environment:
-   
+
    ```bash
    source venv/bin/activate
    ```

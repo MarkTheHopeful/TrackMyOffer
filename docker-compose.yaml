@@ -1,0 +1,29 @@
+services:
+  web:
+    build: ./WebInterface
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_DEV_HOST=0.0.0.0
+      - VITE_DEV_PORT=3000
+      - VITE_API_HOST=0.0.0.0
+      - VITE_API_PORT=3001
+    depends_on:
+      - backend
+      - featuresprovider
+  backend:
+    build: ./BackEnd
+    ports:
+      - "3001:3001"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3001
+      - PROVIDER_HOST=0.0.0.0
+      - PROVIDER_PORT=3002
+  featuresprovider:
+    build: ./FeaturesProvider
+    ports:
+      - "3002:3002"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3002

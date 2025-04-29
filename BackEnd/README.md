@@ -55,3 +55,37 @@ http://localhost:8080/v0/swagger
 ```
 
 The Swagger UI is served by the Ktor Swagger plugin and uses the specification file mentioned above.
+
+## Docker
+
+The project includes a Dockerfile that allows you to build and run the application in a Docker container.
+
+### Building the Docker Image
+
+To build the Docker image, run the following command from the BackEnd directory:
+
+```
+docker build -t trackmyoffer-backend .
+```
+
+### Running the Docker Container
+
+To run the Docker container with default settings:
+
+```
+docker run -p 8080:8080 trackmyoffer-backend
+```
+
+### Environment Variables
+
+You can override the default settings by providing environment variables:
+
+```
+docker run -p 9090:9090 -e PORT=9090 -e HOST=0.0.0.0 -e PROVIDER_PORT=8081 -e PROVIDER_HOST=features-provider trackmyoffer-backend
+```
+
+Available environment variables:
+- `PORT`: The port on which the server will listen (default: 8080)
+- `HOST`: The host address to bind to (default: 0.0.0.0)
+- `PROVIDER_PORT`: The port of the features provider service (default: 8081)
+- `PROVIDER_HOST`: The host of the features provider service (default: 0.0.0.0)
