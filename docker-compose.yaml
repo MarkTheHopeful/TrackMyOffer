@@ -30,7 +30,8 @@ services:
     env_file:
       - ./FeaturesProvider/.env
     depends_on:
-      - features_db
+      features_db:
+        condition: service_healthy
   features_db:
     image: postgres:14-alpine
     container_name: features_db
