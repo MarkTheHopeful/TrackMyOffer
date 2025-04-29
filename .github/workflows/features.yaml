@@ -14,6 +14,21 @@ jobs:
       run:
         working-directory: FeaturesProvider
 
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: features_user
+          POSTGRES_PASSWORD: features_password
+          POSTGRES_DB: features_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v3
 
@@ -32,5 +47,17 @@ jobs:
       - name: Lint with flake8
         run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 
+      - name: Setup database
+        run: |
+          if [ -f database/initial_database.sql ]; then
+            PGPASSWORD=features_password psql -h localhost -U features_user -d features_db -f database/initial_database.sql
+          fi
+
       - name: Run tests
         run: pytest
+        env:
+          DB_USER: features_user
+          DB_PASSWORD: features_password
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: features_db
