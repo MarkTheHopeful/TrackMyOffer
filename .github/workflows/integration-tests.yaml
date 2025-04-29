@@ -2,11 +2,12 @@ name: Integration Tests
 
 on:
   push:
-    paths:
-      - ".github/workflows/integration-tests.yaml"
+    branches:
+      - dev
   pull_request:
-    paths:
-      - ".github/workflows/integration-tests.yaml"
+    branches:
+      - main
+      - dev
 
 jobs:
   integration:

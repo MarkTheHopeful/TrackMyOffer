@@ -6,8 +6,6 @@ on:
       - 'WebInterface/**'
       - '.github/workflows/web.yaml'
   pull_request:
-    paths:
-      - 'WebInterface/**'
 
 jobs:
   test:

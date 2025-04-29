@@ -6,8 +6,6 @@ on:
       - 'BackEnd/**'
       - '.github/workflows/backend.yaml'
   pull_request:
-    paths:
-      - 'BackEnd/**'
 
 jobs:
   test:

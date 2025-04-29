@@ -6,8 +6,6 @@ on:
       - 'FeaturesProvider/**'
       - '.github/workflows/features.yaml'
   pull_request:
-    paths:
-      - 'FeaturesProvider/**'
 
 jobs:
   test:
