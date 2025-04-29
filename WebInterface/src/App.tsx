@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigation } from './components/navigation';
 import { Button } from './components/ui/button';
-import { BellIcon, FileTextIcon, PlusIcon, Sparkles, SearchIcon, UserIcon, ServerIcon } from 'lucide-react';
+import { BellIcon, FileTextIcon, Sparkles, SearchIcon, UserIcon, ServerIcon } from 'lucide-react';
 import { CVBuilder } from './components/cv-builder';
 import { ApiDemo } from './components/ApiDemo';
 import { CVReview } from './components/CVReview';
