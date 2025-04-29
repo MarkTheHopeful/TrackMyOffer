@@ -6,6 +6,7 @@ on:
       - 'FeaturesProvider/**'
       - '.github/workflows/features.yaml'
   pull_request:
+    branches: [main, dev]
     paths:
       - 'FeaturesProvider/**'
 

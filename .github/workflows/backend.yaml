@@ -6,6 +6,7 @@ on:
       - 'BackEnd/**'
       - '.github/workflows/backend.yaml'
   pull_request:
+    branches: [main, dev]
     paths:
       - 'BackEnd/**'
 
