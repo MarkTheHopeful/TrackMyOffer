@@ -1,0 +1,49 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [ main, dev ]
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    branches: [ main, dev ]
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build services with Docker Compose
+        run: docker-compose build
+
+      - name: Start services
+        run: docker-compose up -d
+
+      - name: Wait for services to start
+        run: sleep 30
+
+      - name: Check if services are running
+        run: |
+          docker-compose ps
+          curl -s --retry 5 --retry-delay 5 --retry-connrefused http://localhost:3000 > /dev/null || (echo "Web service not responding" && exit 1)
+          curl -s --retry 5 --retry-delay 5 --retry-connrefused http://localhost:3001/v0/ > /dev/null || (echo "Backend service not responding" && exit 1)
+          curl -s --retry 5 --retry-delay 5 --retry-connrefused http://localhost:3002/ > /dev/null || (echo "Features Provider not responding" && exit 1)
+
+      - name: Run basic integration test
+        run: |
+          RESPONSE=$(curl -s http://localhost:3001/v0/)
+          echo "Response from backend: $RESPONSE"
+          if [[ "$RESPONSE" != *"Hello"* ]]; then
+            echo "Basic integration test failed"
+            exit 1
+          fi
+
+      - name: Stop services
+        run: docker-compose down
