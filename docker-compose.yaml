@@ -6,7 +6,7 @@ services:
     environment:
       - VITE_DEV_HOST=0.0.0.0
       - VITE_DEV_PORT=3000
-      - VITE_API_HOST=0.0.0.0
+      - VITE_API_HOST=backend
       - VITE_API_PORT=3001
     depends_on:
       - backend
@@ -18,7 +18,7 @@ services:
     environment:
       - HOST=0.0.0.0
       - PORT=3001
-      - PROVIDER_HOST=0.0.0.0
+      - PROVIDER_HOST=featuresprovider
       - PROVIDER_PORT=3002
   featuresprovider:
     build: ./FeaturesProvider
@@ -27,3 +27,5 @@ services:
     environment:
       - HOST=0.0.0.0
       - PORT=3002
+    env_file:
+      - ./FeaturesProvider/.env
