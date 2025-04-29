@@ -2,12 +2,10 @@ name: Features Provider Tests
 
 on:
   push:
-    branches-ignore: [main]
     paths:
       - 'FeaturesProvider/**'
       - '.github/workflows/features.yaml'
   pull_request:
-    branches: [main, dev]
     paths:
       - 'FeaturesProvider/**'
 
