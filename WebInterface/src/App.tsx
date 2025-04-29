@@ -8,26 +8,47 @@ import { ApiDemo } from './components/ApiDemo';
 import { CVReview } from './components/CVReview';
 import { CoverLetter } from './components/CoverLetter';
 import { ProfileForm } from './components/profile';
-import { checkAuthStatus } from './api/backend';
+import { checkAuthStatus, authentify } from './api/backend';
 import { LogOutButton } from "@/components/LogOutButton.tsx";
+import { LandingPage } from './components/LandingPage';
 
 function App() {
-  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo' | 'log-in' | 'log-out' | 'profile' >('home');
-
+  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo' | 'log-in' | 'log-out' | 'profile'>('home');
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
     console.log('Checking auth status...');
     checkAuthStatus().then((status) => {
       console.log('Auth status:', status.authenticated);
       setIsLoggedIn(status.authenticated);
-    }).catch((err) => console.error('Auth check failed', err));
+      setIsLoading(false);
+    }).catch((err) => {
+      console.error('Auth check failed', err);
+      setIsLoading(false);
+    });
   }, []);
 
   // Add logging for activeView and isLoggedIn changes
   React.useEffect(() => {
-    console.log('Button render conditions:', { activeView, isLoggedIn });
+    console.log('State updated:', { activeView, isLoggedIn });
   }, [activeView, isLoggedIn]);
+
+  const handleLoginClick = () => {
+    authentify();
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
+      </div>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return <LandingPage onLoginClick={handleLoginClick} />;
+  }
 
   const renderContent = () => {
     switch (activeView) {
@@ -39,8 +60,6 @@ function App() {
         return <CoverLetter />;
       case 'api-demo':
         return <ApiDemo />;
-      case 'log-in':
-        return <LogIn />;
       case 'log-out':
         return <LogOutButton />;
       case 'profile':
@@ -125,20 +144,10 @@ function App() {
             <button className="p-2 hover:bg-brand-50 rounded-full text-slate-600 hover:text-brand-600 transition-colors">
               <BellIcon className="w-6 h-6" />
             </button>
-            {activeView === 'home' ? (
-                isLoggedIn ? (
-                    <Button variant="primary" className="flex items-center gap-2" onClick={() => setActiveView('log-out')}>
-                      <UserIcon className="w-4 h-4" />
-                      Log out
-                    </Button>
-                ) :
-                (
-                    <Button variant="primary" className="flex items-center gap-2" onClick={() => setActiveView('log-in')}>
-                      <UserIcon className="w-4 h-4" />
-                      Log in / Register
-                    </Button>
-                )
-            ) : null}
+            <Button variant="primary" className="flex items-center gap-2" onClick={() => setActiveView('log-out')}>
+              <UserIcon className="w-4 h-4" />
+              Log out
+            </Button>
           </div>
         </header>
 
