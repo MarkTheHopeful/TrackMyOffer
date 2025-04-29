@@ -192,6 +192,168 @@ export const PrivacyAndTerms = () => {
                     Datenschutz-Folgenabschätzung gemäß Art. 35 DSGVO durch, um potenzielle Risiken für Ihre Rechte und
                     Freiheiten zu identifizieren und geeignete Maßnahmen zu deren Minderung zu ergreifen.</p>
             </section>
+
+            <br/>
+            <hr/>
+            <br/>
+
+            <section className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">Privacy Policy</h2>
+            <p className="text-slate-700">This Privacy Policy explains how we collect, use, and share your personal data in accordance with the General Data Protection Regulation (GDPR), the Federal Data Protection Act (BDSG), and the Telecommunications and Digital Services Data Protection Act (TDDDG).</p>
+
+            <h3 className="text-lg font-semibold mt-4">1. Data Controller</h3>
+            <p className="text-slate-700">The controller under the GDPR is:</p>
+            <ul className="list-disc pl-6 text-slate-700">
+            <li>[Your Company Name]</li>
+            <li>[Address]</li>
+            <li>[Phone Number]</li>
+            <li>[Email Address]</li>
+            <li>[Commercial Register Number, if applicable]</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold mt-4">2. Collection and Processing of Personal Data</h3>
+            <p className="text-slate-700">We collect and process the following categories of personal data:</p>
+            <ul className="list-disc pl-6 text-slate-700">
+            <li>Data provided by you: name, email address, resume (CV), cover letter, and other application documents.</li>
+            <li>Automatically collected data: IP address, browser type, operating system, access times, visited pages, and other technical information via cookies and similar technologies.</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold mt-4">3. Purposes of Data Processing</h3>
+            <p className="text-slate-700">Your personal data is processed for the following purposes:</p>
+            <ul className="list-disc pl-6 text-slate-700">
+            <li>Providing and improving our services.</li>
+            <li>Personalizing your user experience.</li>
+            <li>Communicating with you regarding your inquiries or applications.</li>
+            <li>Complying with legal obligations.</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold mt-4">4. Legal Basis for Processing</h3>
+            <p className="text-slate-700">Your data will only be shared with third parties:</p>
+            <ul className="list-disc pl-6 text-slate-700">
+            <li>If you have explicitly consented.</li>
+            <li>If it is necessary to fulfill a contract.</li>
+            <li>If we are legally obliged to do so.</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold mt-4">5. Data Disclosure</h3>
+            <p className="text-slate-700">Your personal data is processed for the following purposes:</p>
+            <ul className="list-disc pl-6 text-slate-700">
+            <li>Providing and improving our services.</li>
+            <li>Personalizing your user experience.</li>
+            <li>Communicating with you regarding your inquiries or applications.</li>
+            <li>Complying with legal obligations.</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold mt-4">6. Data Transfer to Third Countries</h3>
+            <p className="text-slate-700">If your data is transferred to countries outside the European Economic Area (EEA), we ensure that appropriate safeguards are implemented according to Art. 44 et seq. GDPR.</p>
+
+            <h3 className="text-lg font-semibold mt-4">7. Data Retention</h3>
+            <p className="text-slate-700">We only retain your personal data for as long as necessary to fulfill the stated purposes or as required by law.</p>
+
+            <h3 className="text-lg font-semibold mt-4">8. Your Rights</h3>
+            <p className="text-slate-700">You have the right to:</p>
+            <ul className="list-disc pl-6 text-slate-700">
+            <li>Access your stored data (Art. 15 GDPR).</li>
+            <li>Request correction of inaccurate data (Art. 16 GDPR).</li>
+            <li>Request deletion of your data (Art. 17 GDPR).</li>
+            <li>Request restriction of processing (Art. 18 GDPR).</li>
+            <li>Data portability (Art. 20 GDPR).</li>
+            <li>Object to processing (Art. 21 GDPR).</li>
+            <li>Withdraw your consent at any time (Art. 7 (3) GDPR).</li>
+            <li>Lodge a complaint with a supervisory authority (Art. 77 GDPR).</li>
+            </ul>
+            </section>
+
+            <section className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">Terms and Conditions</h2>
+            <p className="text-slate-700">These terms and conditions govern the use of our platform. By using our services, you agree to these terms.</p>
+
+            <h3 className="text-lg font-semibold mt-4">1. Scope</h3>
+            <p className="text-slate-700">These terms apply to all contracts between us and our users through our platform.</p>
+
+            <h3 className="text-lg font-semibold mt-4">2. Registration and User Account</h3>
+            <ul className="list-disc pl-6 text-slate-700">
+            <li>Users must provide truthful and complete information during registration.</li>
+            <li>Users must keep their login credentials confidential and protect them from third-party access.</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold mt-4">3. Services</h3>
+            <p className="text-slate-700">We offer a platform to support job searching, including AI-based analysis of resumes and cover letters.</p>
+
+            <h3 className="text-lg font-semibold mt-4">4. User Obligations</h3>
+            <ul className="list-disc pl-6 text-slate-700">
+            <li>The platform must not be used for unlawful purposes.</li>
+            <li>Users must not upload content that violates applicable laws or third-party rights.</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold mt-4">5. Liability</h3>
+            <ul className="list-disc pl-6 text-slate-700">
+            <li>We are liable without limitation for intent and gross negligence.</li>
+            <li>In cases of slight negligence, we are only liable for breach of essential contractual obligations (cardinal obligations).</li>
+            <li>In such cases, liability is limited to foreseeable, contract-typical damage.</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold mt-4">6. Changes to Terms</h3>
+            <p className="text-slate-700">We reserve the right to amend these terms at any time. Changes will be communicated to users in a timely manner. If the user does not object within 14 days, the changes are deemed accepted.</p>
+
+            <h3 className="text-lg font-semibold mt-4">7. Final Provisions</h3>
+            <ul className="list-disc pl-6 text-slate-700">
+            <li>The law of the Federal Republic of Germany applies.</li>
+            <li>The place of jurisdiction, where legally permissible, is our business location.</li>
+            </ul>
+            </section>
+
+            <section>
+            <h2 className="text-xl font-semibold mb-4">Processing of Your Data by Our AI</h2>
+            <p className="text-slate-700">We place great importance on transparency and data protection when processing your personal data with our AI systems. Our measures comply with the GDPR, the BDSG, and current guidelines of German data protection authorities.</p>
+
+            <h3 className="text-lg font-semibold mt-4">1. Purpose and Scope of Data Processing</h3>
+            <p className="text-slate-700">Our AI systems process your personal data solely for the following purposes:</p>
+            <ul className="list-disc pl-6 text-slate-700">
+            <li>To analyze and optimize your application documents (e.g., resumes, cover letters) and provide personalized job search recommendations.</li>
+            <li>To improve our services by using aggregated and anonymized data to evaluate and optimize AI performance.</li>
+            </ul>
+            <p className="text-slate-700">Processing is based on Art. 6(1)(b) GDPR (contract performance) or your explicit consent pursuant to Art. 6(1)(a) GDPR, if required.</p>
+
+            <h3 className="text-lg font-semibold mt-4">2. Transparency and Information</h3>
+            <p className="text-slate-700">We inform you in accordance with Art. 13 and 14 GDPR about the processing of your data. This includes:</p>
+            <ul className="list-disc pl-6 text-slate-700">
+            <li>Processing purposes and underlying logic of our AI systems.</li>
+            <li>Categories of data processed and their origin.</li>
+            <li>Recipients or categories of recipients of your data.</li>
+            <li>Retention periods or criteria for determining them.</li>
+            <li>Your rights as a data subject.</li>
+            </ul>
+            <p className="text-slate-700">We provide this information in a clear and understandable manner, for example in this privacy statement or directly when collecting the data.</p>
+
+            <h3 className="text-lg font-semibold mt-4">3. Automated Decisions and Profiling</h3>
+            <p className="text-slate-700">Our AI systems support you in creating and optimizing your application documents. However, no automated decision-making under Art. 22 GDPR takes place that would have legal effects or similarly significant consequences for you. If such processing does occur in individual cases, we ensure:</p>
+            <ul className="list-disc pl-6 text-slate-700">
+            <li>Transparent information about the underlying logic and significance of the processing.</li>
+            <li>Options to object and request human intervention.</li>
+            <li>Appropriate measures to protect your rights and freedoms.</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold mt-4">4. Use of Data for AI Training</h3>
+            <p className="text-slate-700">Your personal data will not be used for training our AI models unless you have given us explicit consent. If we plan such use, we will:</p>
+            <ul className="list-disc pl-6 text-slate-700">
+            <li>Obtain your consent under Art. 6(1)(a) GDPR.</li>
+            <li>Provide transparent information on the purpose and scope of data use.</li>
+            <li>Offer opt-out options, where legally required.</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold mt-4">5. Security and Data Protection by Design</h3>
+            <p className="text-slate-700">We implement technical and organizational measures to ensure the protection of your data:</p>
+            <ul className="list-disc pl-6 text-slate-700">
+            <li>Encryption of your data during transmission and storage.</li>
+            <li>Access restrictions and authentication procedures to prevent unauthorized access.</li>
+            <li>Privacy by design and default in accordance with Art. 25 GDPR.</li>
+            <li>Regular review and updates of our security measures.</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold mt-4">6. Data Protection Impact Assessment (DPIA)</h3>
+            <p className="text-slate-700">Before introducing new AI systems, we conduct a Data Protection Impact Assessment according to Art. 35 GDPR to identify and mitigate potential risks to your rights and freedoms.</p>
+            </section>
         </div>
     );
 };
