@@ -8,9 +8,10 @@ import { ApiDemo } from './components/ApiDemo';
 import { CVReview } from './components/CVReview';
 import { CoverLetter } from './components/CoverLetter';
 import { ProfileForm } from './components/profile';
+import { PrivacyAndTerms } from "@/components/PrivacyAndTerms.tsx";
 
 function App() {
-  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo' | 'profile' | 'log-in'>('home');
+  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo' | 'profile' | 'log-in' | 'privacy-and-terms'>('home');
 
   const renderContent = () => {
     switch (activeView) {
@@ -26,6 +27,8 @@ function App() {
         return <LogIn />;
       case 'profile':
         return <ProfileForm />;
+      case 'privacy-and-terms':
+        return <PrivacyAndTerms />;
       default:
         return (
           <div className="max-w-7xl mx-auto">
@@ -100,7 +103,8 @@ function App() {
                   activeView === 'profile' ? 'Profile' :
                     activeView === 'cv-review' ? 'CV Review' :
                       activeView === 'cover-letter' ? 'Cover Letter' :
-                        'Welcome'}
+                        activeView === 'privacy-and-terms' ? 'Privacy And Terms' :
+                                'Welcome'}
           </h1>
           <div className="flex items-center space-x-4">
             <button className="p-2 hover:bg-brand-50 rounded-full text-slate-600 hover:text-brand-600 transition-colors">
