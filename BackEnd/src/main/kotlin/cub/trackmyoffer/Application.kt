@@ -2,9 +2,11 @@ package cub.trackmyoffer
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.routing.*
 import io.ktor.client.call.*
@@ -37,6 +39,11 @@ fun Application.module() {
     val fProviderPort = environment.config.propertyOrNull("ktor.feature_provider.port")?.getString() ?: "8081"
 
     val httpClient = HttpClient(CIO) {
+        install(Logging) {
+            logger = Logger.DEFAULT
+            level = LogLevel.HEADERS
+        }
+
         expectSuccess = false
         engine {
             requestTimeout = 10_000
@@ -49,6 +56,7 @@ fun Application.module() {
         allowHeader(HttpHeaders.ContentType)
     }
 
+    install(CallLogging)
     install(Sessions) {
         cookie<UserSession>("user_session")
     }

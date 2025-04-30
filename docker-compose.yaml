@@ -1,0 +1,64 @@
+services:
+  web:
+    build: ./WebInterface
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_DEV_HOST=0.0.0.0
+      - VITE_DEV_PORT=3000
+      - VITE_API_HOST=backend
+      - VITE_API_PORT=3001
+    depends_on:
+      - backend
+      - featuresprovider
+    env_file:
+      - WebInterface/.env
+  backend:
+    build: ./BackEnd
+    ports:
+      - "3001:3001"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3001
+      - OAUTH_HOST=localhost
+      - OAUTH_PORT=3001
+      - PROVIDER_HOST=featuresprovider
+      - PROVIDER_PORT=3002
+      - VITE_HOST=localhost
+      - VITE_PORT=3000
+    env_file:
+      - BackEnd/.env
+  featuresprovider:
+    build: ./FeaturesProvider
+    ports:
+      - "3002:3002"
+    environment:
+      - DB_HOST=features_db
+      - DB_PORT=5432
+    env_file:
+      - ./FeaturesProvider/.env
+    depends_on:
+      features_db:
+        condition: service_healthy
+  features_db:
+    image: postgres:14-alpine
+    container_name: features_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: features_user
+      POSTGRES_PASSWORD: features_password
+      POSTGRES_DB: features_db
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "3003:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./FeaturesProvider/database/initial_database.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U features_user -d features_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
