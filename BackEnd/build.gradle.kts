@@ -43,6 +43,7 @@ dependencies {
     implementation("io.ktor:ktor-server-sessions")
     implementation("io.ktor:ktor-server-html-builder")
     implementation("io.ktor:ktor-client-content-negotiation")
+    implementation("io.ktor:ktor-server-content-negotiation")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     testImplementation("io.ktor:ktor-server-test-host-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test")

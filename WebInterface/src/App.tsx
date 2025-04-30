@@ -2,16 +2,79 @@ import React from 'react';
 import { Navigation } from './components/navigation';
 import { Button } from './components/ui/button';
 import { BellIcon, FileTextIcon, Sparkles, SearchIcon, UserIcon, ServerIcon } from 'lucide-react';
-import { LogIn } from './components/LogIn';
 import { CVBuilder } from './components/cv-builder';
 import { ApiDemo } from './components/ApiDemo';
 import { CVReview } from './components/CVReview';
 import { CoverLetter } from './components/CoverLetter';
 import { ProfileForm } from './components/profile';
+import { checkAuthStatus, authentify, logout } from './api/backend';
+import { LandingPage } from './components/LandingPage';
 import { PrivacyAndTerms } from "@/components/PrivacyAndTerms.tsx";
 
+interface UserData {
+  id: string;
+  email: string;
+  name: string;
+  picture: string;
+}
+
 function App() {
-  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo' | 'profile' | 'log-in' | 'privacy-and-terms'>('home');
+  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo' | 'profile' | 'privacy-and-terms'>('home');
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [userData, setUserData] = React.useState<UserData | null>(null);
+  const [imageError, setImageError] = React.useState(false);
+
+  React.useEffect(() => {
+    console.log('Checking auth status...');
+    checkAuthStatus().then((status) => {
+      console.log('Auth status:', status.authenticated);
+      setIsLoggedIn(status.authenticated);
+      if (status.authenticated && status.user) {
+        const data = status.user;
+        setUserData({
+          id: String(data.id || ''),
+          email: data.email || '',
+          name: data.username || '',
+          picture: data.picture || ''
+        });
+      }
+      setIsLoading(false);
+    }).catch((err) => {
+      console.error('Auth check failed', err);
+      setIsLoading(false);
+    });
+  }, []);
+
+  // Add logging for activeView and isLoggedIn changes
+  React.useEffect(() => {
+    console.log('State updated:', { activeView, isLoggedIn });
+  }, [activeView, isLoggedIn]);
+
+  const handleLoginClick = () => {
+    authentify();
+  };
+
+  const handleLogoutClick = async () => {
+    try {
+      await logout();
+      window.location.reload();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
+      </div>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return <LandingPage onLoginClick={handleLoginClick} />;
+  }
 
   const renderContent = () => {
     switch (activeView) {
@@ -23,8 +86,6 @@ function App() {
         return <CoverLetter />;
       case 'api-demo':
         return <ApiDemo />;
-      case 'log-in':
-        return <LogIn />;
       case 'profile':
         return <ProfileForm />;
       case 'privacy-and-terms':
@@ -110,12 +171,30 @@ function App() {
             <button className="p-2 hover:bg-brand-50 rounded-full text-slate-600 hover:text-brand-600 transition-colors">
               <BellIcon className="w-6 h-6" />
             </button>
-            {activeView === 'home' ? (
-              <Button variant="primary" className="flex items-center gap-2" onClick={() => setActiveView('log-in')}>
-                <UserIcon className="w-4 h-4" />
-                Log in / Register
-              </Button>
-            ) : null}
+            {userData && (
+              imageError ? (
+                <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center border border-slate-200">
+                  <span className="text-brand-600 text-sm font-medium">
+                    {userData.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              ) : (
+                <img
+                  src={userData.picture}
+                  alt={`${userData.name}'s profile`}
+                  className="w-8 h-8 rounded-full object-cover border border-slate-200"
+                  title={userData.name}
+                  onError={() => setImageError(true)}
+                  referrerPolicy="no-referrer"
+                  loading="lazy"
+                  crossOrigin="anonymous"
+                />
+              )
+            )}
+            <Button variant="primary" className="flex items-center gap-2" onClick={handleLogoutClick}>
+              <UserIcon className="w-4 h-4" />
+              Log out
+            </Button>
           </div>
         </header>
 
