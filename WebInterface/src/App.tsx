@@ -22,6 +22,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
   const [userData, setUserData] = React.useState<UserData | null>(null);
+  const [imageError, setImageError] = React.useState(false);
 
   React.useEffect(() => {
     console.log('Checking auth status...');
@@ -166,13 +167,25 @@ function App() {
             <button className="p-2 hover:bg-brand-50 rounded-full text-slate-600 hover:text-brand-600 transition-colors">
               <BellIcon className="w-6 h-6" />
             </button>
-            {userData?.picture && (
-              <img
-                src={userData.picture}
-                alt={`${userData.name}'s profile`}
-                className="w-8 h-8 rounded-full object-cover border border-slate-200"
-                title={userData.name}
-              />
+            {userData && (
+              imageError ? (
+                <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center border border-slate-200">
+                  <span className="text-brand-600 text-sm font-medium">
+                    {userData.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              ) : (
+                <img
+                  src={userData.picture}
+                  alt={`${userData.name}'s profile`}
+                  className="w-8 h-8 rounded-full object-cover border border-slate-200"
+                  title={userData.name}
+                  onError={() => setImageError(true)}
+                  referrerPolicy="no-referrer"
+                  loading="lazy"
+                  crossOrigin="anonymous"
+                />
+              )
             )}
             <Button variant="primary" className="flex items-center gap-2" onClick={handleLogoutClick}>
               <UserIcon className="w-4 h-4" />
