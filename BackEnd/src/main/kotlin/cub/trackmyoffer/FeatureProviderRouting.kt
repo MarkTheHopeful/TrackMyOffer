@@ -28,6 +28,11 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 }
                 call.respondText(response.bodyAsText(), status = response.status)
             }
+
+            get("/") {
+                val response = httpClient.get("${config.remote}/")
+                call.respondText(response.bodyAsText(), status = response.status)
+            }
         }
     }
 }
