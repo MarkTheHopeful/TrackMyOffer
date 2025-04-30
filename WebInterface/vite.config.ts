@@ -17,6 +17,6 @@ export default defineConfig({
     port: parseInt(process.env.VITE_DEV_PORT ?? "5173")
   },
   preview: {
-    allowedHosts: true
+    allowedHosts: ["trackmyoffer.onrender.com"]
   }
 });
