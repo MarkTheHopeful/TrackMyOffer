@@ -48,6 +48,7 @@ export async function checkAuthStatus(): Promise<{ authenticated: boolean; user?
                 username: data.userData.name,
                 firstName: data.userData.givenName,
                 email: data.userData.email,
+                picture: data.userData.picture
             } as UserContract : undefined,
         };
     }

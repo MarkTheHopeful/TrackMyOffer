@@ -7,20 +7,36 @@ import { ApiDemo } from './components/ApiDemo';
 import { CVReview } from './components/CVReview';
 import { CoverLetter } from './components/CoverLetter';
 import { ProfileForm } from './components/profile';
-import { checkAuthStatus, authentify } from './api/backend';
-import { LogOutButton } from "@/components/LogOutButton.tsx";
+import { checkAuthStatus, authentify, logout } from './api/backend';
 import { LandingPage } from './components/LandingPage';
 
+interface UserData {
+  id: string;
+  email: string;
+  name: string;
+  picture: string;
+}
+
 function App() {
-  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo' | 'log-in' | 'log-out' | 'profile'>('home');
+  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo' | 'profile'>('home');
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [userData, setUserData] = React.useState<UserData | null>(null);
 
   React.useEffect(() => {
     console.log('Checking auth status...');
     checkAuthStatus().then((status) => {
       console.log('Auth status:', status.authenticated);
       setIsLoggedIn(status.authenticated);
+      if (status.authenticated && status.user) {
+        const data = status.user;
+        setUserData({
+          id: String(data.id || ''),
+          email: data.email || '',
+          name: data.username || '',
+          picture: data.picture || ''
+        });
+      }
       setIsLoading(false);
     }).catch((err) => {
       console.error('Auth check failed', err);
@@ -35,6 +51,15 @@ function App() {
 
   const handleLoginClick = () => {
     authentify();
+  };
+
+  const handleLogoutClick = async () => {
+    try {
+      await logout();
+      window.location.reload();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   if (isLoading) {
@@ -59,8 +84,6 @@ function App() {
         return <CoverLetter />;
       case 'api-demo':
         return <ApiDemo />;
-      case 'log-out':
-        return <LogOutButton />;
       case 'profile':
         return <ProfileForm />;
       default:
@@ -143,7 +166,15 @@ function App() {
             <button className="p-2 hover:bg-brand-50 rounded-full text-slate-600 hover:text-brand-600 transition-colors">
               <BellIcon className="w-6 h-6" />
             </button>
-            <Button variant="primary" className="flex items-center gap-2" onClick={() => setActiveView('log-out')}>
+            {userData?.picture && (
+              <img
+                src={userData.picture}
+                alt={`${userData.name}'s profile`}
+                className="w-8 h-8 rounded-full object-cover border border-slate-200"
+                title={userData.name}
+              />
+            )}
+            <Button variant="primary" className="flex items-center gap-2" onClick={handleLogoutClick}>
               <UserIcon className="w-4 h-4" />
               Log out
             </Button>

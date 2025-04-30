@@ -3,4 +3,5 @@ export interface UserContract {
     username?: string
     firstName?: string
     email?: string
+    picture?: string
 }
