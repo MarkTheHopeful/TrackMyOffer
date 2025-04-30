@@ -8,7 +8,8 @@ For parts description look into the corresponding subdirectories.
 
 ### Docker
 
-Put your API key in [FeaturesProvider/.env](FeaturesProvider/.env) (it won't work otherwise) and run 
+Put your API key in [FeaturesProvider/.env](FeaturesProvider/.env) (it won't work otherwise) and client_id and client_secret 
+in [BackEnd/.env](BackEnd/.env), then run
 ```
 docker compose up -d
 ```

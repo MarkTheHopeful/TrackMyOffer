@@ -20,8 +20,14 @@ services:
     environment:
       - HOST=0.0.0.0
       - PORT=3001
+      - OAUTH_HOST=localhost
+      - OAUTH_PORT=3001
       - PROVIDER_HOST=featuresprovider
       - PROVIDER_PORT=3002
+      - VITE_HOST=localhost
+      - VITE_PORT=3000
+    env_file:
+      - BackEnd/.env
   featuresprovider:
     build: ./FeaturesProvider
     ports:
