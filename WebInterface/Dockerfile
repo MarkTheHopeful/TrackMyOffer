@@ -32,6 +32,7 @@ WORKDIR /app
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/package.json ./
 COPY --from=build /app/pnpm-lock.yaml ./
+COPY --from=build /app/vite.config.ts ./
 
 # Install only production dependencies
 RUN pnpm install dev
