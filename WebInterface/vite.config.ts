@@ -13,6 +13,7 @@ export default defineConfig({
     },
   },
   server: {
+    allowedHosts: ["trackmyoffer.onrender.com"],
     host: process.env.VITE_DEV_HOST ?? '127.0.0.1',
     port: parseInt(process.env.VITE_DEV_PORT ?? "5173")
   },
