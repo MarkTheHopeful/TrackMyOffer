@@ -8,8 +8,20 @@ For parts description look into the corresponding subdirectories.
 
 ### Docker
 
-Put your API key in [FeaturesProvider/.env](FeaturesProvider/.env) (it won't work otherwise) and client_id and client_secret 
-in [BackEnd/.env](BackEnd/.env), then run
+To correctly run all the subsystems, update .env files:
+- [FeaturesProvider/.env](FeaturesProvider/.env): put your API_KEY (otherwise AI features won't work) like this
+```
+API_KEY=...
+```
+- [BackEnd/.env](BackEnd/.env): put CLIENT_ID and CLIENT_SECRET (otherwise Google OAuth won't work) like this:
+```
+CLIENT_ID=...
+CLIENT_SECRET=...
+```
+
+**MAKE SURE TO NOT COMMIT THE SECRETS AND KEYS**: the `.env` files are tracked! 
+
+Run
 ```
 docker compose up -d
 ```
