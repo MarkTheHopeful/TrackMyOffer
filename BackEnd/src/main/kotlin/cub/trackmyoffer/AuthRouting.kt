@@ -20,6 +20,7 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.request.*
 import kotlinx.html.*
 import kotlinx.serialization.*
+import io.ktor.server.application.log
 
 fun Route.authRouting(httpClient: HttpClient) {
     val vitePort = environment.config.propertyOrNull("ktor.frontend_vite.port")?.getString() ?: "5000"
@@ -27,6 +28,7 @@ fun Route.authRouting(httpClient: HttpClient) {
 
     authenticate("google-oauth") {
         get("/login") {
+            application.log.info("Initiating Google OAuth login")
             // Redirect to Google OAuth
         }
 
@@ -37,29 +39,92 @@ fun Route.authRouting(httpClient: HttpClient) {
                 principal.state?.let { state ->
                     call.sessions.set(UserSession(state, principal.accessToken))
                     call.respondRedirect("/home")
+                    application.log.info("OAuth callback successful, session created")
                     return@get // Ensure no further response is sent
                 }
             }
 
+            application.log.warn("OAuth callback failed, redirecting to login")
             call.respondRedirect("/login")
         }
     }
 
-    get("/home") {
-        val userSession: UserSession? = getSession(call)
+    post("/logout") {
+        application.log.info("Logout request received")
+        val userSession: UserSession? = call.sessions.get()
+        
+        // Clear the session regardless of whether it exists
+        call.sessions.clear<UserSession>()
+        
         if (userSession != null) {
-            val userInfo: UserInfo = getPersonalGreeting(httpClient, userSession)
-            call.respondRedirect("http://$viteHost:$vitePort/")
+            application.log.info("Valid session found and cleared")
+            call.respond(HttpStatusCode.OK, mapOf("status" to "success"))
+        } else {
+            application.log.info("No valid session found")
+            call.respond(HttpStatusCode.OK, mapOf("status" to "already_logged_out"))
         }
     }
 
-    get("/logout") {
-        call.sessions.clear<UserSession>()
-        call.respondRedirect("/login")
+    get("/home") {
+        val userSession: UserSession? = call.sessions.get()
+        if (userSession != null && validateToken(httpClient, userSession)) {
+            val userInfo: UserInfo = getUserInfo(httpClient, userSession)
+            application.log.debug("User ${userInfo.email} redirected to frontend")
+            call.respondRedirect("http://$viteHost:$vitePort/")
+        } else {
+            application.log.debug("Invalid or expired session, redirecting to login")
+            call.sessions.clear<UserSession>()
+            call.respondRedirect("/login")
+        }
+    }
+
+    get("/auth/status") {
+        val userSession: UserSession? = call.sessions.get()
+        if (userSession != null) {
+            if (validateToken(httpClient, userSession)) {
+                val userInfo: UserInfo = getUserInfo(httpClient, userSession)
+                application.log.debug("Auth status check: authenticated for user ${userInfo.email}")
+                call.respond(
+                    AuthStatusResponse(
+                        isAuthenticated = true,
+                        userData = userInfo
+                    )
+                )
+            } else {
+                application.log.debug("Auth status check: token invalid or expired")
+                call.sessions.clear<UserSession>()
+                call.respond(
+                    AuthStatusResponse(
+                        isAuthenticated = false,
+                        userData = null
+                    )
+                )
+            }
+        } else {
+            application.log.debug("Auth status check: not authenticated")
+            call.respond(
+                AuthStatusResponse(
+                    isAuthenticated = false,
+                    userData = null
+                )
+            )
+        }
     }
 }
 
-private suspend fun getPersonalGreeting(
+private suspend fun validateToken(httpClient: HttpClient, userSession: UserSession): Boolean {
+    return try {
+        httpClient.get("https://oauth2.googleapis.com/tokeninfo") {
+            url {
+                parameters.append("access_token", userSession.token)
+            }
+        }.status == HttpStatusCode.OK
+    } catch (e: Exception) {
+        false
+    }
+}
+
+private suspend fun getUserInfo(
     httpClient: HttpClient,
     userSession: UserSession
 ): UserInfo = httpClient.get("https://www.googleapis.com/oauth2/v2/userinfo") {
@@ -92,4 +157,10 @@ data class UserInfo(
     @SerialName("given_name") val givenName: String,
     @SerialName("family_name") val familyName: String,
     val picture: String
+)
+
+@Serializable
+data class AuthStatusResponse(
+    val isAuthenticated: Boolean,
+    val userData: UserInfo?
 )

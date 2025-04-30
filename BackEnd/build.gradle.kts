@@ -33,6 +33,9 @@ dependencies {
     implementation("io.ktor:ktor-client-cio")
     implementation("io.ktor:ktor-client-cio-jvm:3.1.2")
 
+    implementation("io.ktor:ktor-server-call-logging")
+    implementation("io.ktor:ktor-client-logging")
+
     implementation("io.ktor:ktor-server-auth")
     implementation("io.ktor:ktor-server-auth-jwt")
     implementation("io.ktor:ktor-client-auth")
@@ -40,6 +43,7 @@ dependencies {
     implementation("io.ktor:ktor-server-sessions")
     implementation("io.ktor:ktor-server-html-builder")
     implementation("io.ktor:ktor-client-content-negotiation")
+    implementation("io.ktor:ktor-server-content-negotiation")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     testImplementation("io.ktor:ktor-server-test-host-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
