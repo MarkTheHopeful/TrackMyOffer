@@ -11,6 +11,8 @@ services:
     depends_on:
       - backend
       - featuresprovider
+    env_file:
+      - WebInterface/.env
   backend:
     build: ./BackEnd
     ports:
