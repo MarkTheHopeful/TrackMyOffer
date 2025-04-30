@@ -25,7 +25,7 @@ const NavItem = ({ icon, label, active, onClick }: NavItemProps) => (
 
 interface NavigationProps {
   activeView: string;
-  setActiveView: (view: 'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo' | 'profile') => void;
+  setActiveView: (view: 'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo' | 'profile' | 'privacy-and-terms') => void;
 }
 
 export const Navigation = ({ activeView, setActiveView }: NavigationProps) => {
@@ -78,6 +78,12 @@ export const Navigation = ({ activeView, setActiveView }: NavigationProps) => {
           icon={<SettingsIcon size={20} />}
           label="Settings"
           active={activeView === 'settings'}
+        />
+        <NavItem
+            icon={<FileTextIcon size={20} />}
+            label="Privacy and Terms"
+            active={activeView === 'privacy-and-terms'}
+            onClick={() => setActiveView('privacy-and-terms')}
         />
       </div>
     </nav>
