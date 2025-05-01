@@ -163,17 +163,17 @@ class DatabaseManager:
             profile_data (dict): Dictionary containing updated profile information.
 
         Returns:
-            bool: True if update was successful, False otherwise.
+            Profile: The updated profile object if found, None otherwise.
         """
         profile = session.query(Profile).filter(Profile.id == profile_id).first()
         if not profile:
-            return False
+            return None
 
         for key, value in profile_data.items():
             setattr(profile, key, value)
 
         session.commit()
-        return True
+        return profile
 
     def delete_profile(self, session, profile_id):
         """Delete a profile.
