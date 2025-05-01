@@ -3,6 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 import datetime
 from typing import Optional
+import os
 
 Base = declarative_base()
 
@@ -89,7 +90,13 @@ class DatabaseManager:
         if test_mode:
             db_url = 'sqlite:///:memory:'
         elif db_url is None:
-            db_url = 'postgresql://features_user:features_password@localhost:5432/features_db'
+            db_host = os.getenv('DB_HOST', 'localhost')
+            db_port = os.getenv('DB_PORT', '5432')
+            db_user = os.getenv('DB_USER', 'features_user')
+            db_pass = os.getenv('DB_PASSWORD', 'features_password')
+            db_name = os.getenv('DB_NAME', 'features_db')
+            
+            db_url = f'postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}'
 
         self.engine = create_engine(db_url)
         self.Session = sessionmaker(bind=self.engine)

@@ -37,6 +37,15 @@ services:
     depends_on:
       - postgres
 
+  featuresprovider:
+    # ... other settings ...
+    environment:
+      - DB_HOST=features_db  # Use the service name here
+      - DB_PORT=5432
+      - DB_USER=features_user
+      - DB_PASSWORD=features_password
+      - DB_NAME=features_db
+
 volumes:
   postgres_data:
   pgadmin_data:
