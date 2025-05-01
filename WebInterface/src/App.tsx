@@ -165,7 +165,7 @@ function App() {
                     activeView === 'cv-review' ? 'CV Review' :
                       activeView === 'cover-letter' ? 'Cover Letter' :
                         activeView === 'privacy-and-terms' ? 'Privacy And Terms' :
-                                'Welcome'}
+                          'Welcome'}
           </h1>
           <div className="flex items-center space-x-4">
             <button className="p-2 hover:bg-brand-50 rounded-full text-slate-600 hover:text-brand-600 transition-colors">
