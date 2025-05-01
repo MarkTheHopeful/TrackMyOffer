@@ -4,6 +4,7 @@ import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
@@ -31,6 +32,15 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
 
             get("/") {
                 val response = httpClient.get("${config.remote}/")
+                call.respondText(response.bodyAsText(), status = response.status)
+            }
+
+            post("/cover-letter") {
+                val request = call.receive<String>()
+                val response = httpClient.post("${config.remote}/api/generate-cover-letter") {
+                    contentType(ContentType.Application.Json)
+                    setBody(request)
+                }
                 call.respondText(response.bodyAsText(), status = response.status)
             }
         }
