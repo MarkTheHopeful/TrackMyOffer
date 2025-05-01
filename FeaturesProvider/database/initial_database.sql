@@ -50,6 +50,23 @@ CREATE TABLE social_media (
 -- Add index on profile_id for faster joins
 CREATE INDEX idx_social_media_profile_id ON social_media(profile_id);
 
+-- Experience table (can have multiple entries per profile)
+CREATE TABLE experience (
+    id SERIAL PRIMARY KEY,
+    profile_id INTEGER NOT NULL,
+    job_title VARCHAR(255) NOT NULL,
+    company VARCHAR(255) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE,  -- Can be null if current job
+    description TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+);
+
+-- Add index on profile_id for faster joins
+CREATE INDEX idx_experience_profile_id ON experience(profile_id);
+
 -- Create trigger function to update the "updated_at" timestamp automatically
 CREATE OR REPLACE FUNCTION update_modified_column()
 RETURNS TRIGGER AS $$
@@ -72,5 +89,10 @@ EXECUTE FUNCTION update_modified_column();
 
 CREATE TRIGGER update_social_media_timestamp
 BEFORE UPDATE ON social_media
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
+
+CREATE TRIGGER update_experience_timestamp
+BEFORE UPDATE ON experience
 FOR EACH ROW
 EXECUTE FUNCTION update_modified_column();
