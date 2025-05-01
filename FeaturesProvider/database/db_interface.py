@@ -2,6 +2,7 @@ from sqlalchemy import create_engine, Column, Integer, String, Text, Date, Forei
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 import datetime
+from typing import Optional
 
 Base = declarative_base()
 
@@ -78,13 +79,16 @@ class Experience(Base):
 
 
 class DatabaseManager:
-    def __init__(self, db_url=None):
+    def __init__(self, db_url=None, test_mode=False):
         """Initialize database connection and session maker.
 
         Args:
-            db_url (str, optional): Database connection URL. If None, uses default SQLite connection.
+            db_url (str, optional): Database connection URL. If None, uses default connection.
+            test_mode (bool, optional): If True, use SQLite in-memory database for testing.
         """
-        if db_url is None:
+        if test_mode:
+            db_url = 'sqlite:///:memory:'
+        elif db_url is None:
             db_url = 'postgresql://features_user:features_password@localhost:5432/features_db'
 
         self.engine = create_engine(db_url)
@@ -111,8 +115,173 @@ class DatabaseManager:
         if session:
             session.close()
 
-    def add_profile(self, profile_data):
+    def add_profile(self, session, profile_data):
         """Add a new profile to the database.
+
+        Args:
+            session: SQLAlchemy session.
+            profile_data (dict): Dictionary containing profile information.
+
+        Returns:
+            Profile: The created profile object.
+        """
+        profile = Profile(**profile_data)
+        session.add(profile)
+        session.commit()
+        return profile
+
+    def get_profile(self, session, profile_id):
+        """Get a profile by ID.
+
+        Args:
+            session: SQLAlchemy session.
+            profile_id (int): ID of the profile to retrieve.
+
+        Returns:
+            Profile: The profile object if found, None otherwise.
+        """
+        return session.query(Profile).filter(Profile.id == profile_id).first()
+
+    def get_profile_by_email(self, session, email):
+        """Get a profile by email.
+
+        Args:
+            session: SQLAlchemy session.
+            email (str): Email of the profile to retrieve.
+
+        Returns:
+            Profile: The profile object if found, None otherwise.
+        """
+        return session.query(Profile).filter(Profile.email == email).first()
+
+    def update_profile(self, session, profile_id, profile_data):
+        """Update a profile.
+
+        Args:
+            session: SQLAlchemy session.
+            profile_id (int): ID of the profile to update.
+            profile_data (dict): Dictionary containing updated profile information.
+
+        Returns:
+            bool: True if update was successful, False otherwise.
+        """
+        profile = session.query(Profile).filter(Profile.id == profile_id).first()
+        if not profile:
+            return False
+
+        for key, value in profile_data.items():
+            setattr(profile, key, value)
+
+        session.commit()
+        return True
+
+    def delete_profile(self, session, profile_id):
+        """Delete a profile.
+
+        Args:
+            session: SQLAlchemy session.
+            profile_id (int): ID of the profile to delete.
+
+        Returns:
+            bool: True if deletion was successful, False otherwise.
+        """
+        profile = session.query(Profile).filter(Profile.id == profile_id).first()
+        if not profile:
+            return False
+
+        session.delete(profile)
+        session.commit()
+        return True
+
+    def add_education(self, session, profile_id, education_data):
+        """Add education entry to a profile.
+
+        Args:
+            session: SQLAlchemy session.
+            profile_id (int): ID of the profile to add education to.
+            education_data (dict): Dictionary containing education information.
+
+        Returns:
+            Education: The created education object, or None if profile not found.
+        """
+        profile = session.query(Profile).filter(Profile.id == profile_id).first()
+        if not profile:
+            return None
+
+        education_data['profile_id'] = profile_id
+        education = Education(**education_data)
+        session.add(education)
+        session.commit()
+        return education
+
+    def add_social_media(self, session, profile_id, social_media_data):
+        """Add or update social media for a profile.
+
+        Args:
+            session: SQLAlchemy session.
+            profile_id (int): ID of the profile to add social media to.
+            social_media_data (dict): Dictionary containing social media information.
+
+        Returns:
+            SocialMedia: The created or updated social media object, or None if profile not found.
+        """
+        profile = session.query(Profile).filter(Profile.id == profile_id).first()
+        if not profile:
+            return None
+
+        social_media = session.query(SocialMedia).filter(SocialMedia.profile_id == profile_id).first()
+
+        if social_media:
+            # Update existing
+            for key, value in social_media_data.items():
+                setattr(social_media, key, value)
+        else:
+            # Create new
+            social_media_data['profile_id'] = profile_id
+            social_media = SocialMedia(**social_media_data)
+            session.add(social_media)
+
+        session.commit()
+        return social_media
+
+    def add_experience(self, session, profile_id, experience_data):
+        """Add experience entry to a profile.
+
+        Args:
+            session: SQLAlchemy session.
+            profile_id (int): ID of the profile to add experience to.
+            experience_data (dict): Dictionary containing experience information.
+
+        Returns:
+            Experience: The created experience object, or None if profile not found.
+        """
+        profile = session.query(Profile).filter(Profile.id == profile_id).first()
+        if not profile:
+            return None
+
+        experience_data['profile_id'] = profile_id
+        experience = Experience(**experience_data)
+        session.add(experience)
+        session.commit()
+        return experience
+
+    def get_experiences(self, session, profile_id):
+        """Get all experiences for a profile.
+
+        Args:
+            session: SQLAlchemy session.
+            profile_id (int): ID of the profile to get experiences for.
+
+        Returns:
+            list: List of Experience objects.
+        """
+        return session.query(Experience).filter(Experience.profile_id == profile_id).all()
+    
+    # Additional convenience methods that don't require an explicit session
+    # These methods create a session, perform the operation, and close the session
+    
+    def add_profile_auto(self, profile_data):
+        """Add a new profile to the database (with automatic session handling).
 
         Args:
             profile_data (dict): Dictionary containing profile information.
@@ -122,15 +291,12 @@ class DatabaseManager:
         """
         session = self.get_session()
         try:
-            profile = Profile(**profile_data)
-            session.add(profile)
-            session.commit()
-            return profile
+            return self.add_profile(session, profile_data)
         finally:
             self.close_session(session)
-
-    def get_profile(self, profile_id):
-        """Get a profile by ID.
+    
+    def get_profile_auto(self, profile_id):
+        """Get a profile by ID (with automatic session handling).
 
         Args:
             profile_id (int): ID of the profile to retrieve.
@@ -140,12 +306,12 @@ class DatabaseManager:
         """
         session = self.get_session()
         try:
-            return session.query(Profile).filter(Profile.id == profile_id).first()
+            return self.get_profile(session, profile_id)
         finally:
             self.close_session(session)
-
-    def get_profile_by_email(self, email):
-        """Get a profile by email.
+    
+    def get_profile_by_email_auto(self, email):
+        """Get a profile by email (with automatic session handling).
 
         Args:
             email (str): Email of the profile to retrieve.
@@ -155,147 +321,6 @@ class DatabaseManager:
         """
         session = self.get_session()
         try:
-            return session.query(Profile).filter(Profile.email == email).first()
-        finally:
-            self.close_session(session)
-
-    def update_profile(self, profile_id, profile_data):
-        """Update a profile.
-
-        Args:
-            profile_id (int): ID of the profile to update.
-            profile_data (dict): Dictionary containing updated profile information.
-
-        Returns:
-            bool: True if update was successful, False otherwise.
-        """
-        session = self.get_session()
-        try:
-            profile = session.query(Profile).filter(Profile.id == profile_id).first()
-            if not profile:
-                return False
-
-            for key, value in profile_data.items():
-                setattr(profile, key, value)
-
-            session.commit()
-            return True
-        finally:
-            self.close_session(session)
-
-    def delete_profile(self, profile_id):
-        """Delete a profile.
-
-        Args:
-            profile_id (int): ID of the profile to delete.
-
-        Returns:
-            bool: True if deletion was successful, False otherwise.
-        """
-        session = self.get_session()
-        try:
-            profile = session.query(Profile).filter(Profile.id == profile_id).first()
-            if not profile:
-                return False
-
-            session.delete(profile)
-            session.commit()
-            return True
-        finally:
-            self.close_session(session)
-
-    def add_education(self, profile_id, education_data):
-        """Add education entry to a profile.
-
-        Args:
-            profile_id (int): ID of the profile to add education to.
-            education_data (dict): Dictionary containing education information.
-
-        Returns:
-            Education: The created education object, or None if profile not found.
-        """
-        session = self.get_session()
-        try:
-            profile = session.query(Profile).filter(Profile.id == profile_id).first()
-            if not profile:
-                return None
-
-            education_data['profile_id'] = profile_id
-            education = Education(**education_data)
-            session.add(education)
-            session.commit()
-            return education
-        finally:
-            self.close_session(session)
-
-    def add_social_media(self, profile_id, social_media_data):
-        """Add or update social media for a profile.
-
-        Args:
-            profile_id (int): ID of the profile to add social media to.
-            social_media_data (dict): Dictionary containing social media information.
-
-        Returns:
-            SocialMedia: The created or updated social media object, or None if profile not found.
-        """
-        session = self.get_session()
-        try:
-            profile = session.query(Profile).filter(Profile.id == profile_id).first()
-            if not profile:
-                return None
-
-            social_media = session.query(SocialMedia).filter(SocialMedia.profile_id == profile_id).first()
-
-            if social_media:
-                # Update existing
-                for key, value in social_media_data.items():
-                    setattr(social_media, key, value)
-            else:
-                # Create new
-                social_media_data['profile_id'] = profile_id
-                social_media = SocialMedia(**social_media_data)
-                session.add(social_media)
-
-            session.commit()
-            return social_media
-        finally:
-            self.close_session(session)
-
-    def add_experience(self, profile_id, experience_data):
-        """Add experience entry to a profile.
-
-        Args:
-            profile_id (int): ID of the profile to add experience to.
-            experience_data (dict): Dictionary containing experience information.
-
-        Returns:
-            Experience: The created experience object, or None if profile not found.
-        """
-        session = self.get_session()
-        try:
-            profile = session.query(Profile).filter(Profile.id == profile_id).first()
-            if not profile:
-                return None
-
-            experience_data['profile_id'] = profile_id
-            experience = Experience(**experience_data)
-            session.add(experience)
-            session.commit()
-            return experience
-        finally:
-            self.close_session(session)
-
-    def get_experiences(self, profile_id):
-        """Get all experiences for a profile.
-
-        Args:
-            profile_id (int): ID of the profile to get experiences for.
-
-        Returns:
-            list: List of Experience objects.
-        """
-        session = self.get_session()
-        try:
-            return session.query(Experience).filter(Experience.profile_id == profile_id).all()
+            return self.get_profile_by_email(session, email)
         finally:
             self.close_session(session)
