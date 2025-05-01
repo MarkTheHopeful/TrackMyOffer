@@ -112,6 +112,7 @@ def test_update_profile(db_manager, sample_profile_data):
         update_data = {"first_name": "Jane", "phone": "+1987654321", "summary": "Updated summary"}
         updated_profile = db_manager.update_profile(session, profile.id, update_data)
 
+        # Ensure the updated_profile is an object, not a boolean
         assert updated_profile is not None
         assert updated_profile.first_name == update_data["first_name"]
         assert updated_profile.phone == update_data["phone"]
