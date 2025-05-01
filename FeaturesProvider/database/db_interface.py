@@ -331,3 +331,35 @@ class DatabaseManager:
             return self.get_profile_by_email(session, email)
         finally:
             self.close_session(session)
+    
+    # Add this to the DatabaseManager class in db_interface.py
+    def add_experience_auto(self, profile_id, experience_data):
+        """Add experience entry to a profile (with automatic session handling).
+
+        Args:
+            profile_id (int): ID of the profile to add experience to.
+            experience_data (dict): Dictionary containing experience information.
+
+        Returns:
+            Experience: The created experience object, or None if profile not found.
+        """
+        session = self.get_session()
+        try:
+            return self.add_experience(session, profile_id, experience_data)
+        finally:
+            self.close_session(session)
+
+    def get_experiences_auto(self, profile_id):
+        """Get all experiences for a profile (with automatic session handling).
+
+        Args:
+            profile_id (int): ID of the profile to get experiences for.
+
+        Returns:
+            list: List of Experience objects.
+        """
+        session = self.get_session()
+        try:
+            return self.get_experiences(session, profile_id)
+        finally:
+            self.close_session(session)

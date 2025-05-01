@@ -41,5 +41,26 @@ class ProfileResponse(BaseModel):
     summary: Optional[str] = None
     
     class Config:
-        from_attributes = True 
-        
+        from_attributes = True
+
+
+class ExperienceCreate(BaseModel):
+    profile_id: int
+    job_title: str = Field(..., min_length=1, max_length=255)
+    company: str = Field(..., min_length=1, max_length=255)
+    start_date: date
+    end_date: Optional[date] = None
+    description: Optional[str] = None
+
+
+class ExperienceResponse(BaseModel):
+    id: int
+    profile_id: int
+    job_title: str
+    company: str
+    start_date: date
+    end_date: Optional[date] = None
+    description: Optional[str] = None
+
+    class Config:
+        orm_mode = True

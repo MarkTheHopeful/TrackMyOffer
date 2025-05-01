@@ -3,6 +3,9 @@ from database.db_interface import DatabaseManager
 from fastapi import Depends, FastAPI, HTTPException, status
 from models import ProfileCreate, ProfileResponse
 from sqlalchemy.orm import Session
+from typing import List
+from datetime import date
+from models import ExperienceCreate, ExperienceResponse
 
 app = FastAPI()
 
@@ -69,3 +72,34 @@ def create_or_update_profile(profile: ProfileCreate, db: Session = Depends(get_d
         # Create new profile
         new_profile = db_manager.add_profile(db, profile.dict())
         return new_profile
+
+# ... your existing endpoints ...
+
+@app.post("/api/experience", response_model=ExperienceResponse, status_code=201)
+def create_experience(experience_data: ExperienceCreate, db: Session = Depends(get_db)):
+    """Create a new experience entry for a profile"""
+    # Check if the profile exists
+    profile = db_manager.get_profile(db, experience_data.profile_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail=f"Profile with id {experience_data.profile_id} not found")
+    
+    # Convert pydantic model to dict
+    experience_dict = experience_data.dict()
+    
+    # Add the experience to the database
+    experience = db_manager.add_experience(db, profile.id, experience_dict)
+    
+    return experience
+
+@app.get("/api/experiences/{profile_id}", response_model=List[ExperienceResponse])
+def get_experiences(profile_id: int, db: Session = Depends(get_db)):
+    """Get all experiences for a profile"""
+    # Check if the profile exists
+    profile = db_manager.get_profile(db, profile_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
+    
+    # Get experiences
+    experiences = db_manager.get_experiences(db, profile_id)
+    
+    return experiences
