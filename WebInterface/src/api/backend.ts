@@ -84,3 +84,27 @@ export async function logout(): Promise<void> {
         window.location.href = '/';
     }
 }
+
+interface GenerateCoverLetterRequest {
+    jobDescription: string;
+    motivations: string;
+    tone: 'formal' | 'enthusiastic' | 'creative';
+}
+
+export async function generateCoverLetter(request: GenerateCoverLetterRequest): Promise<string> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/cover-letter`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+        credentials: 'include'
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to generate cover letter: " + response.statusText);
+    }
+
+    const data = await response.json();
+    return data.content;
+}

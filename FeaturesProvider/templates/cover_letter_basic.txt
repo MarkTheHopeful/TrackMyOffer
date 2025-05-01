@@ -1,0 +1,22 @@
+{current_date}
+
+{company_name}
+{company_address}
+{company_city}, {company_postal_code}
+
+Dear {recruiter_name},
+
+I am writing to express my strong interest in the {job_title} position at {company_name}.
+
+{why_interested_in_company}
+
+Currently, I am {current_position_description}. During my work, I have {key_achievements}. {technical_skills_description}
+
+{why_good_candidate}
+
+I would welcome the opportunity to discuss how my skills and experience could benefit {company_name}. I look forward to speaking with you in person.
+
+Best regards,
+{applicant_full_name}
+{applicant_phone}
+{applicant_email} 

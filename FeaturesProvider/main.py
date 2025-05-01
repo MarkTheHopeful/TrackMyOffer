@@ -3,6 +3,8 @@ from database.db_interface import DatabaseManager
 from fastapi import Depends, FastAPI, HTTPException, status
 from models import ProfileCreate, ProfileResponse
 from sqlalchemy.orm import Session
+from features.cover_letter_generator import generate_cover_letter_data, fill_template
+import os
 
 app = FastAPI()
 
@@ -69,3 +71,33 @@ def create_or_update_profile(profile: ProfileCreate, db: Session = Depends(get_d
         # Create new profile
         new_profile = db_manager.add_profile(db, profile.dict())
         return new_profile
+
+
+@app.post("/api/generate-cover-letter")
+def generate_cover_letter(
+    profile_id: int,
+    job_description: dict,
+    style: str = "professional",
+    db: Session = Depends(get_db)
+):
+    """Generate a cover letter based on profile and job description"""
+    try:
+        # Read the template file
+        template_path = os.path.join("templates", "cover_letter_basic.txt")
+        with open(template_path, "r") as f:
+            template = f.read()
+
+        # Generate data for the template
+        letter_data = generate_cover_letter_data(db, profile_id, job_description, style)
+        
+        # Fill the template with the data
+        filled_letter = fill_template(template, letter_data)
+        
+        return {
+            "cover_letter": filled_letter,
+            "data": letter_data
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
