@@ -38,13 +38,18 @@ COPY --from=build /app/vite.config.ts ./
 RUN pnpm install dev
 
 # Set environment variables with defaults
-ENV VITE_DEV_HOST=0.0.0.0
-ENV VITE_DEV_PORT=5173
-ENV VITE_API_HOST=localhost
-ENV VITE_API_PORT=3001
+ARG A_VITE_DEV_HOST=0.0.0.0
+ARG A_VITE_DEV_PORT=5173
+ARG A_VITE_API_HOST=localhost
+ARG A_VITE_API_PORT=4001
 
 # Expose the port
 EXPOSE $VITE_DEV_PORT
+
+ENV VITE_DEV_HOST=$A_VITE_DEV_HOST
+ENV VITE_DEV_PORT=$A_VITE_DEV_PORT
+ENV VITE_API_HOST=$A_VITE_API_HOST
+ENV VITE_API_PORT=$A_VITE_API_PORT
 
 # Run the application
 CMD exec pnpm preview --host ${VITE_DEV_HOST} --port ${VITE_DEV_PORT}
