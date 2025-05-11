@@ -38,6 +38,7 @@ services:
         - A_PORT=3002
         - A_DB_HOST=features_db
         - A_DB_PORT=5432
+        - A_DB_PASSWORD=features_user
     ports:
       - "3002:3002"
     env_file:
