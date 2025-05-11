@@ -114,6 +114,185 @@ paths:
                         type:
                           type: string
 
+  /extract-job-description:
+    post:
+      summary: Extract job description
+      description: Extracts and processes job description from a provided URL
+      operationId: extractJobDescription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jobDescription
+              properties:
+                jobDescription:
+                  type: string
+                  format: uri
+                  example: "https://example.com/job-posting"
+      responses:
+        '200':
+          description: Successfully extracted job description
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Extracted and processed job description data
+        '400':
+          description: Bad request - invalid or missing job description URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Invalid job description URL"
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Service is currently unavailable"
+
+  /match-position:
+    post:
+      summary: Match position
+      description: Analyzes a job description and returns matching information
+      operationId: matchPosition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Job description data extracted from /extract-job-description
+      responses:
+        '200':
+          description: Successfully matched position
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Job matching analysis result
+        '400':
+          description: Bad request - invalid job description data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Invalid job description data"
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Service is currently unavailable"
+
+  /build-cv:
+    post:
+      summary: Build CV
+      description: Generates a customized CV based on a job description
+      operationId: buildCV
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Job description data extracted from /extract-job-description
+      responses:
+        '200':
+          description: Successfully built CV
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Generated CV content
+        '400':
+          description: Bad request - invalid job description data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Invalid job description data"
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Service is currently unavailable"
+
+  /generate-motivational-letter:
+    post:
+      summary: Generate motivational letter
+      description: Creates a customized motivational letter based on a job description
+      operationId: generateMotivationalLetter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                textStyle:
+                  type: string
+                  description: Style preference for the motivational letter
+                  example: "professional"
+                notes:
+                  type: string
+                  description: Additional notes to include in the letter
+                  example: "Please emphasize my leadership skills"
+              description: Job description data extracted from /extract-job-description with optional style and notes
+      responses:
+        '200':
+          description: Successfully generated motivational letter
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Generated motivational letter content
+        '400':
+          description: Bad request - invalid job description data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Invalid job description data"
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Service is currently unavailable"
+
 components:
   schemas:
     ProfileCreate:

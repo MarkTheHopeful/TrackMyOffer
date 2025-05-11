@@ -72,5 +72,127 @@ paths:
               schema:
                 type: string
                 example: "Error calling feature provider"
+  /features/v0/match-position:
+    get:
+      summary: Match position endpoint
+      description: Analyzes a job description and returns matching information
+      operationId: matchPosition
+      parameters:
+        - name: jobDescriptionLink
+          in: query
+          description: URL link to the job description to analyze
+          required: true
+          schema:
+            type: string
+            format: uri
+            example: "https://example.com/job-posting"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Job matching analysis result
+        '400':
+          description: Missing required query parameter
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Missing jobDescriptionLink parameter"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Error processing job description"
+  /features/v0/build-cv:
+    get:
+      summary: Build CV endpoint
+      description: Generates a customized CV based on a job description
+      operationId: buildCV
+      parameters:
+        - name: jobDescriptionLink
+          in: query
+          description: URL link to the job description to analyze
+          required: true
+          schema:
+            type: string
+            format: uri
+            example: "https://example.com/job-posting"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Generated CV content
+        '400':
+          description: Missing required query parameter
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Missing jobDescriptionLink parameter"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Error generating CV"
+  /features/v0/generate-motivational-letter:
+    get:
+      summary: Generate motivational letter endpoint
+      description: Creates a customized motivational letter based on a job description
+      operationId: generateMotivationalLetter
+      parameters:
+        - name: jobDescriptionLink
+          in: query
+          description: URL link to the job description to analyze
+          required: true
+          schema:
+            type: string
+            format: uri
+            example: "https://example.com/job-posting"
+        - name: textStyle
+          in: query
+          description: Style preference for the motivational letter
+          required: false
+          schema:
+            type: string
+            example: "professional"
+        - name: notes
+          in: query
+          description: Additional notes to include in the letter
+          required: false
+          schema:
+            type: string
+            example: "Please emphasize my leadership skills"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Generated motivational letter content
+        '400':
+          description: Missing required query parameter
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Missing jobDescriptionLink parameter"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Error generating motivational letter"
 components:
   schemas: {}
