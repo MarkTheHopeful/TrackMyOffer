@@ -51,5 +51,7 @@ ENV VITE_DEV_PORT=$A_VITE_DEV_PORT
 ENV VITE_API_HOST=$A_VITE_API_HOST
 ENV VITE_API_PORT=$A_VITE_API_PORT
 
+RUN echo "api host: env ${VITE_API_HOST} arg ${A_VITE_API_HOST}"
+
 # Run the application
 CMD exec pnpm preview --host ${VITE_DEV_HOST} --port ${VITE_DEV_PORT}
