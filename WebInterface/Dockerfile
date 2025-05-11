@@ -1,6 +1,12 @@
 # Build stage
 FROM node:20-slim AS build
 
+ARG A_VITE_API_HOST=localhost
+ARG A_VITE_API_PORT=4001
+
+ENV VITE_API_HOST=$A_VITE_API_HOST
+ENV VITE_API_PORT=$A_VITE_API_PORT
+
 # Install pnpm
 RUN npm install -g pnpm
 
@@ -22,6 +28,12 @@ RUN pnpm build
 # Production stage
 FROM node:20-slim
 
+ARG A_VITE_DEV_HOST=0.0.0.0
+ARG A_VITE_DEV_PORT=5173
+
+ENV VITE_DEV_HOST=$A_VITE_DEV_HOST
+ENV VITE_DEV_PORT=$A_VITE_DEV_PORT
+
 # Install pnpm and vite
 RUN npm install -g pnpm vite
 
@@ -37,19 +49,9 @@ COPY --from=build /app/vite.config.ts ./
 # Install only production dependencies
 RUN pnpm install dev
 
-# Set environment variables with defaults
-ARG A_VITE_DEV_HOST=0.0.0.0
-ARG A_VITE_DEV_PORT=5173
-ARG A_VITE_API_HOST=localhost
-ARG A_VITE_API_PORT=4001
-
 # Expose the port
 EXPOSE $VITE_DEV_PORT
 
-ENV VITE_DEV_HOST=$A_VITE_DEV_HOST
-ENV VITE_DEV_PORT=$A_VITE_DEV_PORT
-ENV VITE_API_HOST=$A_VITE_API_HOST
-ENV VITE_API_PORT=$A_VITE_API_PORT
 
 RUN echo "api host: env ${VITE_API_HOST} arg ${A_VITE_API_HOST}"
 

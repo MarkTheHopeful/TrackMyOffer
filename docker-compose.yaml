@@ -5,7 +5,7 @@ services:
       args:
         - A_VITE_DEV_HOST=0.0.0.0
         - A_VITE_DEV_PORT=3000
-        - A_VITE_API_HOST=backend
+        - A_VITE_API_HOST=localhost
         - A_VITE_API_PORT=3001
     ports:
       - "3000:3000"
