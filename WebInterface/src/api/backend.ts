@@ -2,7 +2,9 @@ import { UserContract } from "./UserContract.ts";
 
 const host = import.meta.env.VITE_API_HOST ?? "localhost";
 const port = import.meta.env.VITE_API_PORT ?? "8080";
-const API_BASE_URL = `http://${host}:${port}`;
+const API_BASE_URL = host.startsWith('http://') || host.startsWith('https://')
+    ? `${host}:${port}`
+    : `http://${host}:${port}`;
 
 export async function fetchHelloMessage(): Promise<string> {
     const response = await fetch(`${API_BASE_URL}/v0/hello`);
