@@ -8,7 +8,7 @@ services:
         - A_VITE_API_HOST=backend
         - A_VITE_API_PORT=3001
     ports:
-      - "4000:4000"
+      - "3000:3000"
     depends_on:
       - backend
       - featuresprovider
@@ -27,7 +27,7 @@ services:
         - A_VITE_HOST=localhost
         - A_VITE_PORT=3000
     ports:
-      - "4001:4001"
+      - "3001:3001"
     env_file:
       - BackEnd/.env
   featuresprovider:
@@ -39,7 +39,7 @@ services:
         - A_DB_HOST=features_db
         - A_DB_PORT=5432
     ports:
-      - "4002:4002"
+      - "3002:3002"
     env_file:
       - ./FeaturesProvider/.env
     depends_on:
@@ -55,7 +55,7 @@ services:
       POSTGRES_DB: features_db
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - "4003:5432"
+      - "3003:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./FeaturesProvider/database/initial_database.sql:/docker-entrypoint-initdb.d/init.sql
