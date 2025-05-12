@@ -25,7 +25,7 @@ import io.ktor.server.application.log
 fun Route.authRouting(httpClient: HttpClient) {
     val vitePort = environment.config.propertyOrNull("ktor.frontend_vite.port")?.getString() ?: "5000"
     val viteHost = environment.config.propertyOrNull("ktor.frontend_vite.host")?.getString() ?: "localhost"
-    val viteUrl = environment.config.propertyOrNull("ktor.frontend.vite.url")?.getString() ?: "http://$viteHost:$vitePort"
+    val viteUrl = environment.config.propertyOrNull("ktor.frontend_vite.url")?.getString() ?: "http://$viteHost:$vitePort"
 
     authenticate("google-oauth") {
         get("/login") {
