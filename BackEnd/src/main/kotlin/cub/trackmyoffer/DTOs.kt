@@ -12,6 +12,7 @@ data class EducationEntry(
 
 @Serializable
 data class ProfileRequest(
+    @SerialName("user_id") var userId: Int? = null,
     @SerialName("first_name") val firstName: String,
     @SerialName("last_name")  val lastName: String,
     val email: String,

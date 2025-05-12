@@ -75,8 +75,12 @@ paths:
   /features/v0/profile:
     post:
       summary: Feature profile endpoint
-      description: Forwards profile data to the feature-provider service
+      description: >
+        Requires a valid Google OAuth session.  
+        Forwards profile data to the feature-provider service
       operationId: postFeatureProfile
+      security:
+        - googleOAuth: [ ]
       requestBody:
         required: true
         content:
@@ -125,6 +129,14 @@ paths:
               schema:
                 type: string
                 example: "Error calling feature provider"
+        '302':
+          description: Redirect to login on expired or missing session
+          headers:
+            Location:
+              description: Login URL
+              schema:
+                type: string
+          content: { }
 components:
   schemas:
     EducationEntry:
@@ -167,6 +179,11 @@ components:
         last_name:
           type: string
           example: "Ipatov"
+        user_id:
+          type: integer
+          example: 1
+          nullable: true
+          description: "Internal user id, supposed to be empty on request from frontend and to be filled by the backend"
         email:
           type: string
           format: email
