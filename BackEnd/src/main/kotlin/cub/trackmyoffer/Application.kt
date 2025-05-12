@@ -106,6 +106,6 @@ fun Application.module() {
     routing {
         backendRouting()
         authRouting(httpClient)
-        featureProviderRouting(httpClient, FeatureProviderRoutingConfig(fProviderHost, fProviderPort))
+        featureProviderRouting(httpClient, FeatureProviderRoutingConfig(fProviderUrl))
     }
 }
