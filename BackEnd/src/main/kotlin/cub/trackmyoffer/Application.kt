@@ -25,13 +25,13 @@ import kotlinx.serialization.json.Json
 
 fun main(args: Array<String>) = EngineMain.main(args)
 
-val applicationHttpClient = HttpClient(CIO) {
-    install(ClientContentNegotiation) {
-        json(Json {
-            ignoreUnknownKeys = true // Optional but recommended
-        })
-    }
-}
+//val applicationHttpClient = HttpClient(CIO) {
+//    install(ClientContentNegotiation) {
+//        json(Json {
+//            ignoreUnknownKeys = true // Optional but recommended
+//        })
+//    }
+//}
 
 fun Application.module() {
     val oauthtHost = environment.config.propertyOrNull("ktor.oauth.host")?.getString() ?: "localhost"
@@ -40,6 +40,12 @@ fun Application.module() {
     val fProviderPort = environment.config.propertyOrNull("ktor.feature_provider.port")?.getString() ?: "8081"
 
     val httpClient = HttpClient(CIO) {
+        install(ClientContentNegotiation) {
+            json(Json {
+                ignoreUnknownKeys = true // Optional but recommended
+            })
+        }
+
         install(Logging) {
             logger = Logger.DEFAULT
             level = LogLevel.HEADERS
@@ -79,7 +85,7 @@ fun Application.module() {
 
     install(Authentication) {
         oauth("google-oauth") {
-            client = applicationHttpClient
+            client = httpClient
             providerLookup = {
                 OAuthServerSettings.OAuth2ServerSettings(
                     name = "google",
@@ -97,7 +103,7 @@ fun Application.module() {
 
     routing {
         backendRouting()
-        authRouting(applicationHttpClient)
+        authRouting(httpClient)
         featureProviderRouting(httpClient, FeatureProviderRoutingConfig(fProviderHost, fProviderPort))
     }
 }
