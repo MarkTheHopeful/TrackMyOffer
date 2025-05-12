@@ -1,8 +1,9 @@
+from fastapi import Depends, FastAPI, HTTPException, status
+from sqlalchemy.orm import Session
+
 from ai import request_model
 from database.db_interface import DatabaseManager
-from fastapi import Depends, FastAPI, HTTPException, status
-from models import ProfileCreate, ProfileResponse
-from sqlalchemy.orm import Session
+from models import ProfileCreate, ProfileResponse, ReviewRequest, ReviewResponse
 
 app = FastAPI()
 
@@ -69,3 +70,21 @@ def create_or_update_profile(profile: ProfileCreate, db: Session = Depends(get_d
         # Create new profile
         new_profile = db_manager.add_profile(db, profile.dict())
         return new_profile
+
+
+@app.post("/review/cv", response_model=ReviewResponse)
+async def review_cv(request: ReviewRequest):
+    """
+    Process a CV review request:
+    1. Extract text from CV file
+    2. Get job description from URL if provided
+    3. Generate CV review using AI
+    
+    Args:
+        request: Contains description, optional URL, and CV file in base64
+    
+    Returns:
+        Review of the CV against the job description
+    """
+
+    return {"review": "ababa"}

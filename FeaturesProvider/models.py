@@ -42,4 +42,12 @@ class ProfileResponse(BaseModel):
     
     class Config:
         from_attributes = True 
-        
+
+# Models for CV Review endpoint
+class ReviewRequest(BaseModel):
+    description: str
+    url: str | None = None
+    cv: str  # Base64 encoded file
+
+class ReviewResponse(BaseModel):
+    review: str
