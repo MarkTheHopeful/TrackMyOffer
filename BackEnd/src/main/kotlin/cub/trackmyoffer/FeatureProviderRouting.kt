@@ -1,9 +1,12 @@
 package cub.trackmyoffer
 
+import ProfileRequest
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
@@ -30,6 +33,22 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
             get("/") {
                 val response = httpClient.get("${config.remote}/")
                 call.respondText(response.bodyAsText(), status = response.status)
+            }
+
+            post("/profile") {
+                val profileReq = call.receive<ProfileRequest>()
+
+
+                val remoteResponse: HttpResponse = httpClient.post("${config.remote}/api/profile") {
+                    contentType(ContentType.Application.Json)
+                    setBody(profileReq)
+                }
+
+                val text = remoteResponse.bodyAsText()
+                call.respond(
+                    status = remoteResponse.status,
+                    message = text
+                )
             }
         }
     }
