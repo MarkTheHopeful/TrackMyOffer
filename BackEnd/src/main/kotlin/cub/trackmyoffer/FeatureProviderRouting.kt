@@ -37,15 +37,30 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
             }
 
             suspend fun extractJobDescription(call: RoutingCall): Response {
-                val jobDescription = call.request.queryParameters["jobDescriptionLink"]
+                val jobDescriptionLink = call.request.queryParameters["jobDescriptionLink"]
                     ?: return Response(HttpStatusCode.BadRequest, "Missing jobDescriptionLink parameter")
 
-                val response = httpClient.post("${config.remote}/extract-job-description") {
+                val response = httpClient.post("${config.remote}/api/extract-job-description") {
                     contentType(ContentType.Application.Json)
-                    setBody("""{"jobDescription": "$jobDescription"}""")
+                    setBody("""{"jobDescriptionLink": "$jobDescriptionLink"}""")
                 }
                 return Response(response.status, response.bodyAsText())
             }
+
+            suspend fun getProfileId(call: RoutingCall): Int? {
+                val profileId = call.request.queryParameters["profileId"] ?: return run {
+                    call.respondText("Missing profileId parameter", status = HttpStatusCode.BadRequest)
+                    null
+                }
+
+                // TODO: check for id correctness?
+
+                return profileId.toIntOrNull() ?: run {
+                    call.respondText("Invalid profileId parameter", status = HttpStatusCode.BadRequest)
+                    null
+                }
+            }
+
 
             get("/match-position") {
                 val extractorResponse = extractJobDescription(call)
@@ -54,9 +69,15 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     return@get
                 }
 
-                val response = httpClient.post("${config.remote}/match-position") {
+                val profileId = getProfileId(call) ?: return@get
+
+                val response = httpClient.post("${config.remote}/api/match-position") {
                     contentType(ContentType.Application.Json)
-                    setBody(extractorResponse.body)
+                    setBody(
+                        "${
+                            extractorResponse.body.trimEnd().removeSuffix("}")
+                        }, \"profileId\": ${profileId}}"
+                    )
                 }
                 call.respondText(response.bodyAsText(), status = response.status)
             }
@@ -69,9 +90,15 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     return@get
                 }
 
-                val response = httpClient.post("${config.remote}/build-cv") {
+                val profileId = getProfileId(call) ?: return@get
+
+                val response = httpClient.post("${config.remote}/api/build-cv") {
                     contentType(ContentType.Application.Json)
-                    setBody(extractorResponse.body)
+                    setBody(
+                        "${
+                            extractorResponse.body.trimEnd().removeSuffix("}")
+                        }, \"profileId\": ${profileId}}"
+                    )
                 }
                 call.respondText(response.bodyAsText(), status = response.status)
             }
@@ -83,10 +110,12 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     return@get
                 }
 
+                val profileId = getProfileId(call) ?: return@get
+
                 val textStyle = call.request.queryParameters["textStyle"]
                 val notes = call.request.queryParameters["notes"]
 
-                val response = httpClient.post("${config.remote}/generate-motivational-letter") {
+                val response = httpClient.post("${config.remote}/api/generate-motivational-letter") {
                     contentType(ContentType.Application.Json)
                     setBody(
                         "${
@@ -97,7 +126,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                         }${
                             if (notes != null) """, "notes": "$notes""""
                             else ""
-                        }}"
+                        }, \"profileId\": ${profileId}}"
                     )
                 }
                 call.respondText(response.bodyAsText(), status = response.status)

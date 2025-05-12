@@ -114,7 +114,7 @@ paths:
                         type:
                           type: string
 
-  /extract-job-description:
+  /api/extract-job-description:
     post:
       summary: Extract job description
       description: Extracts and processes job description from a provided URL
@@ -126,9 +126,9 @@ paths:
             schema:
               type: object
               required:
-                - jobDescription
+                - jobDescriptionLink
               properties:
-                jobDescription:
+                jobDescriptionLink:
                   type: string
                   format: uri
                   example: "https://example.com/job-posting"
@@ -161,7 +161,7 @@ paths:
                     type: string
                     example: "Service is currently unavailable"
 
-  /match-position:
+  /api/match-position:
     post:
       summary: Match position
       description: Analyzes a job description and returns matching information
@@ -172,6 +172,17 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - profileId
+                - jobDescription
+              properties:
+                profileId:
+                  type: integer
+                  description: ID of the user profile
+                  example: 1
+                jobDescription:
+                  type: object
+                  description: Job description data
               description: Job description data extracted from /extract-job-description
       responses:
         '200':
@@ -202,7 +213,7 @@ paths:
                     type: string
                     example: "Service is currently unavailable"
 
-  /build-cv:
+  /api/build-cv:
     post:
       summary: Build CV
       description: Generates a customized CV based on a job description
@@ -213,6 +224,17 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - profileId
+                - jobDescription
+              properties:
+                profileId:
+                  type: integer
+                  description: ID of the user profile
+                  example: 1
+                jobDescription:
+                  type: object
+                  description: Job description data
               description: Job description data extracted from /extract-job-description
       responses:
         '200':
@@ -243,7 +265,7 @@ paths:
                     type: string
                     example: "Service is currently unavailable"
 
-  /generate-motivational-letter:
+  /api/generate-motivational-letter:
     post:
       summary: Generate motivational letter
       description: Creates a customized motivational letter based on a job description
@@ -254,7 +276,17 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - profileId
+                - jobDescription
               properties:
+                profileId:
+                  type: integer
+                  description: ID of the user profile
+                  example: 1
+                jobDescription:
+                  type: object
+                  description: Job description data
                 textStyle:
                   type: string
                   description: Style preference for the motivational letter
