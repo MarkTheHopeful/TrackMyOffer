@@ -71,7 +71,9 @@ fun Application.module() {
     install(Sessions) {
         cookie<UserSession>("user_session") {
             cookie.path = "/"
-            cookie.secure = false // Set to true in production
+            cookie.secure = true
+            cookie.httpOnly = true
+            cookie.extensions["SameSite"] = "None"
         }
     }
 
