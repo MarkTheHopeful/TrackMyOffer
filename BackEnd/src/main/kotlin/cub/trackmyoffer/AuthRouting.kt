@@ -25,6 +25,7 @@ import io.ktor.server.application.log
 fun Route.authRouting(httpClient: HttpClient) {
     val vitePort = environment.config.propertyOrNull("ktor.frontend_vite.port")?.getString() ?: "5000"
     val viteHost = environment.config.propertyOrNull("ktor.frontend_vite.host")?.getString() ?: "localhost"
+    val viteUrl = environment.config.propertyOrNull("ktor.frontend.vite.url")?.getString() ?: "http://$viteHost:$vitePort"
 
     authenticate("google-oauth") {
         get("/login") {
@@ -70,7 +71,7 @@ fun Route.authRouting(httpClient: HttpClient) {
         if (userSession != null && validateToken(httpClient, userSession)) {
             val userInfo: UserInfo = getUserInfo(httpClient, userSession)
             application.log.debug("User ${userInfo.email} redirected to frontend")
-            call.respondRedirect("http://$viteHost:$vitePort/")
+            call.respondRedirect(viteUrl)
         } else {
             application.log.debug("Invalid or expired session, redirecting to login")
             call.sessions.clear<UserSession>()
