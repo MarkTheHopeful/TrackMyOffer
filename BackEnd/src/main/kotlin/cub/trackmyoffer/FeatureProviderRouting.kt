@@ -7,9 +7,7 @@ import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-data class FeatureProviderRoutingConfig(val remoteHost: String, val remotePort: String) {
-    val remote = "http://$remoteHost:$remotePort"
-}
+data class FeatureProviderRoutingConfig(val remote: String)
 
 fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProviderRoutingConfig) {
     route("/features") {

@@ -39,6 +39,7 @@ fun Application.module() {
     val oauthUrl = environment.config.propertyOrNull("ktor.oauth.url")?.getString() ?: "http://$oauthHost:$oauthPort"
     val fProviderHost = environment.config.propertyOrNull("ktor.feature_provider.host")?.getString() ?: "0.0.0.0"
     val fProviderPort = environment.config.propertyOrNull("ktor.feature_provider.port")?.getString() ?: "8081"
+    val fProviderUrl = environment.config.propertyOrNull("ktor.feature_provider.url")?.getString() ?: "http://$fProviderHost:$fProviderPort"
 
     val httpClient = HttpClient(CIO) {
         install(Logging) {
@@ -99,6 +100,6 @@ fun Application.module() {
     routing {
         backendRouting()
         authRouting(applicationHttpClient)
-        featureProviderRouting(httpClient, FeatureProviderRoutingConfig(fProviderHost, fProviderPort))
+        featureProviderRouting(httpClient, FeatureProviderRoutingConfig(fProviderUrl))
     }
 }
