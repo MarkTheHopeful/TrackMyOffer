@@ -9,6 +9,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.sessions.*
 
 data class FeatureProviderRoutingConfig(val remoteHost: String, val remotePort: String) {
     val remote = "http://$remoteHost:$remotePort"
@@ -39,7 +40,17 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
 
             post("/profile") {
                 val profileReq = call.receive<ProfileRequest>()
+                val userSession: UserSession =
+                    call.sessions.get() ?: throw RuntimeException("Invalid session during post request")
 
+                if (!validateToken(httpClient, userSession)) {
+                    application.log.debug("Invalid or expired session, redirecting to login")
+                    call.sessions.clear<UserSession>()
+                    call.respondRedirect("/login")
+                }
+                val userInfo: UserInfo = getUserInfo(httpClient, userSession)
+                // TODO: Go to the database and fetch user_id by the email
+                profileReq.userId = 1
 
                 val remoteResponse: HttpResponse = httpClient.post("${config.remote}/api/profile") {
                     contentType(ContentType.Application.Json)
