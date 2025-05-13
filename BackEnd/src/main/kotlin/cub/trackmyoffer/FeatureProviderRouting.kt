@@ -38,10 +38,9 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 call.respondText(response.bodyAsText(), status = response.status)
             }
 
-            post("/profile") {
-                val profileReq = call.receive<ProfileRequest>()
+            suspend fun extractUserId(call: RoutingCall): Int {
                 val userSession: UserSession =
-                    call.sessions.get() ?: throw RuntimeException("Invalid session during post request")
+                    call.sessions.get() ?: throw RuntimeException("Invalid session during request")
 
                 if (!validateToken(httpClient, userSession)) {
                     application.log.debug("Invalid or expired session, redirecting to login")
@@ -50,7 +49,13 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 }
                 val userInfo: UserInfo = getUserInfo(httpClient, userSession)
                 // TODO: Go to the database and fetch user_id by the email
-                profileReq.userId = 1
+                return 1
+            }
+
+            post("/profile") {
+                val profileReq = call.receive<ProfileRequest>()
+
+                profileReq.userId = extractUserId(call)
 
                 val remoteResponse: HttpResponse = httpClient.post("${config.remote}/api/profile") {
                     contentType(ContentType.Application.Json)
