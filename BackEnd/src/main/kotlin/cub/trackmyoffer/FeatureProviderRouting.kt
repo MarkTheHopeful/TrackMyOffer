@@ -1,6 +1,6 @@
 package cub.trackmyoffer
 
-import ProfileRequest
+import ProfileData
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -53,7 +53,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
             }
 
             post("/profile") {
-                val profileReq = call.receive<ProfileRequest>()
+                val profileReq = call.receive<ProfileData>()
 
                 profileReq.userId = extractUserId(call)
 
@@ -66,6 +66,17 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 call.respond(
                     status = remoteResponse.status,
                     message = text
+                )
+            }
+
+            get("/profile") {
+                val userId = extractUserId(call)
+
+                val remoteResponse: HttpResponse = httpClient.get("${config.remote}/api/profile/${userId}")
+
+                call.respond(
+                    status = remoteResponse.status,
+                    message = remoteResponse.bodyAsText()
                 )
             }
 

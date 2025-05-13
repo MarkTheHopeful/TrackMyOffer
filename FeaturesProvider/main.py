@@ -52,6 +52,18 @@ def greet(payload: dict[str, str]) -> dict[str, str]:
     return {"message": greeting}
 
 
+@app.get(
+    "/api/profile/{profile_id}", response_model=ProfileResponse, status_code=status.HTTP_200_OK
+)
+def get_profile(profile_id: int, db: Session = Depends(get_db)):
+    """
+    Get profile from the database by its id (numerical)
+    If a profile does not exist, raise 404
+    """
+    profile = db_manager.get_profile(db, profile_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
+    return profile
 @app.post(
     "/api/profile", response_model=ProfileResponse, status_code=status.HTTP_201_CREATED
 )

@@ -2,7 +2,7 @@ import kotlinx.serialization.*
 
 @Serializable
 data class EducationEntry(
-    val id: String,
+    val id: Int,
     val institution: String,
     val degree: String,
     val startDate: String,    // ISO-8601 strings
@@ -11,7 +11,7 @@ data class EducationEntry(
 )
 
 @Serializable
-data class ProfileRequest(
+data class ProfileData(
     @SerialName("user_id") var userId: Int? = null,
     @SerialName("first_name") val firstName: String,
     @SerialName("last_name")  val lastName: String,
