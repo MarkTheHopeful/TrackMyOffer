@@ -11,6 +11,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 
+data class Response(val status: HttpStatusCode, val body: String)
+
 data class FeatureProviderRoutingConfig(val remote: String)
 
 fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProviderRoutingConfig) {
@@ -60,6 +62,102 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     status = remoteResponse.status,
                     message = text
                 )
+            }
+
+            suspend fun extractJobDescription(call: RoutingCall): Response {
+                val jobDescriptionLink = call.request.queryParameters["jobDescriptionLink"]
+                    ?: return Response(HttpStatusCode.BadRequest, "Missing jobDescriptionLink parameter")
+
+                val response = httpClient.post("${config.remote}/api/extract-job-description") {
+                    contentType(ContentType.Application.Json)
+                    setBody("""{"jobDescriptionLink": "$jobDescriptionLink"}""")
+                }
+                return Response(response.status, response.bodyAsText())
+            }
+
+            suspend fun getProfileId(call: RoutingCall): Int? {
+                val profileId = call.request.queryParameters["profileId"] ?: return run {
+                    call.respondText("Missing profileId parameter", status = HttpStatusCode.BadRequest)
+                    null
+                }
+
+                // TODO: check for id correctness?
+
+                return profileId.toIntOrNull() ?: run {
+                    call.respondText("Invalid profileId parameter", status = HttpStatusCode.BadRequest)
+                    null
+                }
+            }
+
+
+            get("/match-position") {
+                val extractorResponse = extractJobDescription(call)
+                if (extractorResponse.status != HttpStatusCode.OK) {
+                    call.respond(extractorResponse.status, extractorResponse.body)
+                    return@get
+                }
+
+                val profileId = getProfileId(call) ?: return@get
+
+                val response = httpClient.post("${config.remote}/api/match-position") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        "${
+                            extractorResponse.body.trimEnd().removeSuffix("}")
+                        }, \"profileId\": ${profileId}}"
+                    )
+                }
+                call.respondText(response.bodyAsText(), status = response.status)
+            }
+
+
+            get("/build-cv") {
+                val extractorResponse = extractJobDescription(call)
+                if (extractorResponse.status != HttpStatusCode.OK) {
+                    call.respond(extractorResponse.status, extractorResponse.body)
+                    return@get
+                }
+
+                val profileId = getProfileId(call) ?: return@get
+
+                val response = httpClient.post("${config.remote}/api/build-cv") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        "${
+                            extractorResponse.body.trimEnd().removeSuffix("}")
+                        }, \"profileId\": ${profileId}}"
+                    )
+                }
+                call.respondText(response.bodyAsText(), status = response.status)
+            }
+
+            get("/generate-motivational-letter") {
+                val extractorResponse = extractJobDescription(call)
+                if (extractorResponse.status != HttpStatusCode.OK) {
+                    call.respond(extractorResponse.status, extractorResponse.body)
+                    return@get
+                }
+
+                val profileId = getProfileId(call) ?: return@get
+
+                val textStyle = call.request.queryParameters["textStyle"]
+                val notes = call.request.queryParameters["notes"]
+
+                val response = httpClient.post("${config.remote}/api/generate-motivational-letter") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        "${
+                            extractorResponse.body.trimEnd().removeSuffix("}")
+                        }${
+                            if (textStyle != null) """, "textStyle": "$textStyle""""
+                            else ""
+                        }${
+                            if (notes != null) """, "notes": "$notes""""
+                            else ""
+                        }, \"profileId\": ${profileId}}"
+                    )
+                }
+                call.respondText(response.bodyAsText(), status = response.status)
             }
         }
     }
