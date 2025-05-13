@@ -1,32 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { UserIcon, GraduationCapIcon, LinkedinIcon, GithubIcon, ExternalLinkIcon, SaveIcon, PlusIcon, TrashIcon, PencilIcon } from 'lucide-react';
-
-interface EducationEntry {
-  id: string;
-  institution: string;
-  degree: string;
-  startDate: string;
-  endDate: string;
-  additionalInfo: string;
-}
-
-interface ProfileData {
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-  phone?: string;
-  city?: string;
-  state?: string;
-  country?: string;
-  education?: EducationEntry[];
-  linkedin_url?: string;
-  github_url?: string;
-  personal_website?: string;
-  other_url?: string;
-  about_me?: string;
-  [key: string]: string | EducationEntry[] | undefined;
-}
+import { fetchProfileInfo, updateProfileInfo } from '@/api/backend.ts';
 
 export function ProfileForm() {
   const [activeTab, setActiveTab] = useState<'personal' | 'education' | 'social' | 'summary'>('personal');
@@ -45,126 +20,137 @@ export function ProfileForm() {
 
   useEffect(() => {
     console.log('ProfileForm mounted, fetching profile data...');
-    readProfileInfo();
+    fetchProfileInfo()
+        .then(
+	    data => {
+	        console.log('Received profile data:', data);
+		setProfileData(data);
+	    }
+	)
+	.catch(
+	    err => {
+	        console.log('Error fetching profile data:', err)
+	    }
+	);
   }, []);
 
-  const readProfileInfo = async () => {
-    console.log('Reading profile info...');
+//  const readProfileInfo = async () => {
+//    console.log('Reading profile info...');
 
     // Create an AbortController with timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+//    const controller = new AbortController();
+//    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
-    try {
-      console.log('Sending GET request to /api/me');
-      const response = await fetch('/api/me', {
-        headers: {
-          'Accept': 'application/json'
-        },
-        signal: controller.signal
-      });
+//    try {
+//      console.log('Sending GET request to /features/v0/profile');
+//      const response = await fetch('/features/v0/profile', {
+//        headers: {
+//          'Accept': 'application/json'
+//        },
+//        signal: controller.signal
+//      });
 
       // Clear the timeout since the request completed
-      clearTimeout(timeoutId);
+//      clearTimeout(timeoutId);
 
-      console.log('Response status:', response.status);
+//      console.log('Response status:', response.status);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+//      if (!response.ok) {
+//        throw new Error(`HTTP error! Status: ${response.status}`);
+//      }
 
-      const data = await response.json();
-      console.log('Received profile data:', data);
+//      const data = await response.json();
+//      console.log('Received profile data:', data);
 
       // For now, mock the return data
-      const mockData: ProfileData = {
-        first_name: "Akaky",
-        last_name: "Akakievich",
-        email: "abc@xyz.com",
-        city: "Saint Petersburg",
-        education: [],
-        linkedin_url: "",
-        github_url: "",
-        personal_website: "",
-        other_url: "",
-        about_me: ""
-      };
+//      const mockData: ProfileData = {
+//        first_name: "Akaky",
+//        last_name: "Akakievich",
+//        email: "abc@xyz.com",
+//        city: "Saint Petersburg",
+//        education: [],
+//        linkedin_url: "",
+//        github_url: "",
+//        personal_website: "",
+//        other_url: "",
+//        about_me: ""
+//      };
 
-      console.log('Setting profile data with mock data');
-      setProfileData(mockData);
-    } catch (error) {
+//      console.log('Setting profile data with mock data');
+//      setProfileData(mockData);
+//    } catch (error) {
       // Clear the timeout to avoid memory leaks
-      clearTimeout(timeoutId);
+//      clearTimeout(timeoutId);
 
-      if ((error as any).name === 'AbortError') {
-        console.error('Request timed out after 5 seconds');
-      } else {
-        console.error('Error fetching profile data:', error);
-      }
-      console.log('Falling back to mock data due to fetch error');
+//      if ((error as any).name === 'AbortError') {
+//        console.error('Request timed out after 5 seconds');
+//      } else {
+//        console.error('Error fetching profile data:', error);
+//      }
+//      console.log('Falling back to mock data due to fetch error');
 
       // Still set mock data even if the fetch fails
-      const mockData: ProfileData = {
-        first_name: "Akaky",
-        last_name: "Akakievich",
-        email: "abc@xyz.com",
-        city: "Saint Petersburg",
-        education: [],
-        linkedin_url: "",
-        github_url: "",
-        personal_website: "",
-        other_url: "",
-        about_me: ""
-      };
+//      const mockData: ProfileData = {
+//        first_name: "Akaky",
+//        last_name: "Akakievich",
+//        email: "abc@xyz.com",
+//        city: "Saint Petersburg",
+//        education: [],
+//        linkedin_url: "",
+//        github_url: "",
+//        personal_website: "",
+//        other_url: "",
+//        about_me: ""
+//      };
 
-      setProfileData(mockData);
-    }
-  };
+//      setProfileData(mockData);
+//    }
+//  };
 
-  const updateProfileInfo = async (data: ProfileData) => {
-    console.log('Sending profile data:', data);
+//  const updateProfileInfo = async (data: ProfileData) => {
+//    console.log('Sending profile data:', data);
 
     // Create an AbortController with timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+//    const controller = new AbortController();
+//    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
-    try {
-      console.log('Sending POST request to /api/profile');
-      const response = await fetch('/api/profile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(data),
-        signal: controller.signal
-      });
+//    try {
+//      console.log('Sending POST request to /features/v0/profile');
+//      const response = await fetch('/features/v0/profile', {
+//        method: 'POST',
+//        headers: {
+//          'Content-Type': 'application/json',
+//          'Accept': 'application/json'
+//        },
+//        body: JSON.stringify(data),
+//        signal: controller.signal
+//      });
 
       // Clear the timeout since the request completed
-      clearTimeout(timeoutId);
+//      clearTimeout(timeoutId);
 
-      console.log('Response status:', response.status);
+//      console.log('Response status:', response.status);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+//      if (!response.ok) {
+//        throw new Error(`HTTP error! Status: ${response.status}`);
+//      }
 
-      const responseData = await response.json();
-      console.log('Update response:', responseData);
-      alert('Profile updated successfully');
-    } catch (error) {
+//      const responseData = await response.json();
+//      console.log('Update response:', responseData);
+//      alert('Profile updated successfully');
+//    } catch (error) {
       // Clear the timeout to avoid memory leaks
-      clearTimeout(timeoutId);
+//      clearTimeout(timeoutId);
 
-      if ((error as any).name === 'AbortError') {
-        console.error('Request timed out after 5 seconds');
-        alert('Profile update request timed out. Please try again later.');
-      } else {
-        console.error('Error updating profile:', error);
-        alert('Failed to update profile. See console for details.');
-      }
-    }
-  };
+//      if ((error as any).name === 'AbortError') {
+//        console.error('Request timed out after 5 seconds');
+//        alert('Profile update request timed out. Please try again later.');
+//      } else {
+//        console.error('Error updating profile:', error);
+//        alert('Failed to update profile. See console for details.');
+//      }
+//    }
+//  };
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -173,7 +159,18 @@ export function ProfileForm() {
 
   const saveProfile = () => {
     console.log('Save profile button clicked');
-    updateProfileInfo(profileData);
+    updateProfileInfo(profileData)
+        .then(() => {
+            alert('Profile updated successfully');
+        })
+        .catch(err => {
+            if (err.message === 'Request timed out') {
+                alert('Profile update request timed out. Please try again later.');
+            } else {
+                console.error('Failed to update profile:', err);
+                alert('Failed to update profile. See console for details.');
+            }
+         });
   };
 
   const handleEducationChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
