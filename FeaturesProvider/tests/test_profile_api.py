@@ -65,7 +65,7 @@ def test_create_profile(client, mock_profile_data, mock_db_profile):
 
 
 def test_update_profile(client, mock_profile_data, mock_db_profile):
-    # Mock the database operations
+    # Mock the database operations - update to match your implementation
     with patch("main.db_manager.get_profile_by_email", return_value=mock_db_profile) as mock_get_profile, \
          patch("main.db_manager.update_profile", return_value=mock_db_profile) as mock_update_profile:
         
@@ -116,5 +116,4 @@ def test_create_profile_with_invalid_email(client):
     assert "detail" in response.json()
     # Check that the error is related to the email field
     errors = response.json()["detail"]
-    assert any(error["loc"][1] == "email" for error in errors) 
-    
+    assert any(error["loc"][1] == "email" for error in errors)
