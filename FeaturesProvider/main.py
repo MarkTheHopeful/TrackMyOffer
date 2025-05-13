@@ -116,8 +116,8 @@ def delete_education(profile_id: int, education_id: int, db: Session = Depends(g
     profile = db_manager.get_profile(db, profile_id)
     if not profile:
         raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
-    education = db_manager.delete_education(db, education_id)
-    return education
+    del_status = db_manager.delete_education(db, education_id)
+    return del_status
 
 @app.post("/api/experience", response_model=ExperienceResponse, status_code=201)
 def create_experience(experience_data: ExperienceCreate, db: Session = Depends(get_db)):
@@ -135,8 +135,22 @@ def create_experience(experience_data: ExperienceCreate, db: Session = Depends(g
 
     return experience
 
+@app.delete("/api/{profile_id}/experiences/{experience_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_experience(profile_id: int, experience_id: int, db: Session = Depends(get_db)):
+    """
+    Delete experience entry with given experience_id and profile_id
+    404 on an invalid experience or profile id
+    Otherwise 200
+    """
+    # Check if the profile exists
+    profile = db_manager.get_profile(db, profile_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
+    del_status = db_manager.delete_experience(db, experience_id)
+    return del_status
 
-@app.get("/api/experiences/{profile_id}", response_model=List[ExperienceResponse])
+
+@app.get("/api/{profile_id}/experiences", response_model=List[ExperienceResponse])
 def get_experiences(profile_id: int, db: Session = Depends(get_db)):
     """Get all experiences for a profile"""
     # Check if the profile exists

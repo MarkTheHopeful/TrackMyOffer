@@ -245,6 +245,24 @@ class DatabaseManager:
         session.commit()
         return experience
 
+    def delete_experience(self, session, experience_id):
+        """Delete an experience entry by ID.
+
+        Args:
+            session: SQLAlchemy session.
+            experience_id (int): ID of the experience entry to delete.
+
+        Returns:
+            True if deleted successfully, False otherwise.
+        """
+        experience = session.query(Experience).filter(Experience.id == experience_id).first()
+        if not experience:
+            return False
+
+        session.delete(experience)
+        session.commit()
+        return True
+
     def get_experiences(self, session, profile_id):
         """Get all experiences for a profile.
 

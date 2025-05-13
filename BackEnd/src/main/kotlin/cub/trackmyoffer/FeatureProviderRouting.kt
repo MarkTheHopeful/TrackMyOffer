@@ -1,6 +1,7 @@
 package cub.trackmyoffer
 
 import EducationEntry
+import ExperienceEntry
 import ProfileData
 import io.ktor.client.*
 import io.ktor.client.request.*
@@ -113,12 +114,59 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 val userId = extractUserId(call)
                 val educationId = call.parameters["educationId"]?.toIntOrNull()
                 if (educationId == null) {
-                    call.respondText("Missing name parameter", status = HttpStatusCode.BadRequest)
+                    call.respondText("Missing education id parameter", status = HttpStatusCode.BadRequest)
                     return@delete
                 }
 
                 val remoteResponse: HttpResponse =
                     httpClient.delete("${config.remote}/api/profile/${userId}/education/${educationId}")
+
+                call.respond(
+                    status = remoteResponse.status,
+                    message = remoteResponse.bodyAsText()
+                )
+            }
+
+            post("/profile/experience") {
+                val experienceReq = call.receive<ExperienceEntry>()
+
+                val userId = extractUserId(call)
+                experienceReq.profileId = userId
+
+                val remoteResponse: HttpResponse = httpClient.post("${config.remote}/api/experience") {
+                    contentType(ContentType.Application.Json)
+                    setBody(experienceReq)
+                }
+
+                val text = remoteResponse.bodyAsText()
+                call.respond(
+                    status = remoteResponse.status,
+                    message = text
+                )
+            }
+
+            get("/profile/experience") {
+                val userId = extractUserId(call)
+
+                val remoteResponse: HttpResponse = httpClient.get("${config.remote}/api/${userId}/experiences") {}
+
+                val text = remoteResponse.bodyAsText()
+                call.respond(
+                    status = remoteResponse.status,
+                    message = text
+                )
+            }
+
+            delete("/profile/experience") {
+                val userId = extractUserId(call)
+                val experienceId = call.parameters["experienceId"]?.toIntOrNull()
+                if (experienceId == null) {
+                    call.respondText("Missing experience id parameter", status = HttpStatusCode.BadRequest)
+                    return@delete
+                }
+
+                val remoteResponse: HttpResponse =
+                    httpClient.delete("${config.remote}/api/${userId}/experiences/${experienceId}")
 
                 call.respond(
                     status = remoteResponse.status,

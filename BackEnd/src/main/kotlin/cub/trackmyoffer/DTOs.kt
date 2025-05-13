@@ -27,3 +27,14 @@ data class ProfileData(
     val phone: String? = null,
     val education: List<EducationEntry> = emptyList(),
 )
+
+@Serializable
+data class ExperienceEntry(
+    var id: Int? = null,
+    @SerialName("profile_id") var profileId: Int? = null,
+    @SerialName("job_title") val jobTitle: String,
+    val company: String,
+    val startDate: String,    // ISO-8601 strings
+    val endDate: String? = null,
+    val description: String? = null,
+)
