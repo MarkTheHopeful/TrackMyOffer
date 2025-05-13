@@ -72,5 +72,162 @@ paths:
               schema:
                 type: string
                 example: "Error calling feature provider"
+  /features/v0/profile:
+    post:
+      summary: Feature profile endpoint
+      description: >
+        Requires a valid Google OAuth session.  
+        Forwards profile data to the feature-provider service
+      operationId: postFeatureProfile
+      security:
+        - googleOAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileRequest'
+            example:
+              first_name: "Mark"
+              last_name: "Ipatov"
+              email: "mark.ipatov@mipat.ov"
+              city: "Bremen"
+              education:
+                - id: "1746992929396"
+                  institution: "CUB"
+                  degree: "Bachelor"
+                  startDate: "2021-09-01"
+                  endDate: "2024-08-31"
+                  additionalInfo: "Transfer student"
+              linkedin_url: ""
+              github_url: ""
+              personal_website: ""
+              other_url: ""
+              about_me: ""
+              phone: "+4910000000000"
+              state: "Bremen"
+              country: "Germany"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "OK"
+        '400':
+          description: Bad request (e.g. malformed JSON)
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Invalid request payload"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Error calling feature provider"
+        '302':
+          description: Redirect to login on expired or missing session
+          headers:
+            Location:
+              description: Login URL
+              schema:
+                type: string
+          content: { }
 components:
-  schemas: {}
+  schemas:
+    EducationEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "1746992929396"
+        institution:
+          type: string
+          example: "CUB"
+        degree:
+          type: string
+          example: "Bachelor"
+        startDate:
+          type: string
+          format: date
+          example: "2021-09-01"
+        endDate:
+          type: string
+          format: date
+          example: "2024-08-31"
+        additionalInfo:
+          type: string
+          nullable: true
+          example: "Transfer student"
+      required:
+        - id
+        - institution
+        - degree
+        - startDate
+        - endDate
+
+    ProfileRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          example: "Mark"
+        last_name:
+          type: string
+          example: "Ipatov"
+        user_id:
+          type: integer
+          example: 1
+          nullable: true
+          description: "Internal user id, supposed to be empty on request from frontend and to be filled by the backend"
+        email:
+          type: string
+          format: email
+          example: "mark.ipatov@mipat.ov"
+        city:
+          type: string
+          example: "Bremen"
+        education:
+          type: array
+          items:
+            $ref: '#/components/schemas/EducationEntry'
+        linkedin_url:
+          type: string
+          format: uri
+          nullable: true
+        github_url:
+          type: string
+          format: uri
+          nullable: true
+        personal_website:
+          type: string
+          format: uri
+          nullable: true
+        other_url:
+          type: string
+          format: uri
+          nullable: true
+        about_me:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          example: "+4910000000000"
+        state:
+          type: string
+          example: "Bremen"
+        country:
+          type: string
+          example: "Germany"
+      required:
+        - first_name
+        - last_name
+        - email
+        - city
+        - education
+        - state
+        - country

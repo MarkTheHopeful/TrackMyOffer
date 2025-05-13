@@ -113,7 +113,7 @@ fun Route.authRouting(httpClient: HttpClient) {
     }
 }
 
-private suspend fun validateToken(httpClient: HttpClient, userSession: UserSession): Boolean {
+suspend fun validateToken(httpClient: HttpClient, userSession: UserSession): Boolean {
     return try {
         httpClient.get("https://oauth2.googleapis.com/tokeninfo") {
             url {
@@ -125,7 +125,7 @@ private suspend fun validateToken(httpClient: HttpClient, userSession: UserSessi
     }
 }
 
-private suspend fun getUserInfo(
+suspend fun getUserInfo(
     httpClient: HttpClient,
     userSession: UserSession
 ): UserInfo = httpClient.get("https://www.googleapis.com/oauth2/v2/userinfo") {
