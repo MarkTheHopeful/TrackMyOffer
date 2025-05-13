@@ -1,7 +1,7 @@
 from ai import request_model
 from database.db_interface import DatabaseManager
 from fastapi import Depends, FastAPI, HTTPException, status
-from models import ProfileCreate, ProfileResponse, EducationResponse, EducationCreate
+from models import ProfileCreate, ProfileResponse, EducationResponse, EducationCreate, ReviewRequest, ReviewResponse
 from sqlalchemy.orm import Session
 from typing import List
 from models import ExperienceCreate, ExperienceResponse
@@ -192,3 +192,21 @@ def generate_cover_letter(
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/review/cv", response_model=ReviewResponse)
+async def review_cv(request: ReviewRequest):
+    """
+    Process a CV review request:
+    1. Extract text from CV file
+    2. Get job description from URL if provided
+    3. Generate CV review using AI
+
+    Args:
+        request: Contains description, optional URL, and CV file in base64
+
+    Returns:
+        Review of the CV against the job description
+    """
+
+    return {"review": "ababa"}

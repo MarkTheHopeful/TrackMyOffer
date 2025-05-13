@@ -73,3 +73,14 @@ class ExperienceResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+        from_attributes = True
+
+# Models for CV Review endpoint
+class ReviewRequest(BaseModel):
+    description: str
+    url: str | None = None
+    cv: str  # Base64 encoded file
+
+class ReviewResponse(BaseModel):
+    review: str
