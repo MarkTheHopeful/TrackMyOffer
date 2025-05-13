@@ -17,6 +17,31 @@ data class Response(val status: HttpStatusCode, val body: String)
 data class FeatureProviderRoutingConfig(val remote: String)
 
 fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProviderRoutingConfig) {
+    suspend fun extractUserId(call: RoutingCall): Int {
+        val userSession: UserSession =
+            call.sessions.get() ?: throw RuntimeException("Invalid session during request")
+
+        if (!validateToken(httpClient, userSession)) {
+            application.log.debug("Invalid or expired session, redirecting to login")
+            call.sessions.clear<UserSession>()
+            call.respondRedirect("/login")
+        }
+        val userInfo: UserInfo = getUserInfo(httpClient, userSession)
+        // TODO: Go to the database and fetch user_id by the email
+        return 1
+    }
+
+    suspend fun extractJobDescription(call: RoutingCall): Response {
+        val jobDescriptionLink = call.request.queryParameters["jobDescriptionLink"]
+            ?: return Response(HttpStatusCode.BadRequest, "Missing jobDescriptionLink parameter")
+
+        val response = httpClient.post("${config.remote}/api/extract-job-description") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"jobDescriptionLink": "$jobDescriptionLink"}""")
+        }
+        return Response(response.status, response.bodyAsText())
+    }
+
     route("/features") {
         route("/v0") {
             get("/hello") {
@@ -37,20 +62,6 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
             get("/") {
                 val response = httpClient.get("${config.remote}/")
                 call.respondText(response.bodyAsText(), status = response.status)
-            }
-
-            suspend fun extractUserId(call: RoutingCall): Int {
-                val userSession: UserSession =
-                    call.sessions.get() ?: throw RuntimeException("Invalid session during request")
-
-                if (!validateToken(httpClient, userSession)) {
-                    application.log.debug("Invalid or expired session, redirecting to login")
-                    call.sessions.clear<UserSession>()
-                    call.respondRedirect("/login")
-                }
-                val userInfo: UserInfo = getUserInfo(httpClient, userSession)
-                // TODO: Go to the database and fetch user_id by the email
-                return 1
             }
 
             post("/profile") {
@@ -106,39 +117,14 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     return@delete
                 }
 
-                val remoteResponse: HttpResponse = httpClient.delete("${config.remote}/api/profile/${userId}/education/${educationId}")
+                val remoteResponse: HttpResponse =
+                    httpClient.delete("${config.remote}/api/profile/${userId}/education/${educationId}")
 
                 call.respond(
                     status = remoteResponse.status,
                     message = remoteResponse.bodyAsText()
                 )
             }
-
-            suspend fun extractJobDescription(call: RoutingCall): Response {
-                val jobDescriptionLink = call.request.queryParameters["jobDescriptionLink"]
-                    ?: return Response(HttpStatusCode.BadRequest, "Missing jobDescriptionLink parameter")
-
-                val response = httpClient.post("${config.remote}/api/extract-job-description") {
-                    contentType(ContentType.Application.Json)
-                    setBody("""{"jobDescriptionLink": "$jobDescriptionLink"}""")
-                }
-                return Response(response.status, response.bodyAsText())
-            }
-
-            suspend fun getProfileId(call: RoutingCall): Int? {
-                val profileId = call.request.queryParameters["profileId"] ?: return run {
-                    call.respondText("Missing profileId parameter", status = HttpStatusCode.BadRequest)
-                    null
-                }
-
-                // TODO: check for id correctness?
-
-                return profileId.toIntOrNull() ?: run {
-                    call.respondText("Invalid profileId parameter", status = HttpStatusCode.BadRequest)
-                    null
-                }
-            }
-
 
             get("/match-position") {
                 val extractorResponse = extractJobDescription(call)
@@ -147,7 +133,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     return@get
                 }
 
-                val profileId = getProfileId(call) ?: return@get
+                val profileId = extractUserId(call)
 
                 val response = httpClient.post("${config.remote}/api/match-position") {
                     contentType(ContentType.Application.Json)
@@ -168,7 +154,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     return@get
                 }
 
-                val profileId = getProfileId(call) ?: return@get
+                val profileId = extractUserId(call)
 
                 val response = httpClient.post("${config.remote}/api/build-cv") {
                     contentType(ContentType.Application.Json)
@@ -188,7 +174,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     return@get
                 }
 
-                val profileId = getProfileId(call) ?: return@get
+                val profileId = extractUserId(call)
 
                 val textStyle = call.request.queryParameters["textStyle"]
                 val notes = call.request.queryParameters["notes"]
@@ -212,10 +198,11 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
 
             post("/cover-letter") {
                 val request = call.receive<String>()
+                val userId = extractUserId(call)
                 val response = httpClient.post("${config.remote}/api/generate-cover-letter") {
                     contentType(ContentType.Application.Json)
                     setBody(request)
-                    parameter("profile_id", "1") // TODO: !!!
+                    parameter("profile_id", userId)
                 }
                 call.respondText(response.bodyAsText(), status = response.status)
             }
