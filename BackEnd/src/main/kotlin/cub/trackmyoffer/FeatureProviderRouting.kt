@@ -55,7 +55,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
             post("/profile") {
                 val profileReq = call.receive<ProfileData>()
 
-                profileReq.userId = extractUserId(call)
+                profileReq.id = extractUserId(call)
 
                 val remoteResponse: HttpResponse = httpClient.post("${config.remote}/api/profile") {
                     contentType(ContentType.Application.Json)

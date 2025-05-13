@@ -1,8 +1,6 @@
-from sqlalchemy import create_engine, Column, Integer, String, Text, Date, ForeignKey, DateTime, func, JSON
+from sqlalchemy import create_engine, Column, Integer, String, Text, Date, ForeignKey, DateTime, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
-import datetime
-from typing import Optional
 import os
 
 Base = declarative_base()
@@ -15,17 +13,20 @@ class Profile(Base):
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
     email = Column(String(255), nullable=False, unique=True)
+    country = Column(String(100), nullable=True)
+    state = Column(String(100), nullable=True)
+    city = Column(String(100), nullable=True)
     phone = Column(String(20), nullable=True)
-    city = Column(String(100), nullable=False)
-    state = Column(String(100), nullable=False)
-    country = Column(String(100), nullable=False)
-    summary = Column(Text, nullable=True)
+    linkedin_url = Column(String(255), nullable=True)
+    github_url = Column(String(255), nullable=True)
+    personal_website = Column(String(255), nullable=True)
+    other_url = Column(String(255), nullable=True)
+    about_me = Column(Text, nullable=True)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now(), onupdate=func.now())
 
     # Relationships
     education = relationship("Education", back_populates="profile", cascade="all, delete-orphan")
-    social_media = relationship("SocialMedia", back_populates="profile", uselist=False, cascade="all, delete-orphan")
     experience = relationship("Experience", back_populates="profile", cascade="all, delete-orphan")
 
 
@@ -44,22 +45,6 @@ class Education(Base):
 
     # Relationship
     profile = relationship("Profile", back_populates="education")
-
-
-class SocialMedia(Base):
-    __tablename__ = 'social_media'
-
-    id = Column(Integer, primary_key=True)
-    profile_id = Column(Integer, ForeignKey('profiles.id', ondelete='CASCADE'), nullable=False, unique=True)
-    linkedin_url = Column(String(255), nullable=True)
-    github_url = Column(String(255), nullable=True)
-    personal_website = Column(String(255), nullable=True)
-    other_links = Column(JSON, nullable=True)
-    created_at = Column(DateTime, nullable=False, default=func.now())
-    updated_at = Column(DateTime, nullable=False, default=func.now(), onupdate=func.now())
-
-    # Relationship
-    profile = relationship("Profile", back_populates="social_media")
 
 
 class Experience(Base):
@@ -95,7 +80,7 @@ class DatabaseManager:
             db_user = os.getenv('DB_USER', 'features_user')
             db_pass = os.getenv('DB_PASSWORD', 'features_password')
             db_name = os.getenv('DB_NAME', 'features_db')
-            
+
             db_url = f'postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}'
 
         self.engine = create_engine(db_url)
@@ -221,36 +206,6 @@ class DatabaseManager:
         session.commit()
         return education
 
-    def add_social_media(self, session, profile_id, social_media_data):
-        """Add or update social media for a profile.
-
-        Args:
-            session: SQLAlchemy session.
-            profile_id (int): ID of the profile to add social media to.
-            social_media_data (dict): Dictionary containing social media information.
-
-        Returns:
-            SocialMedia: The created or updated social media object, or None if profile not found.
-        """
-        profile = session.query(Profile).filter(Profile.id == profile_id).first()
-        if not profile:
-            return None
-
-        social_media = session.query(SocialMedia).filter(SocialMedia.profile_id == profile_id).first()
-
-        if social_media:
-            # Update existing
-            for key, value in social_media_data.items():
-                setattr(social_media, key, value)
-        else:
-            # Create new
-            social_media_data['profile_id'] = profile_id
-            social_media = SocialMedia(**social_media_data)
-            session.add(social_media)
-
-        session.commit()
-        return social_media
-
     def add_experience(self, session, profile_id, experience_data):
         """Add experience entry to a profile.
 
@@ -283,10 +238,10 @@ class DatabaseManager:
             list: List of Experience objects.
         """
         return session.query(Experience).filter(Experience.profile_id == profile_id).all()
-    
+
     # Additional convenience methods that don't require an explicit session
     # These methods create a session, perform the operation, and close the session
-    
+
     def add_profile_auto(self, profile_data):
         """Add a new profile to the database (with automatic session handling).
 
@@ -301,7 +256,7 @@ class DatabaseManager:
             return self.add_profile(session, profile_data)
         finally:
             self.close_session(session)
-    
+
     def get_profile_auto(self, profile_id):
         """Get a profile by ID (with automatic session handling).
 
@@ -316,7 +271,7 @@ class DatabaseManager:
             return self.get_profile(session, profile_id)
         finally:
             self.close_session(session)
-    
+
     def get_profile_by_email_auto(self, email):
         """Get a profile by email (with automatic session handling).
 
@@ -331,7 +286,7 @@ class DatabaseManager:
             return self.get_profile_by_email(session, email)
         finally:
             self.close_session(session)
-    
+
     # Add this to the DatabaseManager class in db_interface.py
     def add_experience_auto(self, profile_id, experience_data):
         """Add experience entry to a profile (with automatic session handling).

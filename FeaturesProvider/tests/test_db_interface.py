@@ -1,6 +1,6 @@
 import pytest
 from datetime import date
-from database.db_interface import DatabaseManager, Education, SocialMedia
+from database.db_interface import DatabaseManager, Education
 
 
 @pytest.fixture
@@ -62,7 +62,7 @@ def test_create_profile(db_manager, sample_profile_data):
         assert profile.city == sample_profile_data["city"]
         assert profile.state == sample_profile_data["state"]
         assert profile.country == sample_profile_data["country"]
-        assert profile.summary == sample_profile_data["summary"]
+        assert profile.about_me == sample_profile_data["summary"]
         assert profile.created_at is not None
         assert profile.updated_at is not None
     finally:
@@ -116,7 +116,7 @@ def test_update_profile(db_manager, sample_profile_data):
         assert updated_profile is not None
         assert updated_profile.first_name == update_data["first_name"]
         assert updated_profile.phone == update_data["phone"]
-        assert updated_profile.summary == update_data["summary"]
+        assert updated_profile.about_me == update_data["summary"]
         assert updated_profile.last_name == sample_profile_data["last_name"]  # Unchanged field
     finally:
         db_manager.close_session(session)
@@ -161,26 +161,6 @@ def test_add_education(db_manager, sample_profile_data, sample_education_data):
         db_manager.close_session(session)
 
 
-def test_add_social_media(db_manager, sample_profile_data, sample_social_media_data):
-    """Test adding social media to a profile"""
-    session = db_manager.get_session()
-    try:
-        # Create a profile first
-        profile = db_manager.add_profile(session, sample_profile_data)
-
-        # Add social media
-        social_media = db_manager.add_social_media(session, profile.id, sample_social_media_data)
-
-        assert social_media.id is not None
-        assert social_media.profile_id == profile.id
-        assert social_media.linkedin_url == sample_social_media_data["linkedin_url"]
-        assert social_media.github_url == sample_social_media_data["github_url"]
-        assert social_media.personal_website == sample_social_media_data["personal_website"]
-        assert social_media.other_links == sample_social_media_data["other_links"]
-    finally:
-        db_manager.close_session(session)
-
-
 def test_profile_relationships(db_manager, sample_profile_data, sample_education_data, sample_social_media_data):
     """Test relationships between profile, education, and social media"""
     session = db_manager.get_session()
@@ -191,18 +171,13 @@ def test_profile_relationships(db_manager, sample_profile_data, sample_education
         # Add education
         education = db_manager.add_education(session, profile.id, sample_education_data)
 
-        # Add social media
-        social_media = db_manager.add_social_media(session, profile.id, sample_social_media_data)
-
         # Test relationships
         assert len(profile.education) == 1
         assert profile.education[0].id == education.id
-        assert profile.social_media.id == social_media.id
 
         # Test cascade delete
         db_manager.delete_profile(session, profile.id)
         assert db_manager.get_profile(session, profile.id) is None
         assert session.query(Education).filter_by(id=education.id).first() is None
-        assert session.query(SocialMedia).filter_by(id=social_media.id).first() is None
     finally:
         db_manager.close_session(session)

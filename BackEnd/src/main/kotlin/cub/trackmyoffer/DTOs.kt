@@ -12,18 +12,18 @@ data class EducationEntry(
 
 @Serializable
 data class ProfileData(
-    @SerialName("user_id") var userId: Int? = null,
+    var id: Int? = null,
     @SerialName("first_name") val firstName: String,
     @SerialName("last_name")  val lastName: String,
     val email: String,
-    val city: String,
-    val education: List<EducationEntry> = emptyList(),
+    val country: String? = null,
+    val state: String? = null,
+    val city: String? = null,
     @SerialName("linkedin_url")    val linkedinUrl: String? = null,
     @SerialName("github_url")      val githubUrl: String?   = null,
     @SerialName("personal_website")val personalWebsite: String? = null,
     @SerialName("other_url")       val otherUrl: String? = null,
     @SerialName("about_me")        val aboutMe: String? = null,
     val phone: String? = null,
-    val state: String,
-    val country: String
+    val education: List<EducationEntry> = emptyList(),
 )

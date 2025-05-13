@@ -4,7 +4,6 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from models import ProfileCreate, ProfileResponse
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import date
 from models import ExperienceCreate, ExperienceResponse
 from features.cover_letter_generator import generate_cover_letter_data, fill_template
 import os
