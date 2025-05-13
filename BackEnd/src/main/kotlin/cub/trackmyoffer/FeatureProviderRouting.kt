@@ -33,12 +33,11 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
     }
 
     suspend fun extractJobDescription(call: RoutingCall): Response {
-        val jobDescriptionLink = call.request.queryParameters["jobDescriptionLink"]
-            ?: return Response(HttpStatusCode.BadRequest, "Missing jobDescriptionLink parameter")
-
+        val jobDescriptionLink = call.request.queryParameters["jobDescription"]
+            ?: return Response(HttpStatusCode.BadRequest, "Missing jobDescription parameter")
         val response = httpClient.post("${config.remote}/api/extract-job-description") {
             contentType(ContentType.Application.Json)
-            setBody("""{"jobDescriptionLink": "$jobDescriptionLink"}""")
+            setBody("""{"jobDescription": "$jobDescriptionLink"}""")
         }
         return Response(response.status, response.bodyAsText())
     }

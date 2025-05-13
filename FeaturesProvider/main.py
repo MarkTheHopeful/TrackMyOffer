@@ -1,7 +1,8 @@
-from ai import request_model
+from ai import request_model, text_job_position_from_link, job_description_from_text
 from database.db_interface import DatabaseManager
 from fastapi import Depends, FastAPI, HTTPException, status
-from models import ProfileCreate, ProfileResponse, EducationResponse, EducationCreate, ReviewRequest, ReviewResponse
+from models import ProfileCreate, ProfileResponse, EducationResponse, EducationCreate, ReviewRequest, ReviewResponse, \
+    JobDescriptionResponse, JobDescriptionReceive
 from sqlalchemy.orm import Session
 from typing import List
 from models import ExperienceCreate, ExperienceResponse
@@ -163,6 +164,13 @@ def get_experiences(profile_id: int, db: Session = Depends(get_db)):
 
     return experiences
 
+@app.post("api/extract-job-description", response_model=JobDescriptionResponse)
+def extract_job_description(job_description_raw: JobDescriptionReceive):
+    jd_text = job_description_raw.jobDescription
+    if jd_text.startswith("https://") or jd_text.startswith("http://"):
+        jd_text = text_job_position_from_link(jd_text)
+
+    return job_description_from_text(jd_text)
 
 @app.post("/api/generate-cover-letter")
 def generate_cover_letter(

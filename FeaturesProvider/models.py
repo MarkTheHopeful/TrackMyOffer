@@ -76,6 +76,19 @@ class ExperienceResponse(BaseModel):
 
         from_attributes = True
 
+class JobDescriptionReceive(BaseModel):
+    jobDescription: str
+
+class JobDescriptionResponse(BaseModel):
+    company_name: str
+    company_address: str
+    company_city: str
+    company_postal_code: str
+    recruiter_name: str
+    title: str
+    description: str
+    pass
+
 # Models for CV Review endpoint
 class ReviewRequest(BaseModel):
     description: str
