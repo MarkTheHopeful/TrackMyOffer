@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from typing import List
 from datetime import date
 from models import ExperienceCreate, ExperienceResponse
+from features.cover_letter_generator import generate_cover_letter_data, fill_template
+import os
 
 app = FastAPI()
 
@@ -73,8 +75,6 @@ def create_or_update_profile(profile: ProfileCreate, db: Session = Depends(get_d
         new_profile = db_manager.add_profile(db, profile.dict())
         return new_profile
 
-# ... your existing endpoints ...
-
 @app.post("/api/experience", response_model=ExperienceResponse, status_code=201)
 def create_experience(experience_data: ExperienceCreate, db: Session = Depends(get_db)):
     """Create a new experience entry for a profile"""
@@ -82,13 +82,13 @@ def create_experience(experience_data: ExperienceCreate, db: Session = Depends(g
     profile = db_manager.get_profile(db, experience_data.profile_id)
     if not profile:
         raise HTTPException(status_code=404, detail=f"Profile with id {experience_data.profile_id} not found")
-    
+
     # Convert pydantic model to dict
     experience_dict = experience_data.dict()
-    
+
     # Add the experience to the database
     experience = db_manager.add_experience(db, profile.id, experience_dict)
-    
+
     return experience
 
 @app.get("/api/experiences/{profile_id}", response_model=List[ExperienceResponse])
@@ -98,8 +98,37 @@ def get_experiences(profile_id: int, db: Session = Depends(get_db)):
     profile = db_manager.get_profile(db, profile_id)
     if not profile:
         raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
-    
+
     # Get experiences
     experiences = db_manager.get_experiences(db, profile_id)
-    
+
     return experiences
+
+@app.post("/api/generate-cover-letter")
+def generate_cover_letter(
+    profile_id: int,
+    job_description: dict,
+    style: str = "professional",
+    db: Session = Depends(get_db)
+):
+    """Generate a cover letter based on profile and job description"""
+    try:
+        # Read the template file
+        template_path = os.path.join("templates", "cover_letter_basic.txt")
+        with open(template_path, "r") as f:
+            template = f.read()
+
+        # Generate data for the template
+        letter_data = generate_cover_letter_data(db, profile_id, job_description, style)
+
+        # Fill the template with the data
+        filled_letter = fill_template(template, letter_data)
+
+        return {
+            "cover_letter": filled_letter,
+            "data": letter_data
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

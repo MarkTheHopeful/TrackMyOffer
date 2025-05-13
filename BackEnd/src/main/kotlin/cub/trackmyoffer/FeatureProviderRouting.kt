@@ -159,6 +159,16 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 }
                 call.respondText(response.bodyAsText(), status = response.status)
             }
+
+            post("/cover-letter") {
+                val request = call.receive<String>()
+                val response = httpClient.post("${config.remote}/api/generate-cover-letter") {
+                    contentType(ContentType.Application.Json)
+                    setBody(request)
+                    parameter("profile_id", "1") // TODO: !!!
+                }
+                call.respondText(response.bodyAsText(), status = response.status)
+            }
         }
     }
 }
