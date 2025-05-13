@@ -1,7 +1,7 @@
 from ai import request_model
 from database.db_interface import DatabaseManager
 from fastapi import Depends, FastAPI, HTTPException, status
-from models import ProfileCreate, ProfileResponse
+from models import ProfileCreate, ProfileResponse, EducationResponse, EducationCreate
 from sqlalchemy.orm import Session
 from typing import List
 from models import ExperienceCreate, ExperienceResponse
@@ -63,6 +63,8 @@ def get_profile(profile_id: int, db: Session = Depends(get_db)):
     if not profile:
         raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
     return profile
+
+
 @app.post(
     "/api/profile", response_model=ProfileResponse, status_code=status.HTTP_201_CREATED
 )
@@ -86,6 +88,37 @@ def create_or_update_profile(profile: ProfileCreate, db: Session = Depends(get_d
         new_profile = db_manager.add_profile(db, profile.dict())
         return new_profile
 
+
+@app.post(
+    "api/profile/{profile_id}/education", response_model=EducationResponse, status_code=status.HTTP_201_CREATED
+)
+def create_education(profile_id: int, education: EducationCreate, db: Session = Depends(get_db)):
+    """
+    Create (insert) an education entry for the given profile id
+    404 on an invalid profile id
+    Otherwise a new education entry will be returned (with id given).
+    """
+    profile = db_manager.get_profile(db, profile_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
+    education = db_manager.add_education(db, profile_id, education.dict())
+    return education
+
+@app.delete(
+    "api/profile/{profile_id}/education/{education_id}", status_code=status.HTTP_200_OK
+)
+def delete_education(profile_id: int, education_id: int, db: Session = Depends(get_db)):
+    """
+    Delete education entry with given education_id and profile_id
+    404 on an invalid education or profile id
+    Otherwise 200
+    """
+    profile = db_manager.get_profile(db, profile_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
+    education = db_manager.delete_education(db, education_id)
+    return education
+
 @app.post("/api/experience", response_model=ExperienceResponse, status_code=201)
 def create_experience(experience_data: ExperienceCreate, db: Session = Depends(get_db)):
     """Create a new experience entry for a profile"""
@@ -102,6 +135,7 @@ def create_experience(experience_data: ExperienceCreate, db: Session = Depends(g
 
     return experience
 
+
 @app.get("/api/experiences/{profile_id}", response_model=List[ExperienceResponse])
 def get_experiences(profile_id: int, db: Session = Depends(get_db)):
     """Get all experiences for a profile"""
@@ -115,12 +149,13 @@ def get_experiences(profile_id: int, db: Session = Depends(get_db)):
 
     return experiences
 
+
 @app.post("/api/generate-cover-letter")
 def generate_cover_letter(
-    profile_id: int,
-    job_description: dict,
-    style: str = "professional",
-    db: Session = Depends(get_db)
+        profile_id: int,
+        job_description: dict,
+        style: str = "professional",
+        db: Session = Depends(get_db)
 ):
     """Generate a cover letter based on profile and job description"""
     try:

@@ -2,11 +2,11 @@ import kotlinx.serialization.*
 
 @Serializable
 data class EducationEntry(
-    val id: Int,
+    var id: Int? = null,
     val institution: String,
     val degree: String,
     val startDate: String,    // ISO-8601 strings
-    val endDate: String,
+    val endDate: String? = null,
     val additionalInfo: String? = null
 )
 

@@ -1,5 +1,6 @@
 package cub.trackmyoffer
 
+import EducationEntry
 import ProfileData
 import io.ktor.client.*
 import io.ktor.client.request.*
@@ -73,6 +74,39 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 val userId = extractUserId(call)
 
                 val remoteResponse: HttpResponse = httpClient.get("${config.remote}/api/profile/${userId}")
+
+                call.respond(
+                    status = remoteResponse.status,
+                    message = remoteResponse.bodyAsText()
+                )
+            }
+
+            post("/profile/education") {
+                val educationReq = call.receive<EducationEntry>()
+
+                val userId = extractUserId(call)
+
+                val remoteResponse: HttpResponse = httpClient.post("${config.remote}/api/profile/${userId}/education") {
+                    contentType(ContentType.Application.Json)
+                    setBody(educationReq)
+                }
+
+                val text = remoteResponse.bodyAsText()
+                call.respond(
+                    status = remoteResponse.status,
+                    message = text
+                )
+            }
+
+            delete("/profile/education/") {
+                val userId = extractUserId(call)
+                val educationId = call.parameters["educationId"]?.toIntOrNull()
+                if (educationId == null) {
+                    call.respondText("Missing name parameter", status = HttpStatusCode.BadRequest)
+                    return@delete
+                }
+
+                val remoteResponse: HttpResponse = httpClient.delete("${config.remote}/api/profile/${userId}/education/${educationId}")
 
                 call.respond(
                     status = remoteResponse.status,

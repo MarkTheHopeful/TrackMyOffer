@@ -18,14 +18,6 @@ class ProfileCreate(BaseModel):
     about_me: Optional[str] = Field(None)
 
 
-class EducationCreate(BaseModel):
-    institution: str = Field(..., min_length=1, max_length=255)
-    degree: str = Field(..., min_length=1, max_length=255)
-    start_date: date
-    end_date: Optional[date] = None
-    additional_info: Optional[str] = None
-
-
 class ProfileResponse(BaseModel):
     id: int
     first_name: str
@@ -44,6 +36,22 @@ class ProfileResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
+class EducationCreate(BaseModel):
+    institution: str = Field(..., min_length=1, max_length=255)
+    degree: str = Field(..., min_length=1, max_length=255)
+    start_date: date
+    end_date: Optional[date] = None
+    additional_info: Optional[str] = None
+
+
+class EducationResponse(BaseModel):
+    id: int
+    institution: str
+    degree: str
+    start_date: date
+    end_date: Optional[date] = None
+    additional_info: Optional[str] = None
 
 class ExperienceCreate(BaseModel):
     profile_id: int

@@ -206,6 +206,24 @@ class DatabaseManager:
         session.commit()
         return education
 
+    def delete_education(self, session, education_id):
+        """Delete an education entry by ID.
+
+        Args:
+            session: SQLAlchemy session.
+            education_id (int): ID of the education entry to delete.
+
+        Returns:
+            True if deleted successfully, False otherwise.
+        """
+        education = session.query(Education).filter(Education.id == education_id).first()
+        if not education:
+            return False
+
+        session.delete(education)
+        session.commit()
+        return True
+
     def add_experience(self, session, profile_id, experience_data):
         """Add experience entry to a profile.
 
