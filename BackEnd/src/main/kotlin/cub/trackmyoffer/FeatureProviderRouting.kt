@@ -1,5 +1,6 @@
 package cub.trackmyoffer
 
+import CVCreateRequest
 import EducationEntry
 import ExperienceEntry
 import ProfileData
@@ -36,8 +37,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
     }
 
     suspend fun extractJobDescription(call: RoutingCall): Response {
-        val jobDescriptionLink = call.request.queryParameters["jobDescription"]
-            ?: return Response(HttpStatusCode.BadRequest, "Missing jobDescription parameter")
+        val jobDescriptionLink = call.receive<CVCreateRequest>().jobDescription
         val response = httpClient.post("${config.remote}/api/extract-job-description") {
             contentType(ContentType.Application.Json)
             setBody(buildJsonObject {
@@ -309,11 +309,11 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 )
             }
 
-            get("/build-cv") {
+            post("/build-cv") {
                 val extractorResponse = extractJobDescription(call)
                 if (extractorResponse.status != HttpStatusCode.OK) {
                     call.respond(extractorResponse.status, extractorResponse.body)
-                    return@get
+                    return@post
                 }
 
                 val profileId = extractUserId(call)
@@ -328,11 +328,11 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 call.respondText(response.bodyAsText(), status = response.status)
             }
 
-            get("/DEBUG/build-cv") {
+            post("/DEBUG/build-cv") {
                 val extractorResponse = extractJobDescription(call)
                 if (extractorResponse.status != HttpStatusCode.OK) {
                     call.respond(extractorResponse.status, extractorResponse.body)
-                    return@get
+                    return@post
                 }
 
                 val profileId = 1

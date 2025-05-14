@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusIcon, Trash2Icon, SaveIcon } from 'lucide-react';
 import { Experience } from '@/api/Experience';
-import { getExperiences, createExperience, deleteExperience } from '@/api/backend';
+import { getExperiences, createExperience, deleteExperience, createCV } from '@/api/backend';
 
 interface ExperienceWithSelection extends Experience {
   selected: boolean;
@@ -72,6 +72,17 @@ export function CVBuilder() {
     }));
     setHasChanges(true);
   };
+
+  const handleGenerateCV = async () => {
+    try {
+      const result = await createCV(jobDescription);
+      alert(result.cv_text);
+    } catch (err) {
+      console.error('Error generating CV:', err);
+      alert('Failed to generate tailored CV. Please try again.');
+    }
+  };
+
 
   const saveChanges = async () => {
     setIsLoading(true);
@@ -221,7 +232,7 @@ export function CVBuilder() {
             placeholder="Paste job description or enter URL..."
             disabled={isLoading}
           />
-          <Button variant="primary" className="w-full" disabled={isLoading}>
+          <Button variant="primary" className="w-full" disabled={isLoading} onClick={handleGenerateCV}>
             Generate Tailored CV
           </Button>
         </div>

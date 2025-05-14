@@ -93,7 +93,7 @@ def job_description_from_text(job_description_as_text: str) -> JobDescriptionRes
     """
     # FIXME: Your code goes here...
     return JobDescriptionResponse(
-        company_name="SomeCorp Ltd",
+        company_name=job_description_as_text[:5],
         company_address="Mockers avenue 48",
         company_city="Berlin",
         company_postal_code="03523",
@@ -117,8 +117,7 @@ def md_cv_from_user_and_job(profile: Profile, educations: List[Education],
     # FIXME: Your code goes here...
     return GeneratedCV(
         format="md",
-        cv_text="""
-# Isaac Newton
+        cv_text=f"# {profile.first_name} {profile.last_name} for {job_description.company_name}" + """"
 Physicist, Mathematician, Cambridge professor.
 
 [isaac@applesdofall.org](isaac@applesdofall.org)
