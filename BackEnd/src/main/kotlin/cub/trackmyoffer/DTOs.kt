@@ -25,7 +25,6 @@ data class ProfileData(
     @SerialName("other_url")       val otherUrl: String? = null,
     @SerialName("about_me")        val aboutMe: String? = null,
     val phone: String? = null,
-    val education: List<EducationEntry> = emptyList(),
 )
 
 @Serializable
