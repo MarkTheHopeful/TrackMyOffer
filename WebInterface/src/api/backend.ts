@@ -4,6 +4,7 @@ import { EducationEntry } from "./EducationEntry.ts";
 import { Experience } from "./Experience.ts";
 import { CV_Markdown } from "./CV_Markdown.ts";
 import { ReviewResult } from "./ReviewResult.ts";
+import { CoverLetterObj } from "./CoverLetterObj.ts";
 
 const host = import.meta.env.VITE_API_HOST ?? "localhost";
 const port = import.meta.env.VITE_API_PORT ?? "8080";
@@ -114,7 +115,7 @@ export async function generateCoverLetter(request: GenerateCoverLetterRequest): 
     }
 
     const data = await response.json();
-    return data.content;
+    return data.cover_letter;
 }
 
 export async function createEducationEntry(education: Omit<EducationEntry, 'id'>): Promise<EducationEntry> {

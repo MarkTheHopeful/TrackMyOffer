@@ -223,8 +223,9 @@ async def review_cv(profile_id: int, job_description: JobDescriptionResponse, db
 @app.post("/api/generate-cover-letter")
 def generate_cover_letter(
         profile_id: int,
-        job_description: dict,
+        job_description: JobDescriptionResponse,
         style: str = "professional",
+        notes: str = "",
         db: Session = Depends(get_db)
 ):
     """Generate a cover letter based on profile and job description"""
@@ -235,14 +236,14 @@ def generate_cover_letter(
             template = f.read()
 
         # Generate data for the template
-        letter_data = generate_cover_letter_data(db, profile_id, job_description, style)
+        letter_data = generate_cover_letter_data(db, profile_id, job_description, style, notes)
 
         # Fill the template with the data
         filled_letter = fill_template(template, letter_data)
 
         return {
             "cover_letter": filled_letter,
-            "data": letter_data
+            # "data": letter_data
         }
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

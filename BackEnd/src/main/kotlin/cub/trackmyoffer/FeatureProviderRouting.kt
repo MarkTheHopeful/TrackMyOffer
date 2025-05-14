@@ -1,5 +1,6 @@
 package cub.trackmyoffer
 
+import CoverLetterRequest
 import EducationEntry
 import ExperienceEntry
 import ProfileData
@@ -36,15 +37,19 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
         return 1
     }
 
-    suspend fun extractJobDescription(call: RoutingCall): Response {
-        val jobDescriptionLink = call.receive<WithJobDescription>().jobDescription
+    suspend fun getJobDescription(jobDescription: String): Response {
         val response = httpClient.post("${config.remote}/api/extract-job-description") {
             contentType(ContentType.Application.Json)
             setBody(buildJsonObject {
-                put("jobDescription", jobDescriptionLink)
+                put("jobDescription", jobDescription)
             }.toString())
         }
         return Response(response.status, response.bodyAsText())
+    }
+
+    suspend fun extractJobDescription(call: RoutingCall): Response {
+        val jobDescription = call.receive<WithJobDescription>().jobDescription
+        return getJobDescription(jobDescription)
     }
 
     route("/features") {
@@ -388,11 +393,12 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
             }
 
 
-            get("/cover-letter") {
-                val extractorResponse = extractJobDescription(call)
+            post("/cover-letter") {
+                val request = call.receive<CoverLetterRequest>()
+                val extractorResponse = getJobDescription(request.jobDescription)
                 if (extractorResponse.status != HttpStatusCode.OK) {
                     call.respond(extractorResponse.status, extractorResponse.body)
-                    return@get
+                    return@post
                 }
 
                 val profileId = extractUserId(call)
@@ -400,19 +406,39 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 val textStyle = call.request.queryParameters["textStyle"]
                 val notes = call.request.queryParameters["notes"]
 
-                val response = httpClient.post("${config.remote}/api/generate-motivational-letter") {
+                val response = httpClient.post("${config.remote}/api/generate-cover-letter") {
                     contentType(ContentType.Application.Json)
                     setBody(
-                        "${
-                            extractorResponse.body.trimEnd().removeSuffix("}")
-                        }${
-                            if (textStyle != null) """, "textStyle": "$textStyle""""
-                            else ""
-                        }${
-                            if (notes != null) """, "notes": "$notes""""
-                            else ""
-                        }, \"profileId\": ${profileId}}"
+                        extractorResponse.body
                     )
+                    parameter("profile_id", profileId)
+                    parameter("style", textStyle)
+                    parameter("notes", notes)
+                }
+                call.respondText(response.bodyAsText(), status = response.status)
+            }
+
+            post("/DEBUG/cover-letter") {
+                val request = call.receive<CoverLetterRequest>()
+                val extractorResponse = getJobDescription(request.jobDescription)
+                if (extractorResponse.status != HttpStatusCode.OK) {
+                    call.respond(extractorResponse.status, extractorResponse.body)
+                    return@post
+                }
+
+                val profileId = 1
+
+                val textStyle = request.tone
+                val notes = request.motivations
+
+                val response = httpClient.post("${config.remote}/api/generate-cover-letter") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        extractorResponse.body
+                    )
+                    parameter("profile_id", profileId)
+                    parameter("style", textStyle)
+                    parameter("notes", notes)
                 }
                 call.respondText(response.bodyAsText(), status = response.status)
             }

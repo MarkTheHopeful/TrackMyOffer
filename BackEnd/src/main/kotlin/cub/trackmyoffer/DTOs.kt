@@ -42,3 +42,10 @@ data class ExperienceEntry(
 data class WithJobDescription(
     val jobDescription: String,
 )
+
+@Serializable
+data class CoverLetterRequest(
+    val jobDescription: String,
+    val motivations: String,
+    val tone: String,
+)

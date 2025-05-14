@@ -10,6 +10,8 @@ from dotenv import load_dotenv
 from loguru import logger
 from typing import Optional, Dict
 
+from models import JobDescriptionResponse
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -108,14 +110,14 @@ class CoverLetterData(TypedDict):
     applicant_phone: str
     applicant_email: str
 
-def generate_ai_content(profile: Profile, job_description: str, style: LetterStyle) -> dict:
+def generate_ai_content(profile: Profile, job_description: JobDescriptionResponse, style: LetterStyle, notes: str) -> dict:
     """Generate AI-powered content for the cover letter"""
     prompt = f"""
     Generate content for a cover letter in {style} style.
     
     About the candidate:
     - Name: {profile.first_name} {profile.last_name}
-    - Summary: {profile.summary}
+    - Summary: {profile.about_me}
     - Location: {profile.city}, {profile.state}, {profile.country}
     
     For the job:
@@ -125,6 +127,8 @@ def generate_ai_content(profile: Profile, job_description: str, style: LetterSty
     1. Why interested in company (2-3 sentences)
     2. Key achievements description (2-3 sentences)
     3. Why good candidate (2-3 sentences)
+    
+    Use the following notes as a possible motivation source: {notes}
     """
     
     response = request_model(prompt)
@@ -140,8 +144,9 @@ def generate_ai_content(profile: Profile, job_description: str, style: LetterSty
 def generate_cover_letter_data(
     db: Session,
     profile_id: int,
-    job_description: dict,
-    style: LetterStyle = "professional"
+    job_description: JobDescriptionResponse,
+    style: LetterStyle = "professional",
+    notes: str = ""
 ) -> CoverLetterData:
     """Generate data for cover letter template based on profile and job description"""
     
@@ -150,7 +155,8 @@ def generate_cover_letter_data(
         raise ValueError("Profile not found")
 
     # Generate AI-powered content
-    ai_content = generate_ai_content(profile, job_description["description"], style)
+    ai_content = generate_ai_content(profile, job_description, style, notes)
+    job_description = job_description.dict()
 
     # Combine profile data with job description and AI-generated content
     cover_letter_data: CoverLetterData = {
@@ -168,7 +174,7 @@ def generate_cover_letter_data(
         "applicant_email": profile.email,
         
         # Current position and technical skills from profile
-        "current_position_description": profile.summary or "",
+        "current_position_description": profile.about_me or "",
         "technical_skills_description": "I have extensive experience in...",  # You might want to add a skills field to Profile
         
         # AI-generated content
