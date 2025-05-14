@@ -115,61 +115,6 @@ export async function generateCoverLetter(request: GenerateCoverLetterRequest): 
     return data.content;
 }
 
-// export async function fetchProfileInfo(): Promise<ProfileData> {
-//     const controller = new AbortController();
-//     const timeout = setTimeout(() => controller.abort(), 5_000);
-//     try {
-//         const res = await fetch(`${API_BASE_URL}/features/v0/profile`, {
-//             headers: { 'Accept': 'application/json' },
-//             signal: controller.signal,
-//             credentials: "include",
-//         });
-//         clearTimeout(timeout);
-//         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-//         return await res.json();
-//     } catch (err) {
-//         clearTimeout(timeout);
-//         console.warn('fetchProfileInfo failed, falling back to mock:', err);
-//         return {
-//             first_name: "Akaky",
-//             last_name: "Akakievich",
-//             email: "abc@xyz.com",
-//             city: "Saint Petersburg",
-//             education: [],
-//             linkedin_url: "",
-//             github_url: "",
-//             personal_website: "",
-//             other_url: "",
-//             about_me: ""
-//         };
-//     }
-// }
-
-// export async function updateProfileInfo(data: ProfileData): Promise<void> {
-//     const controller = new AbortController();
-//     const timeout = setTimeout(() => controller.abort(), 5_000);
-//     try {
-//         const res = await fetch(`${API_BASE_URL}/features/v0/profile`, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'Accept': 'application/json'
-//             },
-//             credentials: "include",
-//             body: JSON.stringify(data),
-//             signal: controller.signal,
-//         });
-//         clearTimeout(timeout);
-//         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-//     } catch (err) {
-//         clearTimeout(timeout);
-//         if ((err as any).name === 'AbortError') {
-//             throw new Error('Request timed out');
-//         }
-//         throw err;
-//     }
-// }
-
 export async function createEducationEntry(education: Omit<EducationEntry, 'id'>): Promise<EducationEntry> {
     const response = await fetch(`${API_BASE_URL}/features/v0/profile/education`, {
         method: 'POST',
