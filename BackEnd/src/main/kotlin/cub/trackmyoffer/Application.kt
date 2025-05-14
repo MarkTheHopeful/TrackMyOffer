@@ -64,6 +64,7 @@ fun Application.module() {
         anyHost()
         allowCredentials = true
         allowMethod(HttpMethod.Get)
+        allowMethod(HttpMethod.Delete)
         allowMethod(HttpMethod.Post)
         allowMethod(HttpMethod.Options)  // Important for preflight requests
         allowHeader(HttpHeaders.ContentType)

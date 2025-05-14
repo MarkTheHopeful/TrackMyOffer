@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { UserIcon, GraduationCapIcon, LinkedinIcon, GithubIcon, ExternalLinkIcon, SaveIcon, PlusIcon, TrashIcon, PencilIcon } from 'lucide-react';
-import { fetchProfileInfo, updateProfileInfo } from '@/api/backend.ts';
+import { fetchProfileInfo, updateProfileInfo, createEducationEntry, deleteEducationEntry, saveProfileData } from '@/api/backend.ts';
+import { ProfileData } from '@/api/ProfileData.ts';
+import { EducationEntry } from '@/api/EducationEntry.ts';
 
 export function ProfileForm() {
   const [activeTab, setActiveTab] = useState<'personal' | 'education' | 'social' | 'summary'>('personal');
@@ -17,21 +19,23 @@ export function ProfileForm() {
     additionalInfo: ''
   });
   const [editMode, setEditMode] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     console.log('ProfileForm mounted, fetching profile data...');
     fetchProfileInfo()
-        .then(
-	    data => {
-	        console.log('Received profile data:', data);
-		setProfileData(data);
-	    }
-	)
-	.catch(
-	    err => {
-	        console.log('Error fetching profile data:', err)
-	    }
-	);
+      .then(
+        data => {
+          console.log('Received profile data:', data);
+          setProfileData(data);
+        }
+      )
+      .catch(
+        err => {
+          console.log('Error fetching profile data:', err)
+        }
+      );
   }, []);
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -39,20 +43,29 @@ export function ProfileForm() {
     setProfileData((prev: ProfileData) => ({ ...prev, [name]: value }));
   };
 
-  const saveProfile = () => {
-    console.log('Save profile button clicked');
-    updateProfileInfo(profileData)
-        .then(() => {
-            alert('Profile updated successfully');
-        })
-        .catch(err => {
-            if (err.message === 'Request timed out') {
-                alert('Profile update request timed out. Please try again later.');
-            } else {
-                console.error('Failed to update profile:', err);
-                alert('Failed to update profile. See console for details.');
-            }
-         });
+  const saveProfile = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      if (activeTab === 'personal') {
+        const { education, ...profileDataWithoutEducation } = profileData;
+        await saveProfileData(profileDataWithoutEducation);
+      } else {
+        await updateProfileInfo(profileData);
+      }
+      alert('Profile updated successfully');
+    } catch (err) {
+      if (err instanceof Error) {
+        if (err.message === 'Request timed out') {
+          alert('Profile update request timed out. Please try again later.');
+        } else {
+          console.error('Failed to update profile:', err);
+          alert('Failed to update profile. See console for details.');
+        }
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleEducationChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -60,25 +73,32 @@ export function ProfileForm() {
     setCurrentEducation((prev: EducationEntry) => ({ ...prev, [name]: value }));
   };
 
-  const addEducationEntry = () => {
-    const newEntry = {
-      ...currentEducation,
-      id: Date.now().toString()
-    };
-
-    setProfileData((prev: ProfileData) => ({
-      ...prev,
-      education: [...(prev.education || []), newEntry]
-    }));
-
-    setCurrentEducation({
-      id: '',
-      institution: '',
-      degree: '',
-      startDate: '',
-      endDate: '',
-      additionalInfo: ''
-    });
+  const addEducationEntry = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { id, ...educationData } = currentEducation;
+      const newEntry = await createEducationEntry(educationData);
+      setProfileData((prev: ProfileData) => ({
+        ...prev,
+        education: [...(prev.education || []), newEntry]
+      }));
+      setCurrentEducation({
+        id: '',
+        institution: '',
+        degree: '',
+        startDate: '',
+        endDate: '',
+        additionalInfo: ''
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+        alert('Failed to add education entry: ' + err.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const editEducationEntry = (id: string) => {
@@ -89,33 +109,23 @@ export function ProfileForm() {
     }
   };
 
-  const updateEducationEntry = () => {
-    setProfileData((prev: ProfileData) => ({
-      ...prev,
-      education: prev.education?.map((entry: EducationEntry) =>
-        entry.id === editMode ? currentEducation : entry
-      ) || []
-    }));
+  const updateEducationEntry = async () => {
+    if (!editMode) return;
 
-    setCurrentEducation({
-      id: '',
-      institution: '',
-      degree: '',
-      startDate: '',
-      endDate: '',
-      additionalInfo: ''
-    });
-    setEditMode(null);
-  };
+    setIsLoading(true);
+    setError(null);
+    try {
+      await deleteEducationEntry(editMode);
+      const { id, ...educationData } = currentEducation;
+      const newEntry = await createEducationEntry(educationData);
 
-  const deleteEducationEntry = (id: string) => {
-    setProfileData((prev: ProfileData) => ({
-      ...prev,
-      education: prev.education?.filter((entry: EducationEntry) => entry.id !== id) || []
-    }));
+      setProfileData((prev: ProfileData) => ({
+        ...prev,
+        education: prev.education?.map((entry: EducationEntry) =>
+          entry.id === editMode ? newEntry : entry
+        ) || []
+      }));
 
-    if (editMode === id) {
-      setEditMode(null);
       setCurrentEducation({
         id: '',
         institution: '',
@@ -124,6 +134,47 @@ export function ProfileForm() {
         endDate: '',
         additionalInfo: ''
       });
+      setEditMode(null);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+        alert('Failed to update education entry: ' + err.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteEducation = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this education entry?')) return;
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      await deleteEducationEntry(id);
+      setProfileData((prev: ProfileData) => ({
+        ...prev,
+        education: prev.education?.filter((entry: EducationEntry) => entry.id !== id) || []
+      }));
+
+      if (editMode === id) {
+        setEditMode(null);
+        setCurrentEducation({
+          id: '',
+          institution: '',
+          degree: '',
+          startDate: '',
+          endDate: '',
+          additionalInfo: ''
+        });
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+        alert('Failed to delete education entry: ' + err.message);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -266,7 +317,6 @@ export function ProfileForm() {
 
       {activeTab === 'education' && (
         <div className="space-y-6">
-          {/* List of existing education entries */}
           {profileData.education && profileData.education.length > 0 && (
             <div className="space-y-4">
               {profileData.education.map((entry) => (
@@ -282,12 +332,14 @@ export function ProfileForm() {
                       <button
                         onClick={() => editEducationEntry(entry.id)}
                         className="p-1 text-slate-400 hover:text-brand-600 rounded-full hover:bg-brand-50"
+                        disabled={isLoading}
                       >
                         <PencilIcon className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => deleteEducationEntry(entry.id)}
+                        onClick={() => handleDeleteEducation(entry.id)}
                         className="p-1 text-slate-400 hover:text-red-600 rounded-full hover:bg-red-50"
+                        disabled={isLoading}
                       >
                         <TrashIcon className="w-4 h-4" />
                       </button>
@@ -314,7 +366,6 @@ export function ProfileForm() {
             </div>
           )}
 
-          {/* Form for adding/editing education entry */}
           <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
             <h3 className="text-lg font-medium text-slate-900 mb-4">
               {editMode ? 'Edit Education Entry' : 'Add Education Entry'}
@@ -397,11 +448,24 @@ export function ProfileForm() {
                         additionalInfo: ''
                       });
                     }}
+                    disabled={isLoading}
                   >
                     Cancel
                   </Button>
-                  <Button variant="primary" onClick={updateEducationEntry}>
-                    Update Entry
+                  <Button
+                    variant="primary"
+                    onClick={() => handleDeleteEducation(editMode)}
+                    disabled={isLoading}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    Delete
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={updateEducationEntry}
+                    disabled={isLoading}
+                  >
+                    Save Changes
                   </Button>
                 </div>
               ) : (
@@ -409,6 +473,7 @@ export function ProfileForm() {
                   variant="primary"
                   className="flex items-center gap-2"
                   onClick={addEducationEntry}
+                  disabled={isLoading}
                 >
                   <PlusIcon className="w-4 h-4" />
                   Add Education Entry
@@ -511,7 +576,12 @@ export function ProfileForm() {
       )}
 
       <div className="flex justify-end mt-8">
-        <Button variant="primary" className="flex items-center gap-2" onClick={saveProfile}>
+        <Button
+          variant="primary"
+          className="flex items-center gap-2"
+          onClick={saveProfile}
+          disabled={isLoading}
+        >
           <SaveIcon className="w-4 h-4" />
           Save Profile
         </Button>
