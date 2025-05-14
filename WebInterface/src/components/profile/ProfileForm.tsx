@@ -23,6 +23,15 @@ export function ProfileForm() {
   const [editMode, setEditMode] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pendingChanges, setPendingChanges] = useState<{
+    toAdd: EducationEntry[],
+    toUpdate: EducationEntry[],
+    toDelete: number[]
+  }>({
+    toAdd: [],
+    toUpdate: [],
+    toDelete: []
+  });
 
   useEffect(() => {
     loadData();
@@ -38,6 +47,7 @@ export function ProfileForm() {
       ]);
       setProfileData(profile);
       setEducationEntries(education);
+      setPendingChanges({ toAdd: [], toUpdate: [], toDelete: [] });
     } catch (err) {
       console.error('Error loading data:', err);
       setError(err instanceof Error ? err.message : 'Failed to load data');
@@ -55,12 +65,36 @@ export function ProfileForm() {
     setIsLoading(true);
     setError(null);
     try {
-      await updateProfile(profileData);
-      alert('Profile updated successfully');
+      if (activeTab === 'education') {
+        // Handle deletions first
+        for (const id of pendingChanges.toDelete) {
+          await deleteEducation(id);
+        }
+
+        // Handle updates
+        for (const entry of pendingChanges.toUpdate) {
+          if (entry.id) {
+            await deleteEducation(entry.id);
+            await createEducation(entry);
+          }
+        }
+
+        // Handle additions
+        for (const entry of pendingChanges.toAdd) {
+          await createEducation(entry);
+        }
+
+        // Reload data to get fresh state from server
+        await loadData();
+        alert('Education entries updated successfully');
+      } else {
+        await updateProfile(profileData);
+        alert('Profile updated successfully');
+      }
     } catch (err) {
       if (err instanceof Error) {
-        console.error('Failed to update profile:', err);
-        alert('Failed to update profile. See console for details.');
+        console.error('Failed to update:', err);
+        alert('Failed to update. See console for details.');
       }
     } finally {
       setIsLoading(false);
@@ -72,27 +106,19 @@ export function ProfileForm() {
     setCurrentEducation(prev => ({ ...prev, [name]: value }));
   };
 
-  const addEducationEntry = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const newEntry = await createEducation(currentEducation);
-      setEducationEntries(prev => [...prev, newEntry]);
-      setCurrentEducation({
-        institution: '',
-        degree: '',
-        start_date: '',
-        end_date: '',
-        additional_info: ''
-      });
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-        alert('Failed to add education entry: ' + err.message);
-      }
-    } finally {
-      setIsLoading(false);
-    }
+  const addEducationEntry = () => {
+    setEducationEntries(prev => [...prev, { ...currentEducation, id: Date.now() }]);
+    setPendingChanges(prev => ({
+      ...prev,
+      toAdd: [...prev.toAdd, currentEducation]
+    }));
+    setCurrentEducation({
+      institution: '',
+      degree: '',
+      start_date: '',
+      end_date: '',
+      additional_info: ''
+    });
   };
 
   const editEducationEntry = (id: number) => {
@@ -103,17 +129,36 @@ export function ProfileForm() {
     }
   };
 
-  const updateEducationEntry = async () => {
+  const updateEducationEntry = () => {
     if (!editMode) return;
 
-    setIsLoading(true);
-    setError(null);
-    try {
-      await deleteEducation(editMode);
-      const newEntry = await createEducation(currentEducation);
-      setEducationEntries(prev => prev.map(entry =>
-        entry.id === editMode ? newEntry : entry
-      ));
+    setEducationEntries(prev => prev.map(entry =>
+      entry.id === editMode ? { ...currentEducation, id: editMode } : entry
+    ));
+    setPendingChanges(prev => ({
+      ...prev,
+      toUpdate: [...prev.toUpdate, currentEducation]
+    }));
+    setCurrentEducation({
+      institution: '',
+      degree: '',
+      start_date: '',
+      end_date: '',
+      additional_info: ''
+    });
+    setEditMode(null);
+  };
+
+  const handleDeleteEducation = (id: number) => {
+    if (!confirm('Are you sure you want to delete this education entry?')) return;
+
+    setEducationEntries(prev => prev.filter(entry => entry.id !== id));
+    setPendingChanges(prev => ({
+      ...prev,
+      toDelete: [...prev.toDelete, id]
+    }));
+    if (editMode === id) {
+      setEditMode(null);
       setCurrentEducation({
         institution: '',
         degree: '',
@@ -121,42 +166,6 @@ export function ProfileForm() {
         end_date: '',
         additional_info: ''
       });
-      setEditMode(null);
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-        alert('Failed to update education entry: ' + err.message);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDeleteEducation = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this education entry?')) return;
-
-    setIsLoading(true);
-    setError(null);
-    try {
-      await deleteEducation(id);
-      setEducationEntries(prev => prev.filter(entry => entry.id !== id));
-      if (editMode === id) {
-        setEditMode(null);
-        setCurrentEducation({
-          institution: '',
-          degree: '',
-          start_date: '',
-          end_date: '',
-          additional_info: ''
-        });
-      }
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-        alert('Failed to delete education entry: ' + err.message);
-      }
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -383,7 +392,7 @@ export function ProfileForm() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">Start Date</label>
                   <input
                     type="date"
-                    name="startDate"
+                    name="start_date"
                     value={currentEducation.start_date}
                     onChange={handleEducationChange}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
@@ -393,7 +402,7 @@ export function ProfileForm() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">End Date</label>
                   <input
                     type="date"
-                    name="endDate"
+                    name="end_date"
                     value={currentEducation.end_date || ''}
                     onChange={handleEducationChange}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
@@ -404,7 +413,7 @@ export function ProfileForm() {
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Additional Information</label>
                 <textarea
-                  name="additionalInfo"
+                  name="additional_info"
                   value={currentEducation.additional_info || ''}
                   onChange={handleEducationChange}
                   placeholder="Relevant term papers, honors theses, graduation papers, or projects"
@@ -561,10 +570,15 @@ export function ProfileForm() {
           variant="primary"
           className="flex items-center gap-2"
           onClick={saveProfile}
-          disabled={isLoading}
+          disabled={isLoading || (
+            activeTab === 'education' &&
+            pendingChanges.toAdd.length === 0 &&
+            pendingChanges.toUpdate.length === 0 &&
+            pendingChanges.toDelete.length === 0
+          )}
         >
           <SaveIcon className="w-4 h-4" />
-          Save Profile
+          Save
         </Button>
       </div>
     </div>
