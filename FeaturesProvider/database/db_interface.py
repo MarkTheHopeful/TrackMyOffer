@@ -1,3 +1,5 @@
+from typing import List
+
 from sqlalchemy import create_engine, Column, Integer, String, Text, Date, ForeignKey, DateTime, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
@@ -263,7 +265,7 @@ class DatabaseManager:
         session.commit()
         return True
 
-    def get_educations(self, session, profile_id):
+    def get_educations(self, session, profile_id) -> List[Education]:
         """Get all education entries for a profile.
 
         Args:

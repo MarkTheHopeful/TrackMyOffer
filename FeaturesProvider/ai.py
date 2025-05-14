@@ -1,10 +1,12 @@
 import os
+from typing import List
 
 import requests
 from dotenv import load_dotenv
 from loguru import logger
 
-from models import JobDescriptionResponse
+from database.db_interface import Education, Profile, Experience
+from models import JobDescriptionResponse, GeneratedCV, ProfileResponse
 
 # Load environment variables from .env file
 load_dotenv()
@@ -59,6 +61,7 @@ def request_model(text: str) -> str | None:
 
     return None
 
+
 def text_job_position_from_link(link_as_text: str) -> str:
     """
     Fetches given link to the job position and extracts text description of the position
@@ -78,6 +81,7 @@ def text_job_position_from_link(link_as_text: str) -> str:
     Minimum 10 years of experience with Python is mandatory, architectural knowledge is highly recommended. 
     """.strip()
 
+
 def job_description_from_text(job_description_as_text: str) -> JobDescriptionResponse:
     """
     Given the description of a position, possibly containing information about a company,
@@ -96,6 +100,62 @@ def job_description_from_text(job_description_as_text: str) -> JobDescriptionRes
         recruiter_name="",
         title="Senior Software Engineer for SuperMocker",
         description="Mandatory 10 years of experience with Python; architectural knowledge recommended.",
+    )
+
+
+def md_cv_from_user_and_job(profile: Profile, educations: List[Education],
+                            experiences: List[Experience],
+                            job_description: JobDescriptionResponse) -> GeneratedCV:
+    """
+    Given the full information about a user, generate a tailored markdown CV
+    The provided information is:
+    - profile description as present in the db
+    - list of all user education entries
+    - list of all user experience entries
+    - job_description
+    """
+    # FIXME: Your code goes here...
+    return GeneratedCV(
+        format="md",
+        cv_text="""
+# Isaac Newton
+Physicist, Mathematician, Cambridge professor.
+
+[isaac@applesdofall.org](isaac@applesdofall.org)
+
+[http://en.wikipedia.org/wiki/Isaac_Newton](My website)
+
+## Currently
+
+Looking for a job as a computer scientist
+
+### Specialized in
+
+Laws of motion, gravitation, minting coins
+
+### Research interests
+
+Cooling, power series, optics, alchemy, planetary motions, apples.
+
+## Education
+
+`1654-1660`
+__The King's School, Grantham.__
+
+`June 1661 - now`
+__Trinity College, Cambridge__
+
+## Occupation
+
+`1600`
+__Royal Mint__, London
+
+- Warden
+- Minted coins
+
+`1600`
+__Lucasian professor of Mathematics__, Cambridge University
+        """.strip()
     )
 
 if __name__ == "__main__":

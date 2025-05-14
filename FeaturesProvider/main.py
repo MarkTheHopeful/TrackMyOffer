@@ -1,8 +1,8 @@
-from ai import request_model, text_job_position_from_link, job_description_from_text
+from ai import request_model, text_job_position_from_link, job_description_from_text, md_cv_from_user_and_job
 from database.db_interface import DatabaseManager
 from fastapi import Depends, FastAPI, HTTPException, status
 from models import ProfileCreate, ProfileResponse, EducationResponse, EducationCreate, ReviewRequest, ReviewResponse, \
-    JobDescriptionResponse, JobDescriptionReceive
+    JobDescriptionResponse, JobDescriptionReceive, GeneratedCV
 from sqlalchemy.orm import Session
 from typing import List
 from models import ExperienceCreate, ExperienceResponse
@@ -105,6 +105,7 @@ def create_education(profile_id: int, education: EducationCreate, db: Session = 
     education = db_manager.add_education(db, profile_id, education.dict())
     return education
 
+
 @app.delete(
     "/api/profile/{profile_id}/education/{education_id}", status_code=status.HTTP_200_OK
 )
@@ -120,6 +121,7 @@ def delete_education(profile_id: int, education_id: int, db: Session = Depends(g
     del_status = db_manager.delete_education(db, education_id)
     return del_status
 
+
 @app.get("/api/{profile_id}/educations", response_model=List[EducationResponse])
 def get_experiences(profile_id: int, db: Session = Depends(get_db)):
     """Get all education entries for a profile"""
@@ -132,6 +134,7 @@ def get_experiences(profile_id: int, db: Session = Depends(get_db)):
     educations = db_manager.get_educations(db, profile_id)
 
     return educations
+
 
 @app.post("/api/experience", response_model=ExperienceResponse, status_code=201)
 def create_experience(experience_data: ExperienceCreate, db: Session = Depends(get_db)):
@@ -148,6 +151,7 @@ def create_experience(experience_data: ExperienceCreate, db: Session = Depends(g
     experience = db_manager.add_experience(db, profile.id, experience_dict)
 
     return experience
+
 
 @app.delete("/api/{profile_id}/experiences/{experience_id}", status_code=status.HTTP_200_OK)
 def delete_experience(profile_id: int, experience_id: int, db: Session = Depends(get_db)):
@@ -177,6 +181,7 @@ def get_experiences(profile_id: int, db: Session = Depends(get_db)):
 
     return experiences
 
+
 @app.post("/api/extract-job-description", response_model=JobDescriptionResponse)
 def extract_job_description(job_description_raw: JobDescriptionReceive):
     jd_text = job_description_raw.jobDescription
@@ -185,9 +190,19 @@ def extract_job_description(job_description_raw: JobDescriptionReceive):
 
     return job_description_from_text(jd_text)
 
-@app.post("/api/generate_cv", response_model=None)
-def generate_cv(job_description_raw: JobDescriptionResponse):
-    pass
+
+@app.post("/api/build-cv", response_model=GeneratedCV)
+def generate_cv(profile_id: int, job_description: JobDescriptionResponse, db: Session = Depends(get_db)):
+    """
+    Generates a tailored cv for a given user and job_description
+    """
+    profile = db_manager.get_profile(db, profile_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
+    educations = db_manager.get_educations(db, profile_id)
+    experiences = db_manager.get_experiences(db, profile_id)
+    return md_cv_from_user_and_job(profile, educations, experiences, job_description)
+
 
 @app.post("/api/generate-cover-letter")
 def generate_cover_letter(

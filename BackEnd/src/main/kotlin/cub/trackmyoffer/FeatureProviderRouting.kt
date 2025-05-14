@@ -12,6 +12,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 data class Response(val status: HttpStatusCode, val body: String)
 
@@ -37,7 +40,8 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
             ?: return Response(HttpStatusCode.BadRequest, "Missing jobDescription parameter")
         val response = httpClient.post("${config.remote}/api/extract-job-description") {
             contentType(ContentType.Application.Json)
-            setBody("""{"jobDescription": "$jobDescriptionLink"}""")
+            setBody(buildJsonObject {
+                put("jobDescription", jobDescriptionLink) }.toString())
         }
         return Response(response.status, response.bodyAsText())
     }
@@ -53,7 +57,8 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
 
                 val response = httpClient.post("${config.remote}/greet") {
                     contentType(ContentType.Application.Json)
-                    setBody("""{"name": "$name"}""")
+                    setBody(buildJsonObject {
+                        put("name", name) }.toString())
                     // TODO: add serialization plugin & serialize properly
                 }
                 call.respondText(response.bodyAsText(), status = response.status)
@@ -304,6 +309,44 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 )
             }
 
+            get("/build-cv") {
+                val extractorResponse = extractJobDescription(call)
+                if (extractorResponse.status != HttpStatusCode.OK) {
+                    call.respond(extractorResponse.status, extractorResponse.body)
+                    return@get
+                }
+
+                val profileId = extractUserId(call)
+
+                val response = httpClient.post("${config.remote}/api/build-cv") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        extractorResponse.body
+                    )
+                    parameter("profile_id", profileId)
+                }
+                call.respondText(response.bodyAsText(), status = response.status)
+            }
+
+            get("/DEBUG/build-cv") {
+                val extractorResponse = extractJobDescription(call)
+                if (extractorResponse.status != HttpStatusCode.OK) {
+                    call.respond(extractorResponse.status, extractorResponse.body)
+                    return@get
+                }
+
+                val profileId = 1
+
+                val response = httpClient.post("${config.remote}/api/build-cv") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        extractorResponse.body
+                    )
+                    parameter("profile_id", profileId)
+                }
+                call.respondText(response.bodyAsText(), status = response.status)
+            }
+
             get("/match-position") {
                 val extractorResponse = extractJobDescription(call)
                 if (extractorResponse.status != HttpStatusCode.OK) {
@@ -324,28 +367,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 call.respondText(response.bodyAsText(), status = response.status)
             }
 
-
-            get("/build-cv") {
-                val extractorResponse = extractJobDescription(call)
-                if (extractorResponse.status != HttpStatusCode.OK) {
-                    call.respond(extractorResponse.status, extractorResponse.body)
-                    return@get
-                }
-
-                val profileId = extractUserId(call)
-
-                val response = httpClient.post("${config.remote}/api/build-cv") {
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        "${
-                            extractorResponse.body.trimEnd().removeSuffix("}")
-                        }, \"profileId\": ${profileId}}"
-                    )
-                }
-                call.respondText(response.bodyAsText(), status = response.status)
-            }
-
-            get("/generate-motivational-letter") {
+            get("/cover-letter") {
                 val extractorResponse = extractJobDescription(call)
                 if (extractorResponse.status != HttpStatusCode.OK) {
                     call.respond(extractorResponse.status, extractorResponse.body)
@@ -374,16 +396,16 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 call.respondText(response.bodyAsText(), status = response.status)
             }
 
-            post("/cover-letter") {
-                val request = call.receive<String>()
-                val userId = extractUserId(call)
-                val response = httpClient.post("${config.remote}/api/generate-cover-letter") {
-                    contentType(ContentType.Application.Json)
-                    setBody(request)
-                    parameter("profile_id", userId)
-                }
-                call.respondText(response.bodyAsText(), status = response.status)
-            }
+//            post("/cover-letter") {
+//                val request = call.receive<String>()
+//                val userId = extractUserId(call)
+//                val response = httpClient.post("${config.remote}/api/generate-cover-letter") {
+//                    contentType(ContentType.Application.Json)
+//                    setBody(request)
+//                    parameter("profile_id", userId)
+//                }
+//                call.respondText(response.bodyAsText(), status = response.status)
+//            }
         }
     }
 }

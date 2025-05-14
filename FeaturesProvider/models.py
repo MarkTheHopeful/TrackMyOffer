@@ -53,6 +53,7 @@ class EducationResponse(BaseModel):
     end_date: Optional[date] = None
     additional_info: Optional[str] = None
 
+
 class ExperienceCreate(BaseModel):
     profile_id: int
     job_title: str = Field(..., min_length=1, max_length=255)
@@ -76,8 +77,10 @@ class ExperienceResponse(BaseModel):
 
         from_attributes = True
 
+
 class JobDescriptionReceive(BaseModel):
     jobDescription: str
+
 
 class JobDescriptionResponse(BaseModel):
     company_name: str
@@ -87,13 +90,19 @@ class JobDescriptionResponse(BaseModel):
     recruiter_name: str
     title: str
     description: str
-    pass
+
+
+class GeneratedCV(BaseModel):
+    format: str = "md"
+    cv_text: str
+
 
 # Models for CV Review endpoint
 class ReviewRequest(BaseModel):
     description: str
     url: str | None = None
     cv: str  # Base64 encoded file
+
 
 class ReviewResponse(BaseModel):
     review: str
