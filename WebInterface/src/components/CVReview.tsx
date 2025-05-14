@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { UploadIcon, SearchIcon, DownloadIcon, ArrowLeftIcon, PercentIcon } from 'lucide-react';
+import { requestCVReview } from '@/api/backend';
 
 export function CVReview() {
     const [file, setFile] = useState<File | null>(null);
@@ -39,18 +40,22 @@ export function CVReview() {
         }
     };
 
-    const analyzeCV = () => {
+    const analyzeCV = async () => {
         // Simulate analysis
         setAnalyzing(true);
-        setTimeout(() => {
-            setMatchScore(68);
-            setSuggestions({
-                keywords: ['Add "machine learning" keyword', 'Include "data visualization" skills', 'Mention "agile methodology"'],
-                structure: ['Use bullet points for achievements', 'Quantify results where possible'],
-                ats: ['Remove tables from document', 'Avoid using headers/footers', 'Use standard section titles']
-            });
-            setAnalyzing(false);
-        }, 2000);
+        try {
+	    const result = await requestCVReview(jobDescription);
+	    setMatchScore(result.matchScore);
+	    setSuggestions({
+                keywords: result.suggestions,
+		structure: result.suggestions,
+	        ats: result.suggestions,
+	    });
+	} catch (err) {
+             console.error('Error getting a review:', err);
+             alert('Failed to get a review. Please check the console for a message.');
+        }
+        setAnalyzing(false);
     };
 
     return (

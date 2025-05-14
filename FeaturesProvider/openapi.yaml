@@ -114,6 +114,288 @@ paths:
                         type:
                           type: string
 
+  /api/extract-job-description:
+    post:
+      summary: Extract job description
+      description: Extracts and processes job description from a provided URL
+      operationId: extractJobDescription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jobDescriptionLink
+              properties:
+                jobDescriptionLink:
+                  type: string
+                  format: uri
+                  example: "https://example.com/job-posting"
+      responses:
+        '200':
+          description: Successfully extracted job description
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Extracted and processed job description data
+        '400':
+          description: Bad request - invalid or missing job description URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Invalid job description URL"
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Service is currently unavailable"
+
+  /api/match-position:
+    post:
+      summary: Match position
+      description: Analyzes a job description and returns matching information
+      operationId: matchPosition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - profileId
+                - jobDescription
+              properties:
+                profileId:
+                  type: integer
+                  description: ID of the user profile
+                  example: 1
+                jobDescription:
+                  type: object
+                  description: Job description data
+              description: Job description data extracted from /extract-job-description
+      responses:
+        '200':
+          description: Successfully matched position
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Job matching analysis result
+        '400':
+          description: Bad request - invalid job description data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Invalid job description data"
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Service is currently unavailable"
+
+  /api/build-cv:
+    post:
+      summary: Build CV
+      description: Generates a customized CV based on a job description
+      operationId: buildCV
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - profileId
+                - jobDescription
+              properties:
+                profileId:
+                  type: integer
+                  description: ID of the user profile
+                  example: 1
+                jobDescription:
+                  type: object
+                  description: Job description data
+              description: Job description data extracted from /extract-job-description
+      responses:
+        '200':
+          description: Successfully built CV
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Generated CV content
+        '400':
+          description: Bad request - invalid job description data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Invalid job description data"
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Service is currently unavailable"
+
+  /api/generate-motivational-letter:
+    post:
+      summary: Generate motivational letter
+      description: Creates a customized motivational letter based on a job description
+      operationId: generateMotivationalLetter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - profileId
+                - jobDescription
+              properties:
+                profileId:
+                  type: integer
+                  description: ID of the user profile
+                  example: 1
+                jobDescription:
+                  type: object
+                  description: Job description data
+                textStyle:
+                  type: string
+                  description: Style preference for the motivational letter
+                  example: "professional"
+                notes:
+                  type: string
+                  description: Additional notes to include in the letter
+                  example: "Please emphasize my leadership skills"
+              description: Job description data extracted from /extract-job-description with optional style and notes
+      responses:
+        '200':
+          description: Successfully generated motivational letter
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Generated motivational letter content
+        '400':
+          description: Bad request - invalid job description data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Invalid job description data"
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Service is currently unavailable"
+
+  /api/experience:
+    post:
+      summary: Create experience entry
+      description: Adds a new work experience entry to a user profile
+      operationId: createExperience
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExperienceCreate'
+      responses:
+        '201':
+          description: Experience created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperienceResponse'
+        '404':
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Profile with id 1 not found"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: array
+                    items:
+                      type: object
+
+  /api/experiences/{profile_id}:
+    get:
+      summary: Get profile experiences
+      description: Retrieves all work experience entries for a specific profile
+      operationId: getExperiences
+      parameters:
+        - name: profile_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of experiences
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExperienceResponse'
+        '404':
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Profile with id 1 not found"
+
 components:
   schemas:
     ProfileCreate:
@@ -225,4 +507,55 @@ components:
           type: object
           additionalProperties:
             type: string
+          nullable: true
+
+    ExperienceCreate:
+      type: object
+      required:
+        - profile_id
+        - job_title
+        - company
+        - start_date
+      properties:
+        profile_id:
+          type: integer
+        job_title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        company:
+          type: string
+          minLength: 1
+          maxLength: 255
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        description:
+          type: string
+          nullable: true
+
+    ExperienceResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        profile_id:
+          type: integer
+        job_title:
+          type: string
+        company:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        description:
+          type: string
           nullable: true

@@ -1,4 +1,10 @@
 import { UserContract } from "./UserContract.ts";
+import { ProfileData } from "./ProfileData.ts";
+import { EducationEntry } from "./EducationEntry.ts";
+import { Experience } from "./Experience.ts";
+import { CV_Markdown } from "./CV_Markdown.ts";
+import { ReviewResult } from "./ReviewResult.ts";
+import { CoverLetterObj } from "./CoverLetterObj.ts";
 
 const host = import.meta.env.VITE_API_HOST ?? "localhost";
 const port = import.meta.env.VITE_API_PORT ?? "8080";
@@ -87,3 +93,213 @@ export async function logout(): Promise<void> {
         window.location.href = '/';
     }
 }
+
+interface GenerateCoverLetterRequest {
+    jobDescription: string;
+    motivations: string;
+    tone: 'formal' | 'enthusiastic' | 'creative';
+}
+
+export async function generateCoverLetter(request: GenerateCoverLetterRequest): Promise<string> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/cover-letter`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+        credentials: 'include'
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to generate cover letter: " + response.statusText);
+    }
+
+    const data = await response.json();
+    return data.cover_letter;
+}
+
+export async function createEducationEntry(education: Omit<EducationEntry, 'id'>): Promise<EducationEntry> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile/education`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(education),
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to create education entry: ${response.statusText}`);
+    }
+    return response.json();
+}
+
+export async function deleteEducationEntry(educationId: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile/education?educationId=${educationId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to delete education entry: ${response.statusText}`);
+    }
+}
+
+export async function saveProfileData(profileData: Omit<ProfileData, 'education'>): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(profileData),
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to save profile: ${response.statusText}`);
+    }
+}
+
+export async function getExperiences(): Promise<Experience[]> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile/experience`, {
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json',
+        },
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to fetch experiences: ${response.statusText}`);
+    }
+    return response.json();
+}
+
+export async function createExperience(experience: Omit<Experience, 'id' | 'profile_id'>): Promise<Experience> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile/experience`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(experience),
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to create experience: ${response.statusText}`);
+    }
+    return response.json();
+}
+
+export async function deleteExperience(experienceId: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile/experience?experienceId=${experienceId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json',
+        },
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to delete experience: ${response.statusText}`);
+    }
+}
+
+export async function getProfile(): Promise<ProfileData> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile`, {
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json',
+        },
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to fetch profile: ${response.statusText}`);
+    }
+    return response.json();
+}
+
+export async function updateProfile(profile: ProfileData): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(profile),
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to update profile: ${response.statusText}`);
+    }
+}
+
+export async function getEducation(): Promise<EducationEntry[]> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile/education`, {
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json',
+        },
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to fetch education: ${response.statusText}`);
+    }
+    return response.json();
+}
+
+export async function createEducation(education: Omit<EducationEntry, 'id'>): Promise<EducationEntry> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile/education`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(education),
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to create education: ${response.statusText}`);
+    }
+    return response.json();
+}
+
+export async function deleteEducation(educationId: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile/education?educationId=${educationId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json',
+        },
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to delete education: ${response.statusText}`);
+    }
+}
+
+export async function createCV(jobDescription: string): Promise<CV_Markdown> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/build-cv`, {
+	method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+	body: JSON.stringify( { jobDescription } )
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to generate CV: ${response.statusText}`);
+    }
+    return response.json();
+}
+
+
+export async function requestCVReview(jobDescription: string): Promise<ReviewResult> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/match-position`, {
+	method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+	body: JSON.stringify( { jobDescription } )
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to get a review: ${response.statusText}`);
+    }
+    return response.json();
+}
+
+

@@ -4,11 +4,15 @@ CREATE TABLE profiles (
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
+    country VARCHAR(100),
+    state VARCHAR(100),
+    city VARCHAR(100),
     phone VARCHAR(20),  -- Optional field
-    city VARCHAR(100) NOT NULL,
-    state VARCHAR(100) NOT NULL,
-    country VARCHAR(100) NOT NULL,
-    summary TEXT,  -- For "about me" information
+    linkedin_url VARCHAR(255),
+    github_url VARCHAR(255),
+    personal_website VARCHAR(255),
+    other_url VARCHAR(255),
+    about_me TEXT,  -- For "about me" information
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -33,22 +37,22 @@ CREATE TABLE education (
 -- Add index on profile_id for faster joins
 CREATE INDEX idx_education_profile_id ON education(profile_id);
 
--- Social media table (one entry per profile)
-CREATE TABLE social_media (
+-- Experience table (can have multiple entries per profile)
+CREATE TABLE experience (
     id SERIAL PRIMARY KEY,
     profile_id INTEGER NOT NULL,
-    linkedin_url VARCHAR(255),
-    github_url VARCHAR(255),
-    personal_website VARCHAR(255),
-    other_links JSONB,                  -- For storing other relevant links as JSON
+    job_title VARCHAR(255) NOT NULL,
+    company VARCHAR(255) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE,  -- Can be null if current job
+    description TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE,
-    CONSTRAINT profile_id_unique UNIQUE (profile_id)  -- Ensures one-to-one relationship
+    FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
 );
 
 -- Add index on profile_id for faster joins
-CREATE INDEX idx_social_media_profile_id ON social_media(profile_id);
+CREATE INDEX idx_experience_profile_id ON experience(profile_id);
 
 -- Create trigger function to update the "updated_at" timestamp automatically
 CREATE OR REPLACE FUNCTION update_modified_column()
@@ -70,7 +74,7 @@ BEFORE UPDATE ON education
 FOR EACH ROW
 EXECUTE FUNCTION update_modified_column();
 
-CREATE TRIGGER update_social_media_timestamp
-BEFORE UPDATE ON social_media
+CREATE TRIGGER update_experience_timestamp
+BEFORE UPDATE ON experience
 FOR EACH ROW
 EXECUTE FUNCTION update_modified_column();

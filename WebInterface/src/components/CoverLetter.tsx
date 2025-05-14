@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FileTextIcon, CopyIcon, DownloadIcon, RefreshCcwIcon } from 'lucide-react';
+import { generateCoverLetter } from '@/api/backend';
 
 type ToneType = 'formal' | 'enthusiastic' | 'creative';
 
@@ -10,28 +11,25 @@ export function CoverLetter() {
     const [tone, setTone] = useState<ToneType>('formal');
     const [generatedLetter, setGeneratedLetter] = useState('');
     const [generating, setGenerating] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    const generateLetter = () => {
+    const generateLetter = async () => {
         setGenerating(true);
-        // Simulate letter generation
-        setTimeout(() => {
-            const letterIntros = {
-                formal: "Dear Hiring Manager,\n\nI am writing to express my interest in the position of Software Engineer as advertised. With my background in computer science and extensive experience in web development, I believe I am well-suited for this role.",
-                enthusiastic: "Hello Awesome Team!\n\nI'm incredibly excited to apply for the Software Engineer position at your innovative company! As someone who's passionate about creating amazing digital experiences and solving complex problems, I can't wait to bring my skills and energy to your team.",
-                creative: "Picture this: Your search for the perfect Software Engineer ends as you discover a candidate who blends technical expertise with creative problem-solving and a passion for user-centered design. That candidate is me, and I'm thrilled to introduce myself."
-            };
-
-            const letterBody = `\n\nMy experience includes:\n• Developing and maintaining full-stack web applications using modern technologies\n• Collaborating with cross-functional teams to deliver high-quality software\n• Implementing efficient and scalable solutions to complex technical challenges\n\n${motivations}\n\nBased on the job description, I am particularly interested in contributing to your team's work on innovative solutions that impact real users.`;
-
-            const letterClosings = {
-                formal: "\n\nThank you for considering my application. I look forward to the opportunity to discuss how my skills and experience align with your needs.\n\nSincerely,\n[Your Name]",
-                enthusiastic: "\n\nI'm super eager to chat more about how I can contribute to your amazing team! Please feel free to reach out any time.\n\nWith enthusiasm,\n[Your Name]",
-                creative: "\n\nLet's create something extraordinary together. I'm ready to bring my unique perspective and technical skills to your team's next chapter of innovation.\n\nCreatively yours,\n[Your Name]"
-            };
-
-            setGeneratedLetter(`${letterIntros[tone]}${letterBody}${letterClosings[tone]}`);
+        setError(null);
+        
+        try {
+            const letter = await generateCoverLetter({
+                jobDescription,
+                motivations,
+                tone
+            });
+            setGeneratedLetter(letter);
+        } catch (err) {
+            setError((err as Error).message);
+            console.error('Error generating cover letter:', err);
+        } finally {
             setGenerating(false);
-        }, 2000);
+        }
     };
 
     const copyToClipboard = () => {
