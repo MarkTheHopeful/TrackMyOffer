@@ -80,9 +80,35 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     message = text
                 )
             }
+            post("/DEBUG/profile") {
+                val profileReq = call.receive<ProfileData>()
+
+                profileReq.id = 1//extractUserId(call)
+
+                val remoteResponse: HttpResponse = httpClient.post("${config.remote}/api/profile") {
+                    contentType(ContentType.Application.Json)
+                    setBody(profileReq)
+                }
+
+                val text = remoteResponse.bodyAsText()
+                call.respond(
+                    status = remoteResponse.status,
+                    message = text
+                )
+            }
 
             get("/profile") {
                 val userId = extractUserId(call)
+
+                val remoteResponse: HttpResponse = httpClient.get("${config.remote}/api/profile/${userId}")
+
+                call.respond(
+                    status = remoteResponse.status,
+                    message = remoteResponse.bodyAsText()
+                )
+            }
+            get("/DEBUG/profile") {
+                val userId = 1 // DEBUG ONLY!
 
                 val remoteResponse: HttpResponse = httpClient.get("${config.remote}/api/profile/${userId}")
 
@@ -109,8 +135,42 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 )
             }
 
-            delete("/profile/education/") {
+            post("/DEBUG/profile/education") {
+                val educationReq = call.receive<EducationEntry>()
+
+                val userId = 1
+
+                val remoteResponse: HttpResponse = httpClient.post("${config.remote}/api/profile/${userId}/education") {
+                    contentType(ContentType.Application.Json)
+                    setBody(educationReq)
+                }
+
+                val text = remoteResponse.bodyAsText()
+                call.respond(
+                    status = remoteResponse.status,
+                    message = text
+                )
+            }
+
+            delete("/profile/education") {
                 val userId = extractUserId(call)
+                val educationId = call.parameters["educationId"]?.toIntOrNull()
+                if (educationId == null) {
+                    call.respondText("Missing education id parameter", status = HttpStatusCode.BadRequest)
+                    return@delete
+                }
+
+                val remoteResponse: HttpResponse =
+                    httpClient.delete("${config.remote}/api/profile/${userId}/education/${educationId}")
+
+                call.respond(
+                    status = remoteResponse.status,
+                    message = remoteResponse.bodyAsText()
+                )
+            }
+
+            delete("/DEBUG/profile/education") {
+                val userId = 1//extractUserId(call)
                 val educationId = call.parameters["educationId"]?.toIntOrNull()
                 if (educationId == null) {
                     call.respondText("Missing education id parameter", status = HttpStatusCode.BadRequest)
@@ -144,6 +204,24 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 )
             }
 
+            post("/DEBUG/profile/experience") {
+                val experienceReq = call.receive<ExperienceEntry>()
+
+                val userId = 1//extractUserId(call)
+                experienceReq.profileId = userId
+
+                val remoteResponse: HttpResponse = httpClient.post("${config.remote}/api/experience") {
+                    contentType(ContentType.Application.Json)
+                    setBody(experienceReq)
+                }
+
+                val text = remoteResponse.bodyAsText()
+                call.respond(
+                    status = remoteResponse.status,
+                    message = text
+                )
+            }
+
             get("/profile/experience") {
                 val userId = extractUserId(call)
 
@@ -156,8 +234,37 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 )
             }
 
+            get("/DEBUG/profile/experience") {
+                val userId = 1//extractUserId(call)
+
+                val remoteResponse: HttpResponse = httpClient.get("${config.remote}/api/${userId}/experiences") {}
+
+                val text = remoteResponse.bodyAsText()
+                call.respond(
+                    status = remoteResponse.status,
+                    message = text
+                )
+            }
+
             delete("/profile/experience") {
                 val userId = extractUserId(call)
+                val experienceId = call.parameters["experienceId"]?.toIntOrNull()
+                if (experienceId == null) {
+                    call.respondText("Missing experience id parameter", status = HttpStatusCode.BadRequest)
+                    return@delete
+                }
+
+                val remoteResponse: HttpResponse =
+                    httpClient.delete("${config.remote}/api/${userId}/experiences/${experienceId}")
+
+                call.respond(
+                    status = remoteResponse.status,
+                    message = remoteResponse.bodyAsText()
+                )
+            }
+
+            delete("/DEBUG/profile/experience") {
+                val userId = 1//extractUserId(call)
                 val experienceId = call.parameters["experienceId"]?.toIntOrNull()
                 if (experienceId == null) {
                     call.respondText("Missing experience id parameter", status = HttpStatusCode.BadRequest)

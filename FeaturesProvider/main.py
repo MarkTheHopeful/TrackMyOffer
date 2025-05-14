@@ -91,7 +91,7 @@ def create_or_update_profile(profile: ProfileCreate, db: Session = Depends(get_d
 
 
 @app.post(
-    "api/profile/{profile_id}/education", response_model=EducationResponse, status_code=status.HTTP_201_CREATED
+    "/api/profile/{profile_id}/education", response_model=EducationResponse, status_code=status.HTTP_201_CREATED
 )
 def create_education(profile_id: int, education: EducationCreate, db: Session = Depends(get_db)):
     """
@@ -106,7 +106,7 @@ def create_education(profile_id: int, education: EducationCreate, db: Session = 
     return education
 
 @app.delete(
-    "api/profile/{profile_id}/education/{education_id}", status_code=status.HTTP_200_OK
+    "/api/profile/{profile_id}/education/{education_id}", status_code=status.HTTP_200_OK
 )
 def delete_education(profile_id: int, education_id: int, db: Session = Depends(get_db)):
     """
@@ -136,7 +136,7 @@ def create_experience(experience_data: ExperienceCreate, db: Session = Depends(g
 
     return experience
 
-@app.delete("/api/{profile_id}/experiences/{experience_id}", status_code=status.HTTP_204_NO_CONTENT)
+@app.delete("/api/{profile_id}/experiences/{experience_id}", status_code=status.HTTP_200_OK)
 def delete_experience(profile_id: int, experience_id: int, db: Session = Depends(get_db)):
     """
     Delete experience entry with given experience_id and profile_id
@@ -164,13 +164,17 @@ def get_experiences(profile_id: int, db: Session = Depends(get_db)):
 
     return experiences
 
-@app.post("api/extract-job-description", response_model=JobDescriptionResponse)
+@app.post("/api/extract-job-description", response_model=JobDescriptionResponse)
 def extract_job_description(job_description_raw: JobDescriptionReceive):
     jd_text = job_description_raw.jobDescription
     if jd_text.startswith("https://") or jd_text.startswith("http://"):
         jd_text = text_job_position_from_link(jd_text)
 
     return job_description_from_text(jd_text)
+
+@app.post("/api/generate_cv", response_model=None)
+def generate_cv(job_description_raw: JobDescriptionResponse):
+    pass
 
 @app.post("/api/generate-cover-letter")
 def generate_cover_letter(

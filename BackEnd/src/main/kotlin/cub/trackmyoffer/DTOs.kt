@@ -5,9 +5,9 @@ data class EducationEntry(
     var id: Int? = null,
     val institution: String,
     val degree: String,
-    val startDate: String,    // ISO-8601 strings
-    val endDate: String? = null,
-    val additionalInfo: String? = null
+    @SerialName("start_date") val startDate: String,    // ISO-8601 strings
+    @SerialName("end_data") val endDate: String? = null,
+    @SerialName("additional_info") val additionalInfo: String? = null
 )
 
 @Serializable
@@ -34,7 +34,7 @@ data class ExperienceEntry(
     @SerialName("profile_id") var profileId: Int? = null,
     @SerialName("job_title") val jobTitle: String,
     val company: String,
-    val startDate: String,    // ISO-8601 strings
-    val endDate: String? = null,
+    @SerialName("start_date") val startDate: String,    // ISO-8601 strings
+    @SerialName("end_date") val endDate: String? = null,
     val description: String? = null,
 )
