@@ -210,7 +210,7 @@ export async function saveProfileData(profileData: Omit<ProfileData, 'education'
 }
 
 export async function getExperiences(): Promise<Experience[]> {
-    const response = await fetch(`${API_BASE_URL}/features/v0/DEBUG/profile/experience`, {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile/experience`, {
         credentials: 'include',
         headers: {
             'Accept': 'application/json',
@@ -223,7 +223,7 @@ export async function getExperiences(): Promise<Experience[]> {
 }
 
 export async function createExperience(experience: Omit<Experience, 'id' | 'profile_id'>): Promise<Experience> {
-    const response = await fetch(`${API_BASE_URL}/features/v0/DEBUG/profile/experience`, {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile/experience`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -239,7 +239,7 @@ export async function createExperience(experience: Omit<Experience, 'id' | 'prof
 }
 
 export async function deleteExperience(experienceId: number): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/features/v0/DEBUG/profile/experience?experienceId=${experienceId}`, {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile/experience?experienceId=${experienceId}`, {
         method: 'DELETE',
         credentials: 'include',
         headers: {
@@ -252,7 +252,7 @@ export async function deleteExperience(experienceId: number): Promise<void> {
 }
 
 export async function getProfile(): Promise<ProfileData> {
-    const response = await fetch(`${API_BASE_URL}/features/v0/DEBUG/profile`, {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile`, {
         credentials: 'include',
         headers: {
             'Accept': 'application/json',
@@ -265,7 +265,7 @@ export async function getProfile(): Promise<ProfileData> {
 }
 
 export async function updateProfile(profile: ProfileData): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/features/v0/DEBUG/profile`, {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -280,7 +280,7 @@ export async function updateProfile(profile: ProfileData): Promise<void> {
 }
 
 export async function getEducation(): Promise<EducationEntry[]> {
-    const response = await fetch(`${API_BASE_URL}/features/v0/DEBUG/profile/education`, {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile/education`, {
         credentials: 'include',
         headers: {
             'Accept': 'application/json',
@@ -293,7 +293,7 @@ export async function getEducation(): Promise<EducationEntry[]> {
 }
 
 export async function createEducation(education: Omit<EducationEntry, 'id'>): Promise<EducationEntry> {
-    const response = await fetch(`${API_BASE_URL}/features/v0/DEBUG/profile/education`, {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile/education`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -309,7 +309,7 @@ export async function createEducation(education: Omit<EducationEntry, 'id'>): Pr
 }
 
 export async function deleteEducation(educationId: number): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/features/v0/DEBUG/profile/education?educationId=${educationId}`, {
+    const response = await fetch(`${API_BASE_URL}/features/v0/profile/education?educationId=${educationId}`, {
         method: 'DELETE',
         credentials: 'include',
         headers: {
