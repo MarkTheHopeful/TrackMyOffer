@@ -1,8 +1,8 @@
 export interface EducationEntry {
-  id: string;
+  id?: number;
   institution: string;
   degree: string;
-  startDate: string;
-  endDate: string;
-  additionalInfo: string;
+  start_date: string;
+  end_date?: string;
+  additional_info?: string;
 }

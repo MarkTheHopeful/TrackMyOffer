@@ -1,18 +1,15 @@
-import { EducationEntry } from "./EducationEntry.ts";
-
 export interface ProfileData {
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-  phone?: string;
-  city?: string;
-  state?: string;
+  id?: number;
+  first_name: string;
+  last_name: string;
+  email: string;
   country?: string;
-  education?: EducationEntry[];
+  state?: string;
+  city?: string;
   linkedin_url?: string;
   github_url?: string;
   personal_website?: string;
   other_url?: string;
   about_me?: string;
-  [key: string]: string | EducationEntry[] | undefined;
+  phone?: string;
 }

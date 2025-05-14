@@ -6,7 +6,7 @@ data class EducationEntry(
     val institution: String,
     val degree: String,
     @SerialName("start_date") val startDate: String,    // ISO-8601 strings
-    @SerialName("end_data") val endDate: String? = null,
+    @SerialName("end_date") val endDate: String? = null,
     @SerialName("additional_info") val additionalInfo: String? = null
 )
 

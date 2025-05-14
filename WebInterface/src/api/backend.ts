@@ -115,60 +115,60 @@ export async function generateCoverLetter(request: GenerateCoverLetterRequest): 
     return data.content;
 }
 
-export async function fetchProfileInfo(): Promise<ProfileData> {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5_000);
-    try {
-        const res = await fetch(`${API_BASE_URL}/features/v0/profile`, {
-            headers: { 'Accept': 'application/json' },
-            signal: controller.signal,
-            credentials: "include",
-        });
-        clearTimeout(timeout);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.json();
-    } catch (err) {
-        clearTimeout(timeout);
-        console.warn('fetchProfileInfo failed, falling back to mock:', err);
-        return {
-            first_name: "Akaky",
-            last_name: "Akakievich",
-            email: "abc@xyz.com",
-            city: "Saint Petersburg",
-            education: [],
-            linkedin_url: "",
-            github_url: "",
-            personal_website: "",
-            other_url: "",
-            about_me: ""
-        };
-    }
-}
+// export async function fetchProfileInfo(): Promise<ProfileData> {
+//     const controller = new AbortController();
+//     const timeout = setTimeout(() => controller.abort(), 5_000);
+//     try {
+//         const res = await fetch(`${API_BASE_URL}/features/v0/profile`, {
+//             headers: { 'Accept': 'application/json' },
+//             signal: controller.signal,
+//             credentials: "include",
+//         });
+//         clearTimeout(timeout);
+//         if (!res.ok) throw new Error(`HTTP ${res.status}`);
+//         return await res.json();
+//     } catch (err) {
+//         clearTimeout(timeout);
+//         console.warn('fetchProfileInfo failed, falling back to mock:', err);
+//         return {
+//             first_name: "Akaky",
+//             last_name: "Akakievich",
+//             email: "abc@xyz.com",
+//             city: "Saint Petersburg",
+//             education: [],
+//             linkedin_url: "",
+//             github_url: "",
+//             personal_website: "",
+//             other_url: "",
+//             about_me: ""
+//         };
+//     }
+// }
 
-export async function updateProfileInfo(data: ProfileData): Promise<void> {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5_000);
-    try {
-        const res = await fetch(`${API_BASE_URL}/features/v0/profile`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            credentials: "include",
-            body: JSON.stringify(data),
-            signal: controller.signal,
-        });
-        clearTimeout(timeout);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    } catch (err) {
-        clearTimeout(timeout);
-        if ((err as any).name === 'AbortError') {
-            throw new Error('Request timed out');
-        }
-        throw err;
-    }
-}
+// export async function updateProfileInfo(data: ProfileData): Promise<void> {
+//     const controller = new AbortController();
+//     const timeout = setTimeout(() => controller.abort(), 5_000);
+//     try {
+//         const res = await fetch(`${API_BASE_URL}/features/v0/profile`, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'Accept': 'application/json'
+//             },
+//             credentials: "include",
+//             body: JSON.stringify(data),
+//             signal: controller.signal,
+//         });
+//         clearTimeout(timeout);
+//         if (!res.ok) throw new Error(`HTTP ${res.status}`);
+//     } catch (err) {
+//         clearTimeout(timeout);
+//         if ((err as any).name === 'AbortError') {
+//             throw new Error('Request timed out');
+//         }
+//         throw err;
+//     }
+// }
 
 export async function createEducationEntry(education: Omit<EducationEntry, 'id'>): Promise<EducationEntry> {
     const response = await fetch(`${API_BASE_URL}/features/v0/profile/education`, {
@@ -248,5 +248,75 @@ export async function deleteExperience(experienceId: number): Promise<void> {
     });
     if (!response.ok) {
         throw new Error(`Failed to delete experience: ${response.statusText}`);
+    }
+}
+
+export async function getProfile(): Promise<ProfileData> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/DEBUG/profile`, {
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json',
+        },
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to fetch profile: ${response.statusText}`);
+    }
+    return response.json();
+}
+
+export async function updateProfile(profile: ProfileData): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/DEBUG/profile`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(profile),
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to update profile: ${response.statusText}`);
+    }
+}
+
+export async function getEducation(): Promise<EducationEntry[]> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/DEBUG/profile/education`, {
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json',
+        },
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to fetch education: ${response.statusText}`);
+    }
+    return response.json();
+}
+
+export async function createEducation(education: Omit<EducationEntry, 'id'>): Promise<EducationEntry> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/DEBUG/profile/education`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(education),
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to create education: ${response.statusText}`);
+    }
+    return response.json();
+}
+
+export async function deleteEducation(educationId: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/DEBUG/profile/education?educationId=${educationId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json',
+        },
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to delete education: ${response.statusText}`);
     }
 }
