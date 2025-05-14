@@ -152,6 +152,30 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 )
             }
 
+            get("/profile/education") {
+                val userId = extractUserId(call)
+
+                val remoteResponse: HttpResponse = httpClient.get("${config.remote}/api/${userId}/educations") {}
+
+                val text = remoteResponse.bodyAsText()
+                call.respond(
+                    status = remoteResponse.status,
+                    message = text
+                )
+            }
+
+            get("/DEBUG/profile/education") {
+                val userId = 1//extractUserId(call)
+
+                val remoteResponse: HttpResponse = httpClient.get("${config.remote}/api/${userId}/educations") {}
+
+                val text = remoteResponse.bodyAsText()
+                call.respond(
+                    status = remoteResponse.status,
+                    message = text
+                )
+            }
+
             delete("/profile/education") {
                 val userId = extractUserId(call)
                 val educationId = call.parameters["educationId"]?.toIntOrNull()

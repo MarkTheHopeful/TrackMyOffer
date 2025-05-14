@@ -263,6 +263,19 @@ class DatabaseManager:
         session.commit()
         return True
 
+    def get_educations(self, session, profile_id):
+        """Get all education entries for a profile.
+
+        Args:
+            session: SQLAlchemy session.
+            profile_id (int): ID of the profile to get education entries for.
+
+        Returns:
+            list: List of Education objects.
+        """
+        return session.query(Education).filter(Education.profile_id == profile_id).all()
+
+
     def get_experiences(self, session, profile_id):
         """Get all experiences for a profile.
 

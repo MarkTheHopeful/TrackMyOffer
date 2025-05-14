@@ -120,6 +120,19 @@ def delete_education(profile_id: int, education_id: int, db: Session = Depends(g
     del_status = db_manager.delete_education(db, education_id)
     return del_status
 
+@app.get("/api/{profile_id}/educations", response_model=List[EducationResponse])
+def get_experiences(profile_id: int, db: Session = Depends(get_db)):
+    """Get all education entries for a profile"""
+    # Check if the profile exists
+    profile = db_manager.get_profile(db, profile_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
+
+    # Get experiences
+    educations = db_manager.get_educations(db, profile_id)
+
+    return educations
+
 @app.post("/api/experience", response_model=ExperienceResponse, status_code=201)
 def create_experience(experience_data: ExperienceCreate, db: Session = Depends(get_db)):
     """Create a new experience entry for a profile"""
