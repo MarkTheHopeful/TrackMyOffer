@@ -1,7 +1,8 @@
-from ai import request_model, text_job_position_from_link, job_description_from_text, md_cv_from_user_and_job
+from ai import request_model, text_job_position_from_link, job_description_from_text, md_cv_from_user_and_job, \
+    review_from_user_and_job
 from database.db_interface import DatabaseManager
 from fastapi import Depends, FastAPI, HTTPException, status
-from models import ProfileCreate, ProfileResponse, EducationResponse, EducationCreate, ReviewRequest, ReviewResponse, \
+from models import ProfileCreate, ProfileResponse, EducationResponse, EducationCreate, ReviewResponse, \
     JobDescriptionResponse, JobDescriptionReceive, GeneratedCV
 from sqlalchemy.orm import Session
 from typing import List
@@ -194,7 +195,7 @@ def extract_job_description(job_description_raw: JobDescriptionReceive):
 @app.post("/api/build-cv", response_model=GeneratedCV)
 def generate_cv(profile_id: int, job_description: JobDescriptionResponse, db: Session = Depends(get_db)):
     """
-    Generates a tailored cv for a given user and job_description
+    Generates a tailored cv for a given user and job_description (already parsed)
     """
     profile = db_manager.get_profile(db, profile_id)
     if not profile:
@@ -202,6 +203,21 @@ def generate_cv(profile_id: int, job_description: JobDescriptionResponse, db: Se
     educations = db_manager.get_educations(db, profile_id)
     experiences = db_manager.get_experiences(db, profile_id)
     return md_cv_from_user_and_job(profile, educations, experiences, job_description)
+
+
+@app.post("/api/match-position", response_model=ReviewResponse)
+async def review_cv(profile_id: int, job_description: JobDescriptionResponse, db: Session = Depends(get_db)):
+    """
+    Given profile id and job_description (already parsed),
+    match given user against given job and evaluate the chances of passing.
+    Does not accept actual CV file! Match is done against all the info we have about the user!
+    """
+    profile = db_manager.get_profile(db, profile_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
+    educations = db_manager.get_educations(db, profile_id)
+    experiences = db_manager.get_experiences(db, profile_id)
+    return review_from_user_and_job(profile, educations, experiences, job_description)
 
 
 @app.post("/api/generate-cover-letter")
@@ -232,21 +248,3 @@ def generate_cover_letter(
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/review/cv", response_model=ReviewResponse)
-async def review_cv(request: ReviewRequest):
-    """
-    Process a CV review request:
-    1. Extract text from CV file
-    2. Get job description from URL if provided
-    3. Generate CV review using AI
-
-    Args:
-        request: Contains description, optional URL, and CV file in base64
-
-    Returns:
-        Review of the CV against the job description
-    """
-
-    return {"review": "ababa"}

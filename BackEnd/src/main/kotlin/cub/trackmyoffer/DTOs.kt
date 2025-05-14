@@ -39,6 +39,6 @@ data class ExperienceEntry(
 )
 
 @Serializable
-data class CVCreateRequest(
+data class WithJobDescription(
     val jobDescription: String,
 )

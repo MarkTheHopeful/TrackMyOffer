@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from datetime import date
 
 
@@ -97,12 +97,6 @@ class GeneratedCV(BaseModel):
     cv_text: str
 
 
-# Models for CV Review endpoint
-class ReviewRequest(BaseModel):
-    description: str
-    url: str | None = None
-    cv: str  # Base64 encoded file
-
-
 class ReviewResponse(BaseModel):
-    review: str
+    matchScore: int
+    suggestions: List[str]
