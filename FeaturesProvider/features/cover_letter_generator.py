@@ -32,10 +32,10 @@ MODEL_NAME = "google/gemini-2.0-flash-exp:free"
 def request_model(prompt: str) -> Optional[str]:
     """
     Make a request to the AI model and return its text response.
-    
+
     Args:
         prompt (str): The prompt to send to the AI model
-        
+
     Returns:
         Optional[str]: The text response from the model or None if failed.
     """
@@ -74,7 +74,10 @@ def request_model(prompt: str) -> Optional[str]:
 
 LetterStyle = Literal["professional", "creative", "technical"]
 
-def generate_ai_content(profile: Profile, job_description: JobDescriptionResponse, style: LetterStyle, notes: str) -> str:
+
+def generate_ai_content(
+    profile: Profile, job_description: JobDescriptionResponse, style: LetterStyle, notes: str
+) -> str:
     """Generate the full cover letter using AI"""
 
     applicant_name = f"{profile.first_name} {profile.last_name}"
@@ -89,12 +92,14 @@ def generate_ai_content(profile: Profile, job_description: JobDescriptionRespons
     company_name = job_description.company_name or "your esteemed company"
 
     job_details_list = []
-    if job_description.title: job_details_list.append(f"- Job Title: {job_description.title}")
-    if job_description.company_name: job_details_list.append(f"- Company: {job_description.company_name}")
-    if job_description.location: job_details_list.append(f"- Location: {job_description.location}")
-    if job_description.description: job_details_list.append(f"- Description: {job_description.description}")
-    if job_description.requirements: job_details_list.append(f"- Key Requirements: {job_description.requirements}")
-    if job_description.responsibilities: job_details_list.append(f"- Key Responsibilities: {job_description.responsibilities}")
+    if job_description.title:
+        job_details_list.append(f"- Job Title: {job_description.title}")
+    if job_description.company_name:
+        job_details_list.append(f"- Company: {job_description.company_name}")
+    if job_description.company_city:
+        job_details_list.append(f"- Location: {job_description.company_city}")
+    if job_description.description:
+        job_details_list.append(f"- Description: {job_description.description}")
 
     job_details_str = "\n".join(job_details_list)
     if not job_details_str:
@@ -145,7 +150,7 @@ def generate_ai_content(profile: Profile, job_description: JobDescriptionRespons
     - The output should be ONLY the cover letter text. No extra explanations, introductions, or markdown formatting like "```" surrounding the letter.
     - Ensure the letter is professional, grammatically correct, and flows naturally.
     """
-    
+
     response = request_model(prompt)
     if response is None:
         # Provide a more comprehensive default fallback message if AI fails
@@ -166,15 +171,16 @@ def generate_ai_content(profile: Profile, job_description: JobDescriptionRespons
         )
     return response
 
+
 def generate_cover_letter_data(
     db: Session,
     profile_id: int,
     job_description: JobDescriptionResponse,
     style: LetterStyle = "professional",
-    notes: str = ""
+    notes: str = "",
 ) -> str:
     """Generate a full cover letter based on profile and job description"""
-    
+
     profile = db.query(Profile).filter_by(id=profile_id).first()
     if not profile:
         raise ValueError("Profile not found")

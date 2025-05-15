@@ -22,7 +22,23 @@ def sample_profile_data():
         "city": "New York",
         "state": "NY",
         "country": "USA",
-        "summary": "Software Engineer with 5 years of experience",
+        "linkedin_url": "https://linkedin.com/in/johndoe",
+        "github_url": "https://github.com/johndoe",
+        "personal_website": "https://johndoe.com",
+        "other_url": "https://twitter.com/johndoe",
+        "about_me": "Software Engineer with 5 years of experience",
+    }
+
+
+@pytest.fixture
+def sample_experience_data():
+    """Sample experience data for testing"""
+    return {
+        "job_title": "Senior Software Engineer",
+        "company": "Tech Corp",
+        "start_date": date(2018, 1, 1),
+        "end_date": date(2023, 12, 31),
+        "description": "Led development of multiple full-stack applications",
     }
 
 
@@ -62,7 +78,7 @@ def test_create_profile(db_manager, sample_profile_data):
         assert profile.city == sample_profile_data["city"]
         assert profile.state == sample_profile_data["state"]
         assert profile.country == sample_profile_data["country"]
-        assert profile.about_me == sample_profile_data["summary"]
+        assert profile.about_me == sample_profile_data["about_me"]
         assert profile.created_at is not None
         assert profile.updated_at is not None
     finally:
@@ -109,14 +125,14 @@ def test_update_profile(db_manager, sample_profile_data):
         profile = db_manager.add_profile(session, sample_profile_data)
 
         # Update the profile
-        update_data = {"first_name": "Jane", "phone": "+1987654321", "summary": "Updated summary"}
+        update_data = {"first_name": "Jane", "phone": "+1987654321", "about_me": "Updated about me"}
         updated_profile = db_manager.update_profile(session, profile.id, update_data)
 
         # Ensure the updated_profile is an object, not a boolean
         assert updated_profile is not None
         assert updated_profile.first_name == update_data["first_name"]
         assert updated_profile.phone == update_data["phone"]
-        assert updated_profile.about_me == update_data["summary"]
+        assert updated_profile.about_me == update_data["about_me"]
         assert updated_profile.last_name == sample_profile_data["last_name"]  # Unchanged field
     finally:
         db_manager.close_session(session)
