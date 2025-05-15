@@ -1,10 +1,9 @@
-from unittest.mock import patch
-
 import pytest
-from database.db_interface import DatabaseManager, Profile
-from features.cover_letter_generator import fill_template, generate_ai_content, generate_cover_letter_data
+from unittest.mock import Mock, patch
 from sqlalchemy.orm import Session
-
+from database.db_interface import Profile, DatabaseManager
+from features.cover_letter_generator import generate_cover_letter_data, generate_ai_content
+from models import JobDescriptionResponse
 
 @pytest.fixture
 def db():
@@ -12,7 +11,6 @@ def db():
     db_manager = DatabaseManager(test_mode=True)
     db_manager.create_tables()
     return db_manager.get_session()
-
 
 @pytest.fixture
 def sample_profile(db: Session):
@@ -24,133 +22,130 @@ def sample_profile(db: Session):
         city="New York",
         state="NY",
         country="USA",
-        summary="Experienced software developer with 5 years of experience",
+        about_me="Experienced software developer with 5 years of experience."
     )
     db.add(profile)
     db.commit()
     return profile
 
-
 @pytest.fixture
-def sample_job_description():
-    return {
-        "company_name": "Tech Corp",
-        "title": "Senior Developer",
-        "description": "Looking for an experienced developer...",
-        "recruiter_name": "Jane Smith",
-        "address": "123 Tech Street",
-        "city": "San Francisco",
-        "postal_code": "94105",
-    }
+def sample_job_description_model():
+    return JobDescriptionResponse(
+        company_name="Tech Corp",
+        title="Senior Developer",
+        description="Looking for an experienced developer...",
+        recruiter_name="Jane Smith",
+        location="San Francisco, CA",
+        requirements="Python, FastAPI",
+        responsibilities="Develop amazing things"
+    )
 
+def test_generate_ai_content(sample_profile, sample_job_description_model):
+    with patch('features.cover_letter_generator.request_model') as mock_request:
+        mock_full_letter = "Dear Jane Smith, I am John Doe... Sincerely, John Doe."
+        mock_request.return_value = mock_full_letter
 
-def test_generate_ai_content(sample_profile):
-    with patch("features.cover_letter_generator.request_model") as mock_request:
-        mock_response = {
-            "why_interested": "Test interest",
-            "achievements": "Test achievements",
-            "why_good_fit": "Test fit",
-        }
-        mock_request.return_value = mock_response
+        result = generate_ai_content(
+            sample_profile,
+            sample_job_description_model,
+            "professional",
+            notes="Some specific notes."
+        )
 
-        result = generate_ai_content(sample_profile, "Test job description", "professional")
-
-        assert result == mock_response
+        assert result == mock_full_letter
         mock_request.assert_called_once()
 
+def test_generate_ai_content_fallback(sample_profile, sample_job_description_model):
+    with patch('features.cover_letter_generator.request_model', return_value=None):
+        result = generate_ai_content(
+            sample_profile,
+            sample_job_description_model,
+            "professional",
+            notes=""
+        )
 
-def test_generate_ai_content_fallback(sample_profile):
-    with patch("features.cover_letter_generator.request_model", return_value=None):
-        result = generate_ai_content(sample_profile, "Test job description", "professional")
+        assert "John Doe" in result
+        assert "john@example.com" in result
+        assert "Tech Corp" in result
+        assert "Senior Developer" in result
+        assert "Sincerely," in result
+        assert "My background includes: Experienced software developer with 5 years of experience." in result
 
-        assert "why_interested" in result
-        assert "achievements" in result
-        assert "why_good_fit" in result
+def test_generate_cover_letter_data(db: Session, sample_profile, sample_job_description_model):
+    with patch('features.cover_letter_generator.request_model') as mock_request:
+        mock_ai_response_letter = (
+            f"Dear Jane Smith,\n\n"
+            f"I am writing to express my interest in the Senior Developer position at Tech Corp. "
+            f"My name is John Doe and I am an Experienced software developer with 5 years of experience.\n\n"
+            f"I am excited about this opportunity.\n\n"
+            f"Sincerely,\nJohn Doe"
+        )
+        mock_request.return_value = mock_ai_response_letter
 
+        full_letter = generate_cover_letter_data(
+            db,
+            sample_profile.id,
+            sample_job_description_model,
+            style="professional",
+            notes="Please highlight my Python skills."
+        )
 
-def test_generate_cover_letter_data(db: Session, sample_profile, sample_job_description):
-    with patch("features.cover_letter_generator.request_model") as mock_request:
-        mock_response = {
-            "why_interested": "Test interest",
-            "achievements": "Test achievements",
-            "why_good_fit": "Test fit",
-        }
-        mock_request.return_value = mock_response
+        assert isinstance(full_letter, str)
+        assert "Tech Corp" in full_letter
+        assert "Senior Developer" in full_letter
+        assert "John Doe" in full_letter
+        assert "john@example.com" in full_letter
+        assert mock_ai_response_letter == full_letter
 
-        data = generate_cover_letter_data(db, sample_profile.id, sample_job_description)
+        mock_request.assert_called_once()
+        prompt_sent_to_ai = mock_request.call_args[0][0]
+        assert "John Doe" in prompt_sent_to_ai
+        assert "Tech Corp" in prompt_sent_to_ai
+        assert "Please highlight my Python skills." in prompt_sent_to_ai
+        assert "Experienced software developer with 5 years of experience." in prompt_sent_to_ai
 
-        assert data["company_name"] == "Tech Corp"
-        assert data["job_title"] == "Senior Developer"
-        assert data["applicant_full_name"] == "John Doe"
-        assert data["applicant_email"] == "john@example.com"
-        assert data["why_interested"] == "Test interest"
-        assert data["key_achievements"] == "Test achievements"
-        assert data["why_good_candidate"] == "Test fit"
-
-
-def test_fill_template():
-    template = """
-    Dear {recruiter_name},
-    
-    I am writing about {job_title} position at {company_name}.
-    
-    Best regards,
-    {applicant_full_name}
-    """
-
-    data = {
-        "recruiter_name": "Jane Smith",
-        "job_title": "Senior Developer",
-        "company_name": "Tech Corp",
-        "applicant_full_name": "John Doe",
-    }
-
-    filled_letter = fill_template(template, data)
-
-    assert "Dear Jane Smith" in filled_letter
-    assert "Senior Developer position at Tech Corp" in filled_letter
-    assert "John Doe" in filled_letter
-
-
-def test_generate_cover_letter_invalid_profile(db: Session, sample_job_description):
+def test_generate_cover_letter_invalid_profile(db: Session, sample_job_description_model):
     with pytest.raises(ValueError, match="Profile not found"):
-        generate_cover_letter_data(db, 999, sample_job_description)
-
+        generate_cover_letter_data(db, 999, sample_job_description_model)
 
 @pytest.mark.integration
 def test_ai_request_model():
-    """Integration test for AI model request"""
+    """Integration test for AI model request to generate a full letter."""
     from features.cover_letter_generator import request_model
-
+    
     test_prompt = """
-    Generate content for a cover letter in professional style.
+    Please write a complete cover letter in a professional style.
+
+    **Applicant Information:**
+    - Name: Test User
+    - Email: test@example.com
+    - Phone: 555-1234
+    - Current Location: Testville, TS
+    - Personal Summary/About Me: A dedicated professional seeking new opportunities.
     
-    About the candidate:
-    - Name: John Doe
-    - Summary: Senior software developer with 10 years of experience
-    - Location: New York, NY, USA
-    
-    For the job:
-    Senior Developer position at Tech Corp
-    
-    Generate:
-    1. Why interested in company (2-3 sentences)
-    2. Key achievements description (2-3 sentences)
-    3. Why good candidate (2-3 sentences)
+    **Job Details:**
+    - Job Title: Sample Role
+    - Company: Sample Company Inc.
+    - Description: A great job.
+    - Key Requirements: Enthusiasm.
+
+    **Company Contact (for salutation):**
+    - Contact Person: Hiring Team
+    - Company Name: Sample Company Inc.
+
+    **Additional Notes/Instructions from Applicant:**
+    Keep it concise.
+
+    **Task:**
+    Generate a full, ready-to-send cover letter.
+    The output should be ONLY the cover letter text. No extra explanations.
     """
-
+    
     response = request_model(test_prompt)
-
+    
     assert response is not None
-    assert isinstance(response, dict)
-    assert all(key in response for key in ["why_interested", "achievements", "why_good_fit"])
+    assert isinstance(response, str)
+    assert len(response.strip()) > 50
+    assert "Test User" in response or "Sample Role" in response
 
-    # Check that each response part is a non-empty string
-    for key, value in response.items():
-        assert isinstance(value, str)
-        assert len(value.strip()) > 0
-
-    # Check that responses are reasonable in length
-    assert len(response["why_interested"]) > 50
-    assert len(response["achievements"]) > 50
-    assert len(response["why_good_fit"]) > 50
+    assert len(response) > 50
