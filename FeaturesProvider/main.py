@@ -242,6 +242,11 @@ def generate_cover_letter(
     db: Session = Depends(get_db),
 ):
     """Generate a cover letter based on profile and job description"""
+
+    profile = db_manager.get_profile(db, profile_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
+
     try:
         # The 'style' parameter is passed as a string.
         # The generate_cover_letter_data function expects LetterStyle,
@@ -251,7 +256,7 @@ def generate_cover_letter(
         # Generate the full cover letter string
         full_cover_letter = generate_cover_letter_data(
             db,
-            profile_id,
+            profile,
             job_description,
             style,  # type: ignore
             notes,
