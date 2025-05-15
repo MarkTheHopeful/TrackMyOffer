@@ -11,7 +11,7 @@ export function CoverLetter() {
     const [tone, setTone] = useState<ToneType>('formal');
     const [generatedLetter, setGeneratedLetter] = useState('');
     const [generating, setGenerating] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [, setError] = useState<string | null>(null);
 
     const generateLetter = async () => {
         setGenerating(true);

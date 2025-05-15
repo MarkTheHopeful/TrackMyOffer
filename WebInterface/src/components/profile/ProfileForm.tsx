@@ -22,7 +22,7 @@ export function ProfileForm() {
   });
   const [editMode, setEditMode] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [pendingChanges, setPendingChanges] = useState<{
     toAdd: EducationEntry[],
     toUpdate: EducationEntry[],

@@ -117,7 +117,7 @@ export function CVBuilder() {
       // Then create all new and modified experiences
       const toCreate = experiences.filter(exp => exp.isNew || exp.isModified);
       for (const exp of toCreate) {
-        const { selected, isNew, isDeleted, isModified, ...experienceData } = exp;
+        const { selected, isNew, isDeleted, isModified, ...experienceData } = exp; // eslint-disable-line
         await createExperience(experienceData);
       }
 
