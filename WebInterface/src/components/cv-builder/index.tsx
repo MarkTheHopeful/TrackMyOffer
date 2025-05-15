@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusIcon, Trash2Icon, SaveIcon } from 'lucide-react';
+import { PlusIcon, Trash2Icon, SaveIcon, CopyIcon, DownloadIcon } from 'lucide-react';
 import { Experience } from '@/api/Experience';
 import { getExperiences, createExperience, deleteExperience, createCV } from '@/api/backend';
 
@@ -17,6 +17,8 @@ export function CVBuilder() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
+  const [generatedCV, setGeneratedCV] = useState('');
+  const [generatingCV, setGeneratingCV] = useState(false);
 
   useEffect(() => {
     loadExperiences();
@@ -74,15 +76,31 @@ export function CVBuilder() {
   };
 
   const handleGenerateCV = async () => {
+    setGeneratingCV(true);
     try {
       const result = await createCV(jobDescription);
-      alert(result.cv_text);
+      setGeneratedCV(result.cv_text);
     } catch (err) {
       console.error('Error generating CV:', err);
-      alert('Failed to generate tailored CV. Please try again.');
+      setError('Failed to generate tailored CV. Please try again.');
+    } finally {
+      setGeneratingCV(false);
     }
   };
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(generatedCV);
+  };
+
+  const downloadCV = () => {
+    const element = document.createElement('a');
+    const file = new Blob([generatedCV], {type: 'text/plain'});
+    element.href = URL.createObjectURL(file);
+    element.download = 'tailored-cv.txt';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
 
   const saveChanges = async () => {
     setIsLoading(true);
@@ -220,21 +238,72 @@ export function CVBuilder() {
 
       <div className="mb-8">
         <h2 className="text-2xl font-semibold text-slate-900 mb-4">Target Position</h2>
-        <div className="bg-white rounded-xl p-6 shadow-lg shadow-slate-200/50 border border-slate-200">
-          <label className="block text-sm font-medium text-slate-700 mb-1">
-            Job Description or URL
-          </label>
-          <textarea
-            value={jobDescription}
-            onChange={(e) => setJobDescription(e.target.value)}
-            rows={4}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 mb-4"
-            placeholder="Paste job description or enter URL..."
-            disabled={isLoading}
-          />
-          <Button variant="primary" className="w-full" disabled={isLoading} onClick={handleGenerateCV}>
-            Generate Tailored CV
-          </Button>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Column - Job Description Input */}
+          <div className="bg-white rounded-xl p-6 shadow-lg shadow-slate-200/50 border border-slate-200">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Job Description or URL
+            </label>
+            <textarea
+              value={jobDescription}
+              onChange={(e) => setJobDescription(e.target.value)}
+              rows={4}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 mb-4"
+              placeholder="Paste job description or enter URL..."
+              disabled={isLoading || generatingCV}
+            />
+            <Button 
+              variant="primary" 
+              className="w-full" 
+              disabled={isLoading || generatingCV || !jobDescription} 
+              onClick={handleGenerateCV}
+            >
+              {generatingCV ? 'Generating...' : 'Generate Tailored CV'}
+            </Button>
+          </div>
+
+          {/* Right Column - CV Preview */}
+          <div className="bg-white rounded-xl p-6 shadow-lg shadow-slate-200/50 border border-slate-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-slate-900">Generated CV</h3>
+              {generatedCV && (
+                <div className="flex space-x-2">
+                  <button
+                    onClick={copyToClipboard}
+                    className="p-2 hover:bg-slate-100 rounded-lg text-slate-600"
+                    title="Copy to clipboard"
+                  >
+                    <CopyIcon className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={downloadCV}
+                    className="p-2 hover:bg-slate-100 rounded-lg text-slate-600"
+                    title="Download as text file"
+                  >
+                    <DownloadIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {!generatedCV ? (
+              <div className="flex-1 flex items-center justify-center border-2 border-dashed border-slate-200 rounded-lg p-6" style={{ minHeight: '200px' }}>
+                <p className="text-slate-400 text-center">
+                  Your tailored CV will appear here after generation
+                </p>
+              </div>
+            ) : (
+              <div className="flex-1 overflow-auto">
+                <textarea
+                  value={generatedCV}
+                  onChange={(e) => setGeneratedCV(e.target.value)}
+                  className="w-full h-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 resize-none"
+                  style={{ minHeight: '300px' }}
+                  readOnly={generatingCV}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
