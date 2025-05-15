@@ -60,7 +60,15 @@ def job_description_from_text(job_description_as_text: str) -> JobDescriptionRes
 
     response = request_model(prompt)
     if not response:
-        raise ValueError("Failed to parse job description")
+        return JobDescriptionResponse(
+            company_name="",
+            company_address="",
+            company_city="",
+            company_postal_code="",
+            recruiter_name="",
+            title="",
+            description=job_description_as_text,
+        )
 
     try:
         # Extract JSON from the response
