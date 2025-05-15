@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 from sqlalchemy.orm import Session
 from database.db_interface import Profile, DatabaseManager
 from features.cover_letter_generator import generate_cover_letter_data, generate_ai_content
