@@ -6,11 +6,11 @@ from dotenv import load_dotenv
 from loguru import logger
 from models import GeneratedCV, JobDescriptionResponse
 
+from FeaturesProvider.features.review_user_application import _format_experience, _format_education
 from FeaturesProvider.models import ReviewResponse
 
 # Load environment variables from .env file
 load_dotenv()
-
 
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
 API_KEY = os.getenv("API_KEY")
@@ -56,7 +56,7 @@ def _format_education_for_cv(educations: list[Education]) -> str:
     """Helper function to format education information for the CV prompt"""
     if not educations:
         return "No formal education provided"
-    
+
     edu_text = []
     for edu in educations:
         end_date = edu.end_date.strftime("%Y-%m") if edu.end_date else "Present"
@@ -64,7 +64,7 @@ def _format_education_for_cv(educations: list[Education]) -> str:
             f"- {edu.institution}, {edu.degree}, {edu.start_date.strftime('%Y-%m')} to {end_date}"
             + (f", {edu.additional_info}" if edu.additional_info else "")
         )
-    
+
     return "\n".join(edu_text)
 
 
@@ -72,7 +72,7 @@ def _format_experience_for_cv(experiences: list[Experience]) -> str:
     """Helper function to format experience information for the CV prompt"""
     if not experiences:
         return "No work experience provided"
-    
+
     exp_text = []
     for exp in experiences:
         end_date = exp.end_date if exp.end_date else "Present"
@@ -80,15 +80,15 @@ def _format_experience_for_cv(experiences: list[Experience]) -> str:
             f"- {exp.company}, {exp.job_title}, {exp.start_date} to {end_date}"
             + (f"\n  {exp.description}" if exp.description else "")
         )
-    
+
     return "\n".join(exp_text)
 
 
 def md_cv_from_user_and_job(
-    profile: Profile,
-    educations: list[Education],
-    experiences: list[Experience],
-    job_description: JobDescriptionResponse,
+        profile: Profile,
+        educations: list[Education],
+        experiences: list[Experience],
+        job_description: JobDescriptionResponse,
 ) -> GeneratedCV:
     """
     Given the full information about a user, generate a tailored markdown CV
@@ -135,10 +135,10 @@ def md_cv_from_user_and_job(
     
     RETURN ONLY THE MARKDOWN CV, without any explanations or additional text.
     """
-    
+
     # Call the AI model
     cv_text = request_model(prompt)
-    
+
     # Handle potential API failures
     if not cv_text:
         logger.warning("AI model failed to generate CV, using fallback template")
@@ -167,15 +167,16 @@ def md_cv_from_user_and_job(
 - Communication and teamwork
 - Problem-solving abilities
 """
-    
+
     return GeneratedCV(
         format="md",
         cv_text=cv_text.strip(),
     )
 
+
 def review_from_user_and_job(profile: Profile, educations: list[Education],
-                            experiences: list[Experience],
-                            job_description: JobDescriptionResponse) -> ReviewResponse:
+                             experiences: list[Experience],
+                             job_description: JobDescriptionResponse) -> ReviewResponse:
     """
     Given the full information about a user, generate a proper review of
     how likely this person will get this job.
@@ -213,22 +214,23 @@ def review_from_user_and_job(profile: Profile, educations: list[Education],
     - [suggestion 2]
     - [suggestion 3]
     """
-    
+
     # Call the AI model
     response = request_model(prompt)
-    
+
     if not response:
         # Fallback if API fails
         return ReviewResponse(
             matchScore=50,
-            suggestions=["Unable to generate personalized suggestions. Consider reviewing your skills against the job description."]
+            suggestions=[
+                "Unable to generate personalized suggestions. Consider reviewing your skills against the job description."]
         )
-    
+
     # Parse the response
     try:
         score_line = None
         suggestions = []
-        
+
         lines = response.strip().split('\n')
         for line in lines:
             if line.startswith("SCORE:"):
@@ -242,7 +244,7 @@ def review_from_user_and_job(profile: Profile, educations: list[Education],
                 suggestion = line[1:].strip()
                 if suggestion and not suggestion.isspace():
                     suggestions.append(suggestion)
-        
+
         # If no suggestions were found, add a generic one
         if not suggestions:
             suggestions = [
@@ -250,12 +252,12 @@ def review_from_user_and_job(profile: Profile, educations: list[Education],
                 f"Consider highlighting specific achievements relevant to {job_description.company_name}",
                 "Update your profile with more detailed technical skills"
             ]
-        
+
         return ReviewResponse(
             matchScore=score if 'score' in locals() else 50,
             suggestions=suggestions[:5]  # Limit to 5 suggestions
         )
-    
+
     except Exception as e:
         logger.error(f"Error parsing AI response: {e}")
         return ReviewResponse(
@@ -266,9 +268,6 @@ def review_from_user_and_job(profile: Profile, educations: list[Education],
                 f"Tailor your experience to match {job_description.company_name}'s requirements"
             ]
         )
-
-
-
 
 
 if __name__ == "__main__":
