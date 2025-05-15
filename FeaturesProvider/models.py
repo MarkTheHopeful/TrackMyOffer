@@ -33,8 +33,7 @@ class ProfileResponse(BaseModel):
     other_url: Optional[str] = None
     about_me: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 
 class EducationCreate(BaseModel):
@@ -72,10 +71,7 @@ class ExperienceResponse(BaseModel):
     end_date: Optional[date] = None
     description: Optional[str] = None
 
-    class Config:
-        orm_mode = True
-
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 
 class JobDescriptionReceive(BaseModel):

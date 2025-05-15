@@ -73,7 +73,7 @@ def test_get_experiences(client, mock_db_experience):
          patch("main.db_manager.get_experiences", return_value=[mock_db_experience]) as mock_get_experiences:
         
         # Send request to get experiences for a profile
-        response = client.get("/api/experiences/1")
+        response = client.get("/api/1/experiences")
         
         # Verify the response
         assert response.status_code == 200
@@ -91,7 +91,7 @@ def test_get_experiences_profile_not_found(client):
     with patch("main.db_manager.get_profile", return_value=None) as mock_get_profile:
         
         # Send request to get experiences for non-existent profile
-        response = client.get("/api/experiences/999")
+        response = client.get("/api/999/experiences")
         
         # Verify error response
         assert response.status_code == 404

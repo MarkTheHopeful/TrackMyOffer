@@ -1,15 +1,14 @@
 from typing import List
 
 from sqlalchemy import create_engine, Column, Integer, String, Text, Date, ForeignKey, DateTime, func
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 import os
 
 Base = declarative_base()
 
 
 class Profile(Base):
-    __tablename__ = 'profiles'
+    __tablename__ = "profiles"
 
     id = Column(Integer, primary_key=True)
     first_name = Column(String(100), nullable=False)
@@ -33,10 +32,10 @@ class Profile(Base):
 
 
 class Education(Base):
-    __tablename__ = 'education'
+    __tablename__ = "education"
 
     id = Column(Integer, primary_key=True)
-    profile_id = Column(Integer, ForeignKey('profiles.id', ondelete='CASCADE'), nullable=False)
+    profile_id = Column(Integer, ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False)
     institution = Column(String(255), nullable=False)
     degree = Column(String(255), nullable=False)
     start_date = Column(Date, nullable=False)
@@ -50,10 +49,10 @@ class Education(Base):
 
 
 class Experience(Base):
-    __tablename__ = 'experience'
+    __tablename__ = "experience"
 
     id = Column(Integer, primary_key=True)
-    profile_id = Column(Integer, ForeignKey('profiles.id', ondelete='CASCADE'), nullable=False)
+    profile_id = Column(Integer, ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False)
     job_title = Column(String(255), nullable=False)
     company = Column(String(255), nullable=False)
     start_date = Column(Date, nullable=False)
@@ -75,15 +74,15 @@ class DatabaseManager:
             test_mode (bool, optional): If True, use SQLite in-memory database for testing.
         """
         if test_mode:
-            db_url = 'sqlite:///:memory:'
+            db_url = "sqlite:///:memory:"
         elif db_url is None:
-            db_host = os.getenv('DB_HOST', 'localhost')
-            db_port = os.getenv('DB_PORT', '5432')
-            db_user = os.getenv('DB_USER', 'features_user')
-            db_pass = os.getenv('DB_PASSWORD', 'features_password')
-            db_name = os.getenv('DB_NAME', 'features_db')
+            db_host = os.getenv("DB_HOST", "localhost")
+            db_port = os.getenv("DB_PORT", "5432")
+            db_user = os.getenv("DB_USER", "features_user")
+            db_pass = os.getenv("DB_PASSWORD", "features_password")
+            db_name = os.getenv("DB_NAME", "features_db")
 
-            db_url = f'postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}'
+            db_url = f"postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}"
 
         self.engine = create_engine(db_url)
         self.Session = sessionmaker(bind=self.engine)
@@ -124,7 +123,7 @@ class DatabaseManager:
         session.commit()
         return profile
 
-    def get_profile(self, session, profile_id):
+    def get_profile(self, session, profile_id) -> Profile | None:
         """Get a profile by ID.
 
         Args:
@@ -202,7 +201,7 @@ class DatabaseManager:
         if not profile:
             return None
 
-        education_data['profile_id'] = profile_id
+        education_data["profile_id"] = profile_id
         education = Education(**education_data)
         session.add(education)
         session.commit()
@@ -241,7 +240,7 @@ class DatabaseManager:
         if not profile:
             return None
 
-        experience_data['profile_id'] = profile_id
+        experience_data["profile_id"] = profile_id
         experience = Experience(**experience_data)
         session.add(experience)
         session.commit()
@@ -276,7 +275,6 @@ class DatabaseManager:
             list: List of Education objects.
         """
         return session.query(Education).filter(Education.profile_id == profile_id).all()
-
 
     def get_experiences(self, session, profile_id):
         """Get all experiences for a profile.

@@ -20,7 +20,7 @@ This repository contains a template for creating a cover letter with customizabl
 - `{applicant_email}` - Email address
 
 ### Content Blocks
-- `{why_interested_in_company}` - Description of why you're interested in the company (1-2 paragraphs)
+- `{why_interested}` - Description of why you're interested in the company (1-2 paragraphs)
 - `{current_position_description}` - Brief description of current position and responsibilities
 - `{key_achievements}` - Description of key achievements in current/previous positions
 - `{technical_skills_description}` - Description of technical skills and competencies
