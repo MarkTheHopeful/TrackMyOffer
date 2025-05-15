@@ -238,74 +238,62 @@ export function CVBuilder() {
 
       <div className="mb-8">
         <h2 className="text-2xl font-semibold text-slate-900 mb-4">Target Position</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column - Job Description Input */}
-          <div className="bg-white rounded-xl p-6 shadow-lg shadow-slate-200/50 border border-slate-200">
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Job Description or URL
-            </label>
-            <textarea
-              value={jobDescription}
-              onChange={(e) => setJobDescription(e.target.value)}
-              rows={4}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 mb-4"
-              placeholder="Paste job description or enter URL..."
-              disabled={isLoading || generatingCV}
-            />
-            <Button 
-              variant="primary" 
-              className="w-full" 
-              disabled={isLoading || generatingCV || !jobDescription} 
-              onClick={handleGenerateCV}
-            >
-              {generatingCV ? 'Generating...' : 'Generate Tailored CV'}
-            </Button>
-          </div>
-
-          {/* Right Column - CV Preview */}
-          <div className="bg-white rounded-xl p-6 shadow-lg shadow-slate-200/50 border border-slate-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-slate-900">Generated CV</h3>
-              {generatedCV && (
-                <div className="flex space-x-2">
-                  <button
-                    onClick={copyToClipboard}
-                    className="p-2 hover:bg-slate-100 rounded-lg text-slate-600"
-                    title="Copy to clipboard"
-                  >
-                    <CopyIcon className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={downloadCV}
-                    className="p-2 hover:bg-slate-100 rounded-lg text-slate-600"
-                    title="Download as text file"
-                  >
-                    <DownloadIcon className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {!generatedCV ? (
-              <div className="flex-1 flex items-center justify-center border-2 border-dashed border-slate-200 rounded-lg p-6" style={{ minHeight: '200px' }}>
-                <p className="text-slate-400 text-center">
-                  Your tailored CV will appear here after generation
-                </p>
-              </div>
-            ) : (
-              <div className="flex-1 overflow-auto">
-                <textarea
-                  value={generatedCV}
-                  onChange={(e) => setGeneratedCV(e.target.value)}
-                  className="w-full h-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 resize-none"
-                  style={{ minHeight: '300px' }}
-                  readOnly={generatingCV}
-                />
-              </div>
-            )}
-          </div>
+        <div className="bg-white rounded-xl p-6 shadow-lg shadow-slate-200/50 border border-slate-200">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Job Description or URL
+          </label>
+          <textarea
+            value={jobDescription}
+            onChange={(e) => setJobDescription(e.target.value)}
+            rows={4}
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 mb-4"
+            placeholder="Paste job description or enter URL..."
+            disabled={isLoading || generatingCV}
+          />
+          <Button 
+            variant="primary" 
+            className="w-full" 
+            disabled={isLoading || generatingCV || !jobDescription} 
+            onClick={handleGenerateCV}
+          >
+            {generatingCV ? 'Generating...' : 'Generate Tailored CV'}
+          </Button>
         </div>
       </div>
+
+      {/* Generated CV Section - Full Width */}
+      {generatedCV && (
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-semibold text-slate-900">Generated CV</h2>
+            <div className="flex space-x-2">
+              <button
+                onClick={copyToClipboard}
+                className="p-2 hover:bg-slate-100 rounded-lg text-slate-600"
+                title="Copy to clipboard"
+              >
+                <CopyIcon className="w-4 h-4" />
+              </button>
+              <button
+                onClick={downloadCV}
+                className="p-2 hover:bg-slate-100 rounded-lg text-slate-600"
+                title="Download as text file"
+              >
+                <DownloadIcon className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl p-6 shadow-lg shadow-slate-200/50 border border-slate-200">
+            <textarea
+              value={generatedCV}
+              onChange={(e) => setGeneratedCV(e.target.value)}
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 resize-none"
+              style={{ minHeight: '600px' }}
+              readOnly={generatingCV}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
