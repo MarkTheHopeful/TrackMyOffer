@@ -12,8 +12,6 @@ services:
     depends_on:
       - backend
       - featuresprovider
-    env_file:
-      - WebInterface/.env
   backend:
     build:
       context: ./BackEnd
@@ -29,8 +27,9 @@ services:
         - A_DEBUG_ENDPOINTS=true
     ports:
       - "3001:3001"
-    env_file:
-      - BackEnd/.env
+    environment:
+      - CLIENT_ID
+      - CLIENT_SECRET
     depends_on:
       utility_db:
         condition: service_healthy
@@ -45,8 +44,8 @@ services:
         - A_DB_PASSWORD=features_password
     ports:
       - "3002:3002"
-    env_file:
-      - ./FeaturesProvider/.env
+    environment:
+      - API_KEY
     depends_on:
       features_db:
         condition: service_healthy
