@@ -1,9 +1,11 @@
 import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import patch
+from database.db_interface import Profile
 from main import app
 from sqlalchemy.orm import Session
 from database.db_interface import DatabaseManager
+from tests.test_profile_api import mock_db_profile
 
 
 @pytest.fixture
@@ -47,22 +49,7 @@ def test_greet_route(
         assert response.json() == expected_response
 
 
-def test_generate_cover_letter_endpoint(client: TestClient, db: Session):
-    # Create a test profile
-    profile_data = {
-        "first_name": "John",
-        "last_name": "Doe",
-        "email": "john@example.com",
-        "phone": "1234567890",
-        "city": "New York",
-        "state": "NY",
-        "country": "USA",
-        "summary": "Experienced developer"
-    }
-    response = client.post("/api/profile", json=profile_data)
-    assert response.status_code == 201
-    profile_id = response.json()["id"]
-    
+def test_generate_cover_letter_endpoint(client: TestClient, db: Session, mock_db_profile: Profile):
     # Test cover letter generation
     job_description = {
         "company_name": "Tech Corp",
@@ -71,27 +58,30 @@ def test_generate_cover_letter_endpoint(client: TestClient, db: Session):
         "recruiter_name": "Jane Smith",
         "address": "123 Tech Street",
         "city": "San Francisco",
-        "postal_code": "94105"
+        "postal_code": "94105",
     }
-    
+
     # Mock the AI response for cover letter generation
     mock_ai_response = {
         "why_interested": "Test interest",
         "achievements": "Test achievements",
-        "why_good_fit": "Test fit"
+        "why_good_fit": "Test fit",
     }
-    
-    with patch('features.cover_letter_generator.request_model', return_value=mock_ai_response):
+
+    with (
+        patch("features.cover_letter_generator.request_model", return_value=mock_ai_response),
+        patch("main.db_manager.get_profile", return_value=mock_db_profile),
+    ):
         response = client.post(
             "/api/generate-cover-letter",
-            params={"profile_id": profile_id, "style": "professional"},
-            json=job_description
+            params={"profile_id": "123", "style": "professional"},
+            json=job_description,
         )
-        
+
         assert response.status_code == 200
         assert "cover_letter" in response.json()
         assert "data" in response.json()
-        
+
         data = response.json()["data"]
         assert data["company_name"] == "Tech Corp"
         assert data["applicant_full_name"] == "John Doe"
@@ -104,14 +94,12 @@ def test_generate_cover_letter_invalid_profile(client: TestClient, db: Session):
     job_description = {
         "company_name": "Tech Corp",
         "title": "Senior Developer",
-        "description": "Looking for an experienced developer..."
+        "description": "Looking for an experienced developer...",
     }
-    
+
     response = client.post(
-        "/api/generate-cover-letter",
-        params={"profile_id": 999, "style": "professional"},
-        json=job_description
+        "/api/generate-cover-letter", params={"profile_id": 999, "style": "professional"}, json=job_description
     )
-    
+
     assert response.status_code == 404
     assert response.json()["detail"] == "Profile not found"
