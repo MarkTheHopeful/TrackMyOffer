@@ -146,7 +146,7 @@ def generate_ai_content(
 
     **Important Instructions:**
     - The tone must be strictly {style}.
-    - Do NOT use placeholders like "[Your Address]" or "[Company Address]" unless the information is truly unavailable from the provided details. Fill in all information using the details provided above.
+    - Do not use placeholders (e.g., '[Your Address]', '[Company Address]'). If specific information is not available, omit it or rephrase the content so that it appears complete and professional without it. The final version must look polished and ready to use as-is.
     - The output should be ONLY the cover letter text. No extra explanations, introductions, or markdown formatting like "```" surrounding the letter.
     - Ensure the letter is professional, grammatically correct, and flows naturally.
     """
