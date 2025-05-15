@@ -197,8 +197,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                description: Added education entry
+                $ref: '#/components/schemas/EducationEntry'
         '400':
           description: Bad request
           content:
@@ -268,11 +267,7 @@ paths:
       responses:
         '200':
           description: Successful operation
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: "Education entry deleted"
+          content: {}
         '400':
           description: Missing required parameter
           content:
@@ -314,8 +309,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                description: Added experience entry
+                $ref: '#/components/schemas/ExperienceEntry'
         '400':
           description: Bad request
           content:
@@ -385,11 +379,7 @@ paths:
       responses:
         '200':
           description: Successful operation
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: "Experience entry deleted"
+          content: {}
         '400':
           description: Missing required parameter
           content:
@@ -433,6 +423,10 @@ paths:
               schema:
                 type: object
                 description: Generated CV content
+                properties:
+                  cv_text:
+                    type: string
+                    example: "Generated CV text"
         '400':
           description: Bad request
           content:
@@ -476,6 +470,18 @@ paths:
               schema:
                 type: object
                 description: Job matching analysis result
+                properties:
+                  matchScore:
+                    type: number
+                    description: The match score for the job description
+                  suggestions:
+                    type: array
+                    items:
+                      type: string
+                    description: Suggestions for improvement
+                required:
+                  - matchScore
+                  - suggestions
         '400':
           description: Bad request
           content:
@@ -518,7 +524,12 @@ paths:
             application/json:
               schema:
                 type: object
-                description: Generated cover letter content
+                properties:
+                  cover_letter:
+                    type: string
+                    description: Generated cover letter text
+                required:
+                  - cover_letter
         '400':
           description: Bad request
           content:
