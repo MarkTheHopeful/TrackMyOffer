@@ -22,7 +22,7 @@ data class Response(val status: HttpStatusCode, val body: String)
 
 data class FeatureProviderRoutingConfig(val remote: String)
 
-fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProviderRoutingConfig) {
+fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProviderRoutingConfig, utilityDatabase: UtilityDatabase) {
     suspend fun extractUserId(call: RoutingCall): Int {
         val userSession: UserSession =
             call.sessions.get() ?: throw RuntimeException("Invalid session during request")
@@ -33,8 +33,9 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
             call.respondRedirect("/login")
         }
         val userInfo: UserInfo = getUserInfo(httpClient, userSession)
-        // TODO: Go to the database and fetch user_id by the email
-        return 1
+
+        // Get or create profile ID from the utility database
+        return utilityDatabase.getOrCreateProfileId(userInfo.email, userInfo)
     }
 
     suspend fun getJobDescription(jobDescription: String): Response {
@@ -95,7 +96,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
             post("/DEBUG/profile") {
                 val profileReq = call.receive<ProfileData>()
 
-                profileReq.id = 1//extractUserId(call)
+                profileReq.id = 1
 
                 val remoteResponse: HttpResponse = httpClient.post("${config.remote}/api/profile") {
                     contentType(ContentType.Application.Json)
@@ -120,7 +121,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 )
             }
             get("/DEBUG/profile") {
-                val userId = 1 // DEBUG ONLY!
+                val userId = 1//extractUserId(call)
 
                 val remoteResponse: HttpResponse = httpClient.get("${config.remote}/api/profile/${userId}")
 
@@ -342,7 +343,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     return@post
                 }
 
-                val profileId = 1
+                val profileId = 1//extractUserId(call)
 
                 val response = httpClient.post("${config.remote}/api/build-cv") {
                     contentType(ContentType.Application.Json)
@@ -380,7 +381,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     return@post
                 }
 
-                val profileId = 1
+                val profileId = 1//extractUserId(call)
 
                 val response = httpClient.post("${config.remote}/api/match-position") {
                     contentType(ContentType.Application.Json)
@@ -426,7 +427,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     return@post
                 }
 
-                val profileId = 1
+                val profileId = 1//extractUserId(call)
 
                 val textStyle = request.tone
                 val notes = request.motivations

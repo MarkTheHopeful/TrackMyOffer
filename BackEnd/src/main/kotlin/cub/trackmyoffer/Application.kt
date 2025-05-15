@@ -59,6 +59,10 @@ fun Application.module() {
         }
     }
 
+    // Initialize the utility database
+    val utilityDatabase = UtilityDatabase(httpClient, fProviderUrl)
+    utilityDatabase.init()
+
     // TODO: setup cors properly
     install(CORS) {
         anyHost()
@@ -109,6 +113,6 @@ fun Application.module() {
     routing {
         backendRouting()
         authRouting(httpClient)
-        featureProviderRouting(httpClient, FeatureProviderRoutingConfig(fProviderUrl))
+        featureProviderRouting(httpClient, FeatureProviderRoutingConfig(fProviderUrl), utilityDatabase)
     }
 }

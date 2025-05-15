@@ -26,10 +26,16 @@ services:
         - A_PROVIDER_PORT=3002
         - A_VITE_HOST=localhost
         - A_VITE_PORT=3000
+        - A_DB_HOST=utility_db
+        - A_DB_PORT=5432
+        - A_DB_PASSWORD=utility_password
     ports:
       - "3001:3001"
     env_file:
       - BackEnd/.env
+    depends_on:
+      utility_db:
+        condition: service_healthy
   featuresprovider:
     build:
       context: ./FeaturesProvider
@@ -65,6 +71,26 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  utility_db:
+    image: postgres:14-alpine
+    container_name: utility_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: utility_user
+      POSTGRES_PASSWORD: utility_password
+      POSTGRES_DB: utility_db
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "3004:5432"
+    volumes:
+      - utility_data:/var/lib/postgresql/data
+      - ./BackEnd/database/initial_database.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U utility_user -d utility_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
+  utility_data:
