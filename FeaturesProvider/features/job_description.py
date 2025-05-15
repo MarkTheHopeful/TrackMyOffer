@@ -1,4 +1,6 @@
+from loguru import logger
 from models import JobDescriptionResponse
+
 from .ai_api import request_model
 
 
@@ -58,17 +60,21 @@ def job_description_from_text(job_description_as_text: str) -> JobDescriptionRes
     Put all requirements and detailed job description in the "description" field.
     """
 
+    fallback = JobDescriptionResponse(
+        company_name="",
+        company_address="",
+        company_city="",
+        company_postal_code="",
+        recruiter_name="",
+        title="",
+        description=job_description_as_text,
+    )
+
     response = request_model(prompt)
+    logger.info(f"Response: {response}")
+
     if not response:
-        return JobDescriptionResponse(
-            company_name="",
-            company_address="",
-            company_city="",
-            company_postal_code="",
-            recruiter_name="",
-            title="",
-            description=job_description_as_text,
-        )
+        return fallback
 
     try:
         # Extract JSON from the response
@@ -78,7 +84,7 @@ def job_description_from_text(job_description_as_text: str) -> JobDescriptionRes
         # Find JSON object in the response
         json_match = re.search(r"\{.*\}", response, re.DOTALL)
         if not json_match:
-            raise ValueError("No valid JSON found in response")
+            return fallback
 
         parsed = json.loads(json_match.group())
 

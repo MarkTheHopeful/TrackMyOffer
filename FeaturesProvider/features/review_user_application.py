@@ -41,6 +41,7 @@ def review_from_user_and_job(
     Please provide:
     1. A match score between 0-100
     2. 3-5 specific, skills-related suggestions for how the candidate can improve their chances
+
     Format your response as follows:
     SCORE: [number]
     SUGGESTIONS:
@@ -48,6 +49,8 @@ def review_from_user_and_job(
     - [suggestion 2]
     - [suggestion 3]
     """
+
+    logger.info(f"Review user prompt: {prompt}")
 
     # Call the AI model
     response = request_model(prompt)
@@ -60,6 +63,8 @@ def review_from_user_and_job(
                 "Unable to generate personalized suggestions. Consider reviewing your skills against the job description."
             ],
         )
+
+    logger.info(f"Review user received response: {response}")
 
     # Parse the response
     try:

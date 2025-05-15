@@ -130,27 +130,8 @@ export function JobMatchScore() {
 
                                 <div className="space-y-4">
                                     <div>
-                                        <h4 className="font-medium text-slate-800 mb-2">Missing Keywords</h4>
                                         <ul className="list-disc pl-5 text-slate-600">
                                             {suggestions.keywords.map((item, index) => (
-                                                <li key={index}>{item}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-
-                                    <div>
-                                        <h4 className="font-medium text-slate-800 mb-2">Structure & Formatting</h4>
-                                        <ul className="list-disc pl-5 text-slate-600">
-                                            {suggestions.structure.map((item, index) => (
-                                                <li key={index}>{item}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-
-                                    <div>
-                                        <h4 className="font-medium text-slate-800 mb-2">ATS Compatibility</h4>
-                                        <ul className="list-disc pl-5 text-slate-600">
-                                            {suggestions.ats.map((item, index) => (
                                                 <li key={index}>{item}</li>
                                             ))}
                                         </ul>
