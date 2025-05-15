@@ -22,7 +22,7 @@ data class Response(val status: HttpStatusCode, val body: String)
 
 data class FeatureProviderRoutingConfig(val remote: String)
 
-fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProviderRoutingConfig) {
+fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProviderRoutingConfig, utilityDatabase: UtilityDatabase) {
     suspend fun extractUserId(call: RoutingCall): Int {
         val userSession: UserSession =
             call.sessions.get() ?: throw RuntimeException("Invalid session during request")
@@ -33,8 +33,9 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
             call.respondRedirect("/login")
         }
         val userInfo: UserInfo = getUserInfo(httpClient, userSession)
-        // TODO: Go to the database and fetch user_id by the email
-        return 1
+
+        // Get or create profile ID from the utility database
+        return utilityDatabase.getOrCreateProfileId(userInfo.email, userInfo)
     }
 
     suspend fun getJobDescription(jobDescription: String): Response {
@@ -95,7 +96,18 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
             post("/DEBUG/profile") {
                 val profileReq = call.receive<ProfileData>()
 
-                profileReq.id = 1//extractUserId(call)
+                // For DEBUG endpoints, we still need a valid user ID
+                // Get the user session and extract user info
+                val userSession: UserSession? = call.sessions.get()
+                val profileId = if (userSession != null && validateToken(httpClient, userSession)) {
+                    val userInfo = getUserInfo(httpClient, userSession)
+                    utilityDatabase.getOrCreateProfileId(userInfo.email, userInfo)
+                } else {
+                    // Fallback to 1 only if no valid session exists
+                    1
+                }
+
+                profileReq.id = profileId
 
                 val remoteResponse: HttpResponse = httpClient.post("${config.remote}/api/profile") {
                     contentType(ContentType.Application.Json)
@@ -120,7 +132,16 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 )
             }
             get("/DEBUG/profile") {
-                val userId = 1 // DEBUG ONLY!
+                // For DEBUG endpoints, we still need a valid user ID
+                // Get the user session and extract user info
+                val userSession: UserSession? = call.sessions.get()
+                val userId = if (userSession != null && validateToken(httpClient, userSession)) {
+                    val userInfo = getUserInfo(httpClient, userSession)
+                    utilityDatabase.getOrCreateProfileId(userInfo.email, userInfo)
+                } else {
+                    // Fallback to 1 only if no valid session exists
+                    1
+                }
 
                 val remoteResponse: HttpResponse = httpClient.get("${config.remote}/api/profile/${userId}")
 
@@ -342,7 +363,16 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     return@post
                 }
 
-                val profileId = 1
+                // For DEBUG endpoints, we still need a valid user ID
+                // Get the user session and extract user info
+                val userSession: UserSession? = call.sessions.get()
+                val profileId = if (userSession != null && validateToken(httpClient, userSession)) {
+                    val userInfo = getUserInfo(httpClient, userSession)
+                    utilityDatabase.getOrCreateProfileId(userInfo.email, userInfo)
+                } else {
+                    // Fallback to 1 only if no valid session exists
+                    1
+                }
 
                 val response = httpClient.post("${config.remote}/api/build-cv") {
                     contentType(ContentType.Application.Json)
@@ -380,7 +410,16 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     return@post
                 }
 
-                val profileId = 1
+                // For DEBUG endpoints, we still need a valid user ID
+                // Get the user session and extract user info
+                val userSession: UserSession? = call.sessions.get()
+                val profileId = if (userSession != null && validateToken(httpClient, userSession)) {
+                    val userInfo = getUserInfo(httpClient, userSession)
+                    utilityDatabase.getOrCreateProfileId(userInfo.email, userInfo)
+                } else {
+                    // Fallback to 1 only if no valid session exists
+                    1
+                }
 
                 val response = httpClient.post("${config.remote}/api/match-position") {
                     contentType(ContentType.Application.Json)
@@ -406,16 +445,16 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 val textStyle = call.request.queryParameters["textStyle"]
                 val notes = call.request.queryParameters["notes"]
 
-                val response = httpClient.post("${config.remote}/api/generate-cover-letter") {
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        extractorResponse.body
-                    )
-                    parameter("profile_id", profileId)
-                    parameter("style", textStyle)
-                    parameter("notes", notes)
-                }
-                call.respondText(response.bodyAsText(), status = response.status)
+//                val response = httpClient.post("${config.remote}/api/generate-cover-letter") {
+//                    contentType(ContentType.Application.Json)
+//                    setBody(
+//                        extractorResponse.body
+//                    )
+//                    parameter("profile_id", profileId)
+//                    parameter("style", textStyle)
+//                    parameter("notes", notes)
+//                }
+                call.respondText(profileId.toString(), status = HttpStatusCode.OK)
             }
 
             post("/DEBUG/cover-letter") {
@@ -426,7 +465,16 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     return@post
                 }
 
-                val profileId = 1
+                // For DEBUG endpoints, we still need a valid user ID
+                // Get the user session and extract user info
+                val userSession: UserSession? = call.sessions.get()
+                val profileId = if (userSession != null && validateToken(httpClient, userSession)) {
+                    val userInfo = getUserInfo(httpClient, userSession)
+                    utilityDatabase.getOrCreateProfileId(userInfo.email, userInfo)
+                } else {
+                    // Fallback to 1 only if no valid session exists
+                    1
+                }
 
                 val textStyle = request.tone
                 val notes = request.motivations
