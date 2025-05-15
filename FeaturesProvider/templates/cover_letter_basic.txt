@@ -8,7 +8,7 @@ Dear {recruiter_name},
 
 I am writing to express my strong interest in the {job_title} position at {company_name}.
 
-{why_interested_in_company}
+{why_interested}
 
 Currently, I am {current_position_description}. During my work, I have {key_achievements}. {technical_skills_description}
 
