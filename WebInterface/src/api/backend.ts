@@ -4,7 +4,6 @@ import { EducationEntry } from "./EducationEntry.ts";
 import { Experience } from "./Experience.ts";
 import { CV_Markdown } from "./CV_Markdown.ts";
 import { ReviewResult } from "./ReviewResult.ts";
-import { CoverLetterObj } from "./CoverLetterObj.ts";
 
 const host = import.meta.env.VITE_API_HOST ?? "localhost";
 const port = import.meta.env.VITE_API_PORT ?? "8080";
