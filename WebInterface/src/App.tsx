@@ -4,7 +4,7 @@ import { Button } from './components/ui/button';
 import { BellIcon, FileTextIcon, Sparkles, SearchIcon, UserIcon, ServerIcon } from 'lucide-react';
 import { CVBuilder } from './components/cv-builder';
 import { ApiDemo } from './components/ApiDemo';
-import { CVReview } from './components/CVReview';
+import { JobMatchScore } from './components/JobMatchScore';
 import { CoverLetter } from './components/CoverLetter';
 import { ProfileForm } from './components/profile';
 import { checkAuthStatus, authentify, logout } from './api/backend';
@@ -19,7 +19,7 @@ interface UserData {
 }
 
 function App() {
-  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo' | 'profile' | 'privacy-and-terms'>('home');
+  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'job-match-score' | 'cover-letter' | 'api-demo' | 'profile' | 'privacy-and-terms'>('home');
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
   const [userData, setUserData] = React.useState<UserData | null>(null);
@@ -80,8 +80,8 @@ function App() {
     switch (activeView) {
       case 'cv-builder':
         return <CVBuilder />;
-      case 'cv-review':
-        return <CVReview />;
+      case 'job-match-score':
+        return <JobMatchScore />;
       case 'cover-letter':
         return <CoverLetter />;
       case 'api-demo':
@@ -112,11 +112,11 @@ function App() {
                   <div className="w-12 h-12 bg-brand-100 rounded-lg flex items-center justify-center mb-4">
                     <SearchIcon className="w-6 h-6 text-brand-600" />
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-900">CV Review & Feedback</h3>
-                  <p className="text-slate-600 mt-2">Get instant feedback and match scores for your CV against job descriptions</p>
+                  <h3 className="text-lg font-semibold text-slate-900">Skills Review & Feedback</h3>
+                  <p className="text-slate-600 mt-2">Get instant feedback and match scores for your skills against job descriptions</p>
                 </div>
-                <Button variant="primary" className="w-full" onClick={() => setActiveView('cv-review')}>
-                  Review CV
+                <Button variant="primary" className="w-full" onClick={() => setActiveView('job-match-score')}>
+                  Get Match Score
                 </Button>
               </div>
 
@@ -162,7 +162,7 @@ function App() {
               activeView === 'cv-builder' ? 'CV Builder' :
                 activeView === 'api-demo' ? 'API Demo' :
                   activeView === 'profile' ? 'Profile' :
-                    activeView === 'cv-review' ? 'CV Review' :
+                    activeView === 'job-match-score' ? 'Job Match Score' :
                       activeView === 'cover-letter' ? 'Cover Letter' :
                         activeView === 'privacy-and-terms' ? 'Privacy And Terms' :
                           'Welcome'}
