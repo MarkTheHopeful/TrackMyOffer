@@ -25,7 +25,7 @@ const NavItem = ({ icon, label, active, onClick }: NavItemProps) => (
 
 interface NavigationProps {
   activeView: string;
-  setActiveView: (view: 'home' | 'cv-builder' | 'cv-review' | 'cover-letter' | 'api-demo' | 'profile' | 'privacy-and-terms') => void;
+  setActiveView: (view: 'home' | 'cv-builder' | 'job-match-score' | 'cover-letter' | 'api-demo' | 'profile' | 'privacy-and-terms') => void;
 }
 
 export const Navigation = ({ activeView, setActiveView }: NavigationProps) => {
@@ -58,9 +58,9 @@ export const Navigation = ({ activeView, setActiveView }: NavigationProps) => {
         />
         <NavItem
           icon={<BriefcaseIcon size={20} />}
-          label="CV Review"
-          active={activeView === 'cv-review'}
-          onClick={() => setActiveView('cv-review')}
+          label="Job Match Score"
+          active={activeView === 'job-match-score'}
+          onClick={() => setActiveView('job-match-score')}
         />
         <NavItem
           icon={<PenIcon size={20} />}
