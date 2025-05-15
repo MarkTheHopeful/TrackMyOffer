@@ -52,6 +52,38 @@ def request_model(prompt: str) -> str | None:
     return None
 
 
+def _format_education_for_cv(educations: list[Education]) -> str:
+    """Helper function to format education information for the CV prompt"""
+    if not educations:
+        return "No formal education provided"
+    
+    edu_text = []
+    for edu in educations:
+        end_date = edu.end_date.strftime("%Y-%m") if edu.end_date else "Present"
+        edu_text.append(
+            f"- {edu.institution}, {edu.degree}, {edu.start_date.strftime('%Y-%m')} to {end_date}"
+            + (f", {edu.additional_info}" if edu.additional_info else "")
+        )
+    
+    return "\n".join(edu_text)
+
+
+def _format_experience_for_cv(experiences: list[Experience]) -> str:
+    """Helper function to format experience information for the CV prompt"""
+    if not experiences:
+        return "No work experience provided"
+    
+    exp_text = []
+    for exp in experiences:
+        end_date = exp.end_date if exp.end_date else "Present"
+        exp_text.append(
+            f"- {exp.company}, {exp.job_title}, {exp.start_date} to {end_date}"
+            + (f"\n  {exp.description}" if exp.description else "")
+        )
+    
+    return "\n".join(exp_text)
+
+
 def md_cv_from_user_and_job(
     profile: Profile,
     educations: list[Education],
@@ -66,48 +98,79 @@ def md_cv_from_user_and_job(
     - list of all user experience entries
     - job_description
     """
-    # FIXME: Your code goes here...
-    return GeneratedCV(
-        format="md",
-        cv_text=f"# {profile.first_name} {profile.last_name} for {job_description.company_name}"
-        + """"
-Physicist, Mathematician, Cambridge professor.
+    # Create a comprehensive prompt for the AI model
+    prompt = f"""
+    Create a professional, tailored Markdown CV for a job application based on the following information:
+    
+    CANDIDATE INFORMATION:
+    Full Name: {profile.first_name} {profile.last_name}
+    Email: {profile.email}
+    Location: {profile.city or ""}, {profile.state or ""}, {profile.country or ""}
+    Phone: {profile.phone or "Not provided"}
+    LinkedIn: {profile.linkedin_url or "Not provided"}
+    GitHub: {profile.github_url or "Not provided"}
+    Personal Website: {profile.personal_website or "Not provided"}
+    Other URL: {profile.other_url or "Not provided"}
+    About Me: {profile.about_me or "Not provided"}
+    
+    EDUCATION:
+    {_format_education_for_cv(educations)}
+    
+    WORK EXPERIENCE:
+    {_format_experience_for_cv(experiences)}
+    
+    TARGET JOB:
+    Company: {job_description.company_name}
+    Position: {job_description.title}
+    Job Description: {job_description.description}
+    
+    INSTRUCTIONS:
+    1. Create a professional-looking Markdown CV tailored specifically for this job position.
+    2. Highlight skills and experiences that are most relevant to the job description.
+    3. Structure the CV with clear headings (use Markdown formatting).
+    4. Include all contact information in a professional header.
+    5. Focus on achievements and quantifiable results in experience descriptions.
+    6. Make sure the CV is well-organized and easy to read.
+    7. Adapt the candidate's background to emphasize relevance to this specific job.
+    
+    RETURN ONLY THE MARKDOWN CV, without any explanations or additional text.
+    """
+    
+    # Call the AI model
+    cv_text = request_model(prompt)
+    
+    # Handle potential API failures
+    if not cv_text:
+        logger.warning("AI model failed to generate CV, using fallback template")
+        # Provide a basic fallback template
+        cv_text = f"""# {profile.first_name} {profile.last_name}
 
-[isaac@applesdofall.org](isaac@applesdofall.org)
+## Contact Information
+- Email: {profile.email}
+{f"- Phone: {profile.phone}" if profile.phone else ""}
+{f"- Location: {profile.city}, {profile.state}, {profile.country}" if profile.city else ""}
+{f"- LinkedIn: {profile.linkedin_url}" if profile.linkedin_url else ""}
+{f"- GitHub: {profile.github_url}" if profile.github_url else ""}
+{f"- Website: {profile.personal_website}" if profile.personal_website else ""}
 
-[http://en.wikipedia.org/wiki/Isaac_Newton](My website)
-
-## Currently
-
-Looking for a job as a computer scientist
-
-### Specialized in
-
-Laws of motion, gravitation, minting coins
-
-### Research interests
-
-Cooling, power series, optics, alchemy, planetary motions, apples.
+## Professional Summary
+{profile.about_me or "Professional looking to contribute skills and experience to a new opportunity."}
 
 ## Education
+{_format_education_for_cv(educations)}
 
-`1654-1660`
-__The King's School, Grantham.__
+## Work Experience
+{_format_experience_for_cv(experiences)}
 
-`June 1661 - now`
-__Trinity College, Cambridge__
-
-## Occupation
-
-`1600`
-__Royal Mint__, London
-
-- Warden
-- Minted coins
-
-`1600`
-__Lucasian professor of Mathematics__, Cambridge University
-        """.strip(),
+## Skills
+- Technical skills relevant to {job_description.title}
+- Communication and teamwork
+- Problem-solving abilities
+"""
+    
+    return GeneratedCV(
+        format="md",
+        cv_text=cv_text.strip(),
     )
 
 def review_from_user_and_job(profile: Profile, educations: list[Education],
@@ -205,36 +268,6 @@ def review_from_user_and_job(profile: Profile, educations: list[Education],
         )
 
 
-def _format_education(educations: list[Education]) -> str:
-    """Helper function to format education information for the prompt"""
-    if not educations:
-        return "No formal education provided"
-    
-    edu_text = []
-    for edu in educations:
-        end_date = edu.end_date.strftime("%Y-%m") if edu.end_date else "Present"
-        edu_text.append(
-            f"- {edu.institution}, {edu.degree}, {edu.start_date.strftime('%Y-%m')} to {end_date}"
-            + (f", {edu.additional_info}" if edu.additional_info else "")
-        )
-    
-    return "\n".join(edu_text)
-
-
-def _format_experience(experiences: list[Experience]) -> str:
-    """Helper function to format experience information for the prompt"""
-    if not experiences:
-        return "No work experience provided"
-    
-    exp_text = []
-    for exp in experiences:
-        end_date = exp.end_date if exp.end_date else "Present"
-        exp_text.append(
-            f"- {exp.company}, {exp.job_title}, {exp.start_date} to {end_date}"
-            + (f"\n  {exp.description}" if exp.description else "")
-        )
-    
-    return "\n".join(exp_text)
 
 
 
