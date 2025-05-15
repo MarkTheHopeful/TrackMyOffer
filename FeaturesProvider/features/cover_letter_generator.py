@@ -125,7 +125,7 @@ def generate_ai_content(
     - Contact Person: {recruiter_name}
     - Company Name: {company_name}
 
-    **Additional Notes/Instructions from Applicant:**
+    **Additional Notes/Instructions from Applicant, what they want to add to the cover letter:**
     {notes if notes else "No specific notes provided."}
 
     **Task:**
@@ -146,9 +146,11 @@ def generate_ai_content(
 
     **Important Instructions:**
     - The tone must be strictly {style}.
-    - Do not use placeholders (e.g., '[Your Address]', '[Company Address]'). If specific information is not available, omit it or rephrase the content so that it appears complete and professional without it. The final version must look polished and ready to use as-is.
+    - Do not use placeholders (e.g., '[Your Address]', '[Company Address]')!!!!!!!! If specific information is not available, omit it or rephrase the content so that it appears complete and professional without it.
     - The output should be ONLY the cover letter text. No extra explanations, introductions, or markdown formatting like "```" surrounding the letter.
     - Ensure the letter is professional, grammatically correct, and flows naturally.
+    
+    The final version must look polished and ready to use as-isю
     """
 
     response = request_model(prompt)
