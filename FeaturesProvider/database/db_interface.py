@@ -123,7 +123,7 @@ class DatabaseManager:
         session.commit()
         return profile
 
-    def get_profile(self, session, profile_id):
+    def get_profile(self, session, profile_id) -> Profile | None:
         """Get a profile by ID.
 
         Args:

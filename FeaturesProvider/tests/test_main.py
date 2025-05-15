@@ -53,20 +53,25 @@ def test_generate_cover_letter_endpoint(client: TestClient, db: Session, mock_db
     # Test cover letter generation
     job_description = {
         "company_name": "Tech Corp",
+        "company_city": "San Francisco",
+        "company_address": "123 Tech Street",
+        "company_postal_code": "94105",
         "title": "Senior Developer",
         "description": "Looking for an experienced developer...",
         "recruiter_name": "Jane Smith",
-        "address": "123 Tech Street",
-        "city": "San Francisco",
-        "postal_code": "94105",
     }
 
     # Mock the AI response for cover letter generation
-    mock_ai_response = {
-        "why_interested": "Test interest",
-        "achievements": "Test achievements",
-        "why_good_fit": "Test fit",
-    }
+    mock_ai_response = f"""
+    SOME COVER LETTER...
+    {job_description["company_name"]},
+    {job_description["company_city"]},
+    {job_description["company_address"]},
+    {job_description["company_postal_code"]},
+    {job_description["title"]},
+    {job_description["description"]},
+    {job_description["recruiter_name"]}
+    """
 
     with (
         patch("features.cover_letter_generator.request_model", return_value=mock_ai_response),
@@ -80,14 +85,9 @@ def test_generate_cover_letter_endpoint(client: TestClient, db: Session, mock_db
 
         assert response.status_code == 200
         assert "cover_letter" in response.json()
-        assert "data" in response.json()
 
-        data = response.json()["data"]
-        assert data["company_name"] == "Tech Corp"
-        assert data["applicant_full_name"] == "John Doe"
-        assert data["why_interested_in_company"] == "Test interest"
-        assert data["key_achievements"] == "Test achievements"
-        assert data["why_good_candidate"] == "Test fit"
+        data = response.json()
+        assert data["cover_letter"] == mock_ai_response
 
 
 def test_generate_cover_letter_invalid_profile(client: TestClient, db: Session):

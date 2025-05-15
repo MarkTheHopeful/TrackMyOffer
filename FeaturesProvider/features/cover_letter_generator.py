@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal, TypedDict
+from typing import Literal
 from sqlalchemy.orm import Session
 from database.db_interface import Profile
 
@@ -174,18 +174,17 @@ def generate_ai_content(
 
 def generate_cover_letter_data(
     db: Session,
-    profile_id: int,
+    profile: Profile,
     job_description: JobDescriptionResponse,
     style: LetterStyle = "professional",
     notes: str = "",
 ) -> str:
     """Generate a full cover letter based on profile and job description"""
 
-    profile = db.query(Profile).filter_by(id=profile_id).first()
-    if not profile:
-        raise ValueError("Profile not found")
-
     # Generate AI-powered full cover letter
+    logger.info("Generating AI-powered full cover letter...")
     full_cover_letter = generate_ai_content(profile, job_description, style, notes)
+
+    logger.info(f"Generated letter: {full_cover_letter}")
 
     return full_cover_letter
