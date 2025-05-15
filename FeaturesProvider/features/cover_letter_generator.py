@@ -84,7 +84,7 @@ def generate_ai_content(
     applicant_email = profile.email or "not specified"
     applicant_phone = profile.phone or "not specified"
 
-    location_parts = [part for part in [profile.city, profile.state, profile.country] if part]
+    location_parts = [str(part) for part in [profile.city, profile.state, profile.country] if part is not None]
     applicant_location = ", ".join(location_parts) if location_parts else "not specified"
     applicant_summary = profile.about_me or "a summary of my qualifications and experience."
 

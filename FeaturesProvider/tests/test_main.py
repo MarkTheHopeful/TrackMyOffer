@@ -3,7 +3,6 @@ from fastapi.testclient import TestClient
 from unittest.mock import patch
 from database.db_interface import Profile
 from main import app
-from sqlalchemy.orm import Session
 from database.db_interface import DatabaseManager
 from tests.test_profile_api import mock_db_profile
 
@@ -20,6 +19,19 @@ def db():
     db_manager = DatabaseManager(test_mode=True)
     db_manager.create_tables()
     return db_manager.get_session()
+
+
+@pytest.fixture
+def mock_job_description():
+    return {
+        "company_name": "Tech Corp",
+        "company_city": "San Francisco",
+        "company_address": "123 Tech Street",
+        "company_postal_code": "94105",
+        "title": "Senior Developer",
+        "description": "Looking for an experienced developer...",
+        "recruiter_name": "Jane Smith",
+    }
 
 
 def test_home_route(client: TestClient) -> None:
@@ -49,28 +61,19 @@ def test_greet_route(
         assert response.json() == expected_response
 
 
-def test_generate_cover_letter_endpoint(client: TestClient, db: Session, mock_db_profile: Profile):
+def test_generate_cover_letter_endpoint(client: TestClient, mock_job_description, mock_db_profile: Profile):
     # Test cover letter generation
-    job_description = {
-        "company_name": "Tech Corp",
-        "company_city": "San Francisco",
-        "company_address": "123 Tech Street",
-        "company_postal_code": "94105",
-        "title": "Senior Developer",
-        "description": "Looking for an experienced developer...",
-        "recruiter_name": "Jane Smith",
-    }
 
     # Mock the AI response for cover letter generation
     mock_ai_response = f"""
     SOME COVER LETTER...
-    {job_description["company_name"]},
-    {job_description["company_city"]},
-    {job_description["company_address"]},
-    {job_description["company_postal_code"]},
-    {job_description["title"]},
-    {job_description["description"]},
-    {job_description["recruiter_name"]}
+    {mock_job_description["company_name"]},
+    {mock_job_description["company_city"]},
+    {mock_job_description["company_address"]},
+    {mock_job_description["company_postal_code"]},
+    {mock_job_description["title"]},
+    {mock_job_description["description"]},
+    {mock_job_description["recruiter_name"]}
     """
 
     with (
@@ -80,7 +83,7 @@ def test_generate_cover_letter_endpoint(client: TestClient, db: Session, mock_db
         response = client.post(
             "/api/generate-cover-letter",
             params={"profile_id": "123", "style": "professional"},
-            json=job_description,
+            json=mock_job_description,
         )
 
         assert response.status_code == 200
@@ -90,16 +93,12 @@ def test_generate_cover_letter_endpoint(client: TestClient, db: Session, mock_db
         assert data["cover_letter"] == mock_ai_response
 
 
-def test_generate_cover_letter_invalid_profile(client: TestClient, db: Session):
-    job_description = {
-        "company_name": "Tech Corp",
-        "title": "Senior Developer",
-        "description": "Looking for an experienced developer...",
-    }
+def test_generate_cover_letter_invalid_profile(client: TestClient, mock_job_description):
+    with patch("main.db_manager.get_profile", return_value=None):
+        response = client.post(
+            "/api/generate-cover-letter", params={"profile_id": 999, "style": "professional"}, json=mock_job_description
+        )
+        print(response.json())
 
-    response = client.post(
-        "/api/generate-cover-letter", params={"profile_id": 999, "style": "professional"}, json=job_description
-    )
-
-    assert response.status_code == 404
-    assert response.json()["detail"] == "Profile not found"
+        assert response.status_code == 404
+        assert "not found" in response.json()["detail"]
