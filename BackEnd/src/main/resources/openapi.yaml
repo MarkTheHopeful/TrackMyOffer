@@ -37,6 +37,26 @@ paths:
               schema:
                 type: string
                 example: "Hello, 0:0:0:0:0:0:0:1:52788"
+  /features/v0/:
+    get:
+      summary: Feature provider root endpoint
+      description: Returns a response from the feature provider service
+      operationId: getFeatureRoot
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Feature provider is running"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Error calling feature provider"
   /features/v0/hello:
     get:
       summary: Feature hello endpoint
@@ -86,19 +106,12 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProfileRequest'
+              $ref: '#/components/schemas/ProfileData'
             example:
               first_name: "Mark"
               last_name: "Ipatov"
               email: "mark.ipatov@mipat.ov"
               city: "Bremen"
-              education:
-                - id: "1746992929396"
-                  institution: "CUB"
-                  degree: "Bachelor"
-                  startDate: "2021-09-01"
-                  endDate: "2024-08-31"
-                  additionalInfo: "Transfer student"
               linkedin_url: ""
               github_url: ""
               personal_website: ""
@@ -137,23 +150,116 @@ paths:
               schema:
                 type: string
           content: { }
-  /features/v0/match-position:
     get:
-      summary: Match position endpoint
-      description: Analyzes a job description and returns matching information
-      operationId: matchPosition
+      summary: Get user profile
+      description: Retrieves the profile data for the authenticated user
+      operationId: getProfile
+      security:
+        - googleOAuth: [ ]
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileData'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Error retrieving profile"
+        '302':
+          description: Redirect to login on expired or missing session
+          headers:
+            Location:
+              description: Login URL
+              schema:
+                type: string
+          content: { }
+  /features/v0/profile/education:
+    post:
+      summary: Add education entry
+      description: Adds a new education entry to the user's profile
+      operationId: addEducation
+      security:
+        - googleOAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EducationEntry'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EducationEntry'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Invalid request payload"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Error adding education entry"
+        '302':
+          description: Redirect to login on expired or missing session
+          headers:
+            Location:
+              description: Login URL
+              schema:
+                type: string
+          content: { }
+    get:
+      summary: Get education entries
+      description: Retrieves all education entries for the authenticated user
+      operationId: getEducations
+      security:
+        - googleOAuth: [ ]
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EducationEntry'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Error retrieving education entries"
+        '302':
+          description: Redirect to login on expired or missing session
+          headers:
+            Location:
+              description: Login URL
+              schema:
+                type: string
+          content: { }
+    delete:
+      summary: Delete education entry
+      description: Deletes an education entry from the user's profile
+      operationId: deleteEducation
+      security:
+        - googleOAuth: [ ]
       parameters:
-        - name: jobDescriptionLink
+        - name: educationId
           in: query
-          description: URL link to the job description to analyze
-          required: true
-          schema:
-            type: string
-            format: uri
-            example: "https://example.com/job-posting"
-        - name: profileId
-          in: query
-          description: ID of the user profile
+          description: ID of the education entry to delete
           required: true
           schema:
             type: integer
@@ -161,46 +267,154 @@ paths:
       responses:
         '200':
           description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                description: Job matching analysis result
+          content: {}
         '400':
-          description: Missing required query parameter
+          description: Missing required parameter
           content:
             text/plain:
               schema:
                 type: string
-                example: "Missing jobDescriptionLink parameter"
+                example: "Missing education id parameter"
         '500':
           description: Internal server error
           content:
             text/plain:
               schema:
                 type: string
-                example: "Error processing job description"
-  /features/v0/build-cv:
+                example: "Error deleting education entry"
+        '302':
+          description: Redirect to login on expired or missing session
+          headers:
+            Location:
+              description: Login URL
+              schema:
+                type: string
+          content: { }
+  /features/v0/profile/experience:
+    post:
+      summary: Add experience entry
+      description: Adds a new experience entry to the user's profile
+      operationId: addExperience
+      security:
+        - googleOAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExperienceEntry'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperienceEntry'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Invalid request payload"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Error adding experience entry"
+        '302':
+          description: Redirect to login on expired or missing session
+          headers:
+            Location:
+              description: Login URL
+              schema:
+                type: string
+          content: { }
     get:
-      summary: Build CV endpoint
-      description: Generates a customized CV based on a job description
-      operationId: buildCV
+      summary: Get experience entries
+      description: Retrieves all experience entries for the authenticated user
+      operationId: getExperiences
+      security:
+        - googleOAuth: [ ]
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExperienceEntry'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Error retrieving experience entries"
+        '302':
+          description: Redirect to login on expired or missing session
+          headers:
+            Location:
+              description: Login URL
+              schema:
+                type: string
+          content: { }
+    delete:
+      summary: Delete experience entry
+      description: Deletes an experience entry from the user's profile
+      operationId: deleteExperience
+      security:
+        - googleOAuth: [ ]
       parameters:
-        - name: jobDescriptionLink
+        - name: experienceId
           in: query
-          description: URL link to the job description to analyze
-          required: true
-          schema:
-            type: string
-            format: uri
-            example: "https://example.com/job-posting"
-        - name: profileId
-          in: query
-          description: ID of the user profile
+          description: ID of the experience entry to delete
           required: true
           schema:
             type: integer
             example: 1
+      responses:
+        '200':
+          description: Successful operation
+          content: {}
+        '400':
+          description: Missing required parameter
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Missing experience id parameter"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Error deleting experience entry"
+        '302':
+          description: Redirect to login on expired or missing session
+          headers:
+            Location:
+              description: Login URL
+              schema:
+                type: string
+          content: { }
+  /features/v0/build-cv:
+    post:
+      summary: Build CV endpoint
+      description: Generates a customized CV based on a job description
+      operationId: buildCV
+      security:
+        - googleOAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WithJobDescription'
       responses:
         '200':
           description: Successful operation
@@ -209,13 +423,17 @@ paths:
               schema:
                 type: object
                 description: Generated CV content
+                properties:
+                  cv_text:
+                    type: string
+                    example: "Generated CV text"
         '400':
-          description: Missing required query parameter
+          description: Bad request
           content:
             text/plain:
               schema:
                 type: string
-                example: "Missing jobDescriptionLink parameter"
+                example: "Invalid request payload"
         '500':
           description: Internal server error
           content:
@@ -223,41 +441,27 @@ paths:
               schema:
                 type: string
                 example: "Error generating CV"
-  /features/v0/generate-motivational-letter:
-    get:
-      summary: Generate motivational letter endpoint
-      description: Creates a customized motivational letter based on a job description
-      operationId: generateMotivationalLetter
-      parameters:
-        - name: jobDescriptionLink
-          in: query
-          description: URL link to the job description to analyze
-          required: true
-          schema:
-            type: string
-            format: uri
-            example: "https://example.com/job-posting"
-        - name: textStyle
-          in: query
-          description: Style preference for the motivational letter
-          required: false
-          schema:
-            type: string
-            example: "professional"
-        - name: notes
-          in: query
-          description: Additional notes to include in the letter
-          required: false
-          schema:
-            type: string
-            example: "Please emphasize my leadership skills"
-        - name: profileId
-          in: query
-          description: ID of the user profile
-          required: true
-          schema:
-            type: integer
-            example: 1
+        '302':
+          description: Redirect to login on expired or missing session
+          headers:
+            Location:
+              description: Login URL
+              schema:
+                type: string
+          content: { }
+  /features/v0/match-position:
+    post:
+      summary: Match position endpoint
+      description: Analyzes a job description and returns matching information
+      operationId: matchPosition
+      security:
+        - googleOAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WithJobDescription'
       responses:
         '200':
           description: Successful operation
@@ -265,79 +469,184 @@ paths:
             application/json:
               schema:
                 type: object
-                description: Generated motivational letter content
+                description: Job matching analysis result
+                properties:
+                  matchScore:
+                    type: number
+                    description: The match score for the job description
+                  suggestions:
+                    type: array
+                    items:
+                      type: string
+                    description: Suggestions for improvement
+                required:
+                  - matchScore
+                  - suggestions
         '400':
-          description: Missing required query parameter
+          description: Bad request
           content:
             text/plain:
               schema:
                 type: string
-                example: "Missing jobDescriptionLink parameter"
+                example: "Invalid request payload"
         '500':
           description: Internal server error
           content:
             text/plain:
               schema:
                 type: string
-                example: "Error generating motivational letter"
+                example: "Error processing job description"
+        '302':
+          description: Redirect to login on expired or missing session
+          headers:
+            Location:
+              description: Login URL
+              schema:
+                type: string
+          content: { }
+  /features/v0/cover-letter:
+    post:
+      summary: Generate cover letter endpoint
+      description: Creates a customized cover letter based on a job description
+      operationId: generateCoverLetter
+      security:
+        - googleOAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoverLetterRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cover_letter:
+                    type: string
+                    description: Generated cover letter text
+                required:
+                  - cover_letter
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Invalid request payload"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Error generating cover letter"
+        '302':
+          description: Redirect to login on expired or missing session
+          headers:
+            Location:
+              description: Login URL
+              schema:
+                type: string
+          content: { }
 components:
   schemas:
     EducationEntry:
       type: object
       properties:
         id:
-          type: string
-          example: "1746992929396"
+          type: integer
+          nullable: true
+          example: 1
         institution:
           type: string
           example: "CUB"
         degree:
           type: string
           example: "Bachelor"
-        startDate:
+        start_date:
           type: string
           format: date
           example: "2021-09-01"
-        endDate:
+        end_date:
           type: string
           format: date
+          nullable: true
           example: "2024-08-31"
-        additionalInfo:
+        additional_info:
           type: string
           nullable: true
           example: "Transfer student"
       required:
-        - id
         - institution
         - degree
-        - startDate
-        - endDate
-
-    ProfileRequest:
+        - start_date
+    ExperienceEntry:
       type: object
       properties:
+        id:
+          type: integer
+          nullable: true
+          example: 1
+        profile_id:
+          type: integer
+          nullable: true
+          example: 1
+        job_title:
+          type: string
+          example: "Software Engineer"
+        company:
+          type: string
+          example: "Tech Company"
+        start_date:
+          type: string
+          format: date
+          example: "2021-09-01"
+        end_date:
+          type: string
+          format: date
+          nullable: true
+          example: "2024-08-31"
+        description:
+          type: string
+          nullable: true
+          example: "Developed web applications"
+      required:
+        - job_title
+        - company
+        - start_date
+    ProfileData:
+      type: object
+      properties:
+        id:
+          type: integer
+          nullable: true
+          example: 1
         first_name:
           type: string
           example: "Mark"
         last_name:
           type: string
           example: "Ipatov"
-        user_id:
-          type: integer
-          example: 1
-          nullable: true
-          description: "Internal user id, supposed to be empty on request from frontend and to be filled by the backend"
         email:
           type: string
           format: email
           example: "mark.ipatov@mipat.ov"
+        country:
+          type: string
+          nullable: true
+          example: "Germany"
+        state:
+          type: string
+          nullable: true
+          example: "Bremen"
         city:
           type: string
+          nullable: true
           example: "Bremen"
-        education:
-          type: array
-          items:
-            $ref: '#/components/schemas/EducationEntry'
         linkedin_url:
           type: string
           format: uri
@@ -359,18 +668,76 @@ components:
           nullable: true
         phone:
           type: string
+          nullable: true
           example: "+4910000000000"
-        state:
-          type: string
-          example: "Bremen"
-        country:
-          type: string
-          example: "Germany"
       required:
         - first_name
         - last_name
         - email
-        - city
-        - education
-        - state
-        - country
+    WithJobDescription:
+      type: object
+      properties:
+        jobDescription:
+          type: string
+          example: "Job description text or URL"
+      required:
+        - jobDescription
+    CoverLetterRequest:
+      type: object
+      properties:
+        jobDescription:
+          type: string
+          example: "Job description text or URL"
+        motivations:
+          type: string
+          example: "I am motivated by challenging problems"
+        tone:
+          type: string
+          example: "professional"
+      required:
+        - jobDescription
+    UserInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "123456789"
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        verified_email:
+          type: boolean
+          example: true
+        name:
+          type: string
+          example: "John Doe"
+        given_name:
+          type: string
+          example: "John"
+        family_name:
+          type: string
+          example: "Doe"
+        picture:
+          type: string
+          format: uri
+          example: "https://example.com/profile.jpg"
+      required:
+        - id
+        - email
+        - verified_email
+        - name
+        - given_name
+        - family_name
+        - picture
+    AuthStatusResponse:
+      type: object
+      properties:
+        isAuthenticated:
+          type: boolean
+          example: true
+        userData:
+          $ref: '#/components/schemas/UserInfo'
+          nullable: true
+      required:
+        - isAuthenticated
