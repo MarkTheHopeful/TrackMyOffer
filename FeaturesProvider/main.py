@@ -1,25 +1,44 @@
-from ai import request_model, text_job_position_from_link, job_description_from_text, md_cv_from_user_and_job, \
-    review_from_user_and_job
+import os
+from contextlib import asynccontextmanager
+from typing import List
+
 from database.db_interface import DatabaseManager
 from fastapi import Depends, FastAPI, HTTPException, status
-from models import ProfileCreate, ProfileResponse, EducationResponse, EducationCreate, ReviewResponse, \
-    JobDescriptionResponse, JobDescriptionReceive, GeneratedCV
+from features.ai_api import (
+    job_description_from_text,
+    md_cv_from_user_and_job,
+    request_model,
+    review_from_user_and_job,
+    text_job_position_from_link,
+)
+from features.cover_letter_generator import fill_template, generate_cover_letter_data
+from loguru import logger
+from models import (
+    EducationCreate,
+    EducationResponse,
+    ExperienceCreate,
+    ExperienceResponse,
+    GeneratedCV,
+    JobDescriptionReceive,
+    JobDescriptionResponse,
+    ProfileCreate,
+    ProfileResponse,
+    ReviewResponse,
+)
 from sqlalchemy.orm import Session
-from typing import List
-from models import ExperienceCreate, ExperienceResponse
-from features.cover_letter_generator import generate_cover_letter_data, fill_template
-import os
-
-app = FastAPI()
 
 # Initialize database manager
 db_manager = DatabaseManager()
 
 
-# Create tables on startup
-@app.on_event("startup")
-def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     db_manager.create_tables()
+    print("db created")
+    yield None
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 # Dependency to get database session
@@ -40,9 +59,7 @@ def root() -> dict[str, str]:
 def greet(payload: dict[str, str]) -> dict[str, str]:
     name = payload.get("name")
     if not name:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Name is required"
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Name is required")
 
     greeting = request_model(name)
     if greeting is None:
@@ -53,9 +70,7 @@ def greet(payload: dict[str, str]) -> dict[str, str]:
     return {"message": greeting}
 
 
-@app.get(
-    "/api/profile/{profile_id}", response_model=ProfileResponse, status_code=status.HTTP_200_OK
-)
+@app.get("/api/profile/{profile_id}", response_model=ProfileResponse, status_code=status.HTTP_200_OK)
 def get_profile(profile_id: int, db: Session = Depends(get_db)):
     """
     Get profile from the database by its id (numerical)
@@ -67,9 +82,7 @@ def get_profile(profile_id: int, db: Session = Depends(get_db)):
     return profile
 
 
-@app.post(
-    "/api/profile", response_model=ProfileResponse, status_code=status.HTTP_201_CREATED
-)
+@app.post("/api/profile", response_model=ProfileResponse, status_code=status.HTTP_201_CREATED)
 def create_or_update_profile(profile: ProfileCreate, db: Session = Depends(get_db)):
     """
     Create or update a user profile.
@@ -81,9 +94,7 @@ def create_or_update_profile(profile: ProfileCreate, db: Session = Depends(get_d
 
     if existing_profile:
         # Update existing profile
-        updated_profile = db_manager.update_profile(
-            db, existing_profile.id, profile.dict()
-        )
+        updated_profile = db_manager.update_profile(db, existing_profile.id, profile.dict())
         return updated_profile
     else:
         # Create new profile
@@ -91,9 +102,7 @@ def create_or_update_profile(profile: ProfileCreate, db: Session = Depends(get_d
         return new_profile
 
 
-@app.post(
-    "/api/profile/{profile_id}/education", response_model=EducationResponse, status_code=status.HTTP_201_CREATED
-)
+@app.post("/api/profile/{profile_id}/education", response_model=EducationResponse, status_code=status.HTTP_201_CREATED)
 def create_education(profile_id: int, education: EducationCreate, db: Session = Depends(get_db)):
     """
     Create (insert) an education entry for the given profile id
@@ -107,9 +116,7 @@ def create_education(profile_id: int, education: EducationCreate, db: Session = 
     return education
 
 
-@app.delete(
-    "/api/profile/{profile_id}/education/{education_id}", status_code=status.HTTP_200_OK
-)
+@app.delete("/api/profile/{profile_id}/education/{education_id}", status_code=status.HTTP_200_OK)
 def delete_education(profile_id: int, education_id: int, db: Session = Depends(get_db)):
     """
     Delete education entry with given education_id and profile_id
@@ -222,11 +229,11 @@ async def review_cv(profile_id: int, job_description: JobDescriptionResponse, db
 
 @app.post("/api/generate-cover-letter")
 def generate_cover_letter(
-        profile_id: int,
-        job_description: JobDescriptionResponse,
-        style: str = "professional",
-        notes: str = "",
-        db: Session = Depends(get_db)
+    profile_id: int,
+    job_description: JobDescriptionResponse,
+    style: str = "professional",
+    notes: str = "",
+    db: Session = Depends(get_db),
 ):
     """Generate a cover letter based on profile and job description"""
     try:
@@ -238,14 +245,19 @@ def generate_cover_letter(
         # Generate data for the template
         letter_data = generate_cover_letter_data(db, profile_id, job_description, style, notes)
 
+        logger.info("Generate cover letter")
         # Fill the template with the data
         filled_letter = fill_template(template, letter_data)
 
+        logger.info("Cover letter generated")
         return {
             "cover_letter": filled_letter,
             # "data": letter_data
         }
+
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
     except Exception as e:
+        logger.error(f"Error generating cover letter: {e}")
         raise HTTPException(status_code=500, detail=str(e))

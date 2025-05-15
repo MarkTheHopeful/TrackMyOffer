@@ -1,35 +1,23 @@
 import os
-from typing import List
 
 import requests
+from database.db_interface import Education, Experience, Profile
 from dotenv import load_dotenv
 from loguru import logger
-
-from database.db_interface import Education, Profile, Experience
-from models import JobDescriptionResponse, GeneratedCV, ProfileResponse, ReviewResponse
+from models import GeneratedCV, JobDescriptionResponse, ReviewResponse
 
 # Load environment variables from .env file
 load_dotenv()
 
 
-def get_key():
-    # not a single string, because otherwise Openrouter bans it as soon as we commit it to Github
-    code = "tl.ps.w2.dgd91524f6ee31g1bcc:629719:b78c37355fbecb9e1d5d828b2:64bfgeb5283"
-    return "".join(chr(ord(c) - 1) for c in code)
-
-
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
-API_KEY = os.getenv("API_KEY", get_key())
+API_KEY = os.getenv("API_KEY")
 
 # MODEL_NAME = "deepseek/deepseek-v3-base:free"
 MODEL_NAME = "google/gemini-2.0-flash-exp:free"
-PROMPTS = """
-Please, write a greeting for person named '{}'.
-It should be short and funny.
-"""
 
 
-def request_model(text: str) -> str | None:
+def request_model(prompt: str) -> str | None:
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json",
@@ -40,7 +28,7 @@ def request_model(text: str) -> str | None:
         "messages": [
             {
                 "role": "user",
-                "content": PROMPTS.format(text),
+                "content": prompt,
             }
         ],
         "stream": False,
@@ -103,9 +91,12 @@ def job_description_from_text(job_description_as_text: str) -> JobDescriptionRes
     )
 
 
-def md_cv_from_user_and_job(profile: Profile, educations: List[Education],
-                            experiences: List[Experience],
-                            job_description: JobDescriptionResponse) -> GeneratedCV:
+def md_cv_from_user_and_job(
+    profile: Profile,
+    educations: list[Education],
+    experiences: list[Experience],
+    job_description: JobDescriptionResponse,
+) -> GeneratedCV:
     """
     Given the full information about a user, generate a tailored markdown CV
     The provided information is:
@@ -117,7 +108,8 @@ def md_cv_from_user_and_job(profile: Profile, educations: List[Education],
     # FIXME: Your code goes here...
     return GeneratedCV(
         format="md",
-        cv_text=f"# {profile.first_name} {profile.last_name} for {job_description.company_name}" + """"
+        cv_text=f"# {profile.first_name} {profile.last_name} for {job_description.company_name}"
+        + """"
 Physicist, Mathematician, Cambridge professor.
 
 [isaac@applesdofall.org](isaac@applesdofall.org)
@@ -154,12 +146,16 @@ __Royal Mint__, London
 
 `1600`
 __Lucasian professor of Mathematics__, Cambridge University
-        """.strip()
+        """.strip(),
     )
 
-def review_from_user_and_job(profile: Profile, educations: List[Education],
-                            experiences: List[Experience],
-                            job_description: JobDescriptionResponse) -> ReviewResponse:
+
+def review_from_user_and_job(
+    profile: Profile,
+    educations: list[Education],
+    experiences: list[Experience],
+    job_description: JobDescriptionResponse,
+) -> ReviewResponse:
     """
     Given the full information about a user, generate a proper review of
     how likely this person will get this job.
@@ -174,5 +170,6 @@ def review_from_user_and_job(profile: Profile, educations: List[Education],
         suggestions=[f"{profile.first_name}, acquire more nice skills to impress {job_description.company_name} HRs"],
     )
 
+
 if __name__ == "__main__":
-    print(request_model("John"))
+    print(request_model("Make a greeting for Isaac Newton"))
