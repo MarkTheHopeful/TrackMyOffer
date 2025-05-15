@@ -12,27 +12,24 @@ services:
     depends_on:
       - backend
       - featuresprovider
-    env_file:
-      - WebInterface/.env
   backend:
     build:
       context: ./BackEnd
       args:
         - A_HOST=0.0.0.0
         - A_PORT=3001
-        - A_OAUTH_HOST=localhost
-        - A_OAUTH_PORT=3001
-        - A_PROVIDER_HOST=featuresprovider
-        - A_PROVIDER_PORT=3002
-        - A_VITE_HOST=localhost
-        - A_VITE_PORT=3000
+        - A_OAUTH_URL=http://localhost:3001
+        - A_PROVIDER_URL=http://featuresprovider:3002
+        - A_VITE_URL=http://localhost:3000
         - A_DB_HOST=utility_db
         - A_DB_PORT=5432
         - A_DB_PASSWORD=utility_password
+        - A_DEBUG_ENDPOINTS=true
     ports:
       - "3001:3001"
-    env_file:
-      - BackEnd/.env
+    environment:
+      - CLIENT_ID
+      - CLIENT_SECRET
     depends_on:
       utility_db:
         condition: service_healthy
@@ -47,8 +44,8 @@ services:
         - A_DB_PASSWORD=features_password
     ports:
       - "3002:3002"
-    env_file:
-      - ./FeaturesProvider/.env
+    environment:
+      - API_KEY
     depends_on:
       features_db:
         condition: service_healthy

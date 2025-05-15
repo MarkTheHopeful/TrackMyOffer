@@ -4,42 +4,25 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.routing.*
-import io.ktor.client.call.*
+import io.ktor.server.sessions.*
+import kotlinx.serialization.json.Json
+import kotlin.collections.listOf
+import kotlin.collections.set
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as ClientContentNegotiation
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation as ServerContentNegotiation
-import io.ktor.client.request.*
-import io.ktor.server.auth.*
-import io.ktor.server.html.*
-import io.ktor.server.response.*
-import io.ktor.server.sessions.*
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.request.*
-import kotlinx.html.*
-import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
 
 fun main(args: Array<String>) = EngineMain.main(args)
 
-//val applicationHttpClient = HttpClient(CIO) {
-//    install(ClientContentNegotiation) {
-//        json(Json {
-//            ignoreUnknownKeys = true // Optional but recommended
-//        })
-//    }
-//}
-
 fun Application.module() {
-    val oauthHost = environment.config.propertyOrNull("ktor.oauth.host")?.getString() ?: "localhost"
-    val oauthPort = environment.config.propertyOrNull("ktor.oauth.port")?.getString() ?: "8080"
-    val oauthUrl = environment.config.propertyOrNull("ktor.oauth.url")?.getString() ?: "http://$oauthHost:$oauthPort"
-    val fProviderHost = environment.config.propertyOrNull("ktor.feature_provider.host")?.getString() ?: "0.0.0.0"
-    val fProviderPort = environment.config.propertyOrNull("ktor.feature_provider.port")?.getString() ?: "8081"
-    val fProviderUrl = environment.config.propertyOrNull("ktor.feature_provider.url")?.getString() ?: "http://$fProviderHost:$fProviderPort"
+    val oauthUrl = environment.config.propertyOrNull("ktor.oauth.url")?.getString() ?: "http://0.0.0.0:8080"
+    val fProviderUrl = environment.config.propertyOrNull("ktor.feature_provider.url")?.getString() ?: "http://0.0.0.0:8081"
 
     val httpClient = HttpClient(CIO) {
         install(ClientContentNegotiation) {
@@ -59,11 +42,9 @@ fun Application.module() {
         }
     }
 
-    // Initialize the utility database
     val utilityDatabase = UtilityDatabase(httpClient, fProviderUrl)
     utilityDatabase.init()
 
-    // TODO: setup cors properly
     install(CORS) {
         anyHost()
         allowCredentials = true

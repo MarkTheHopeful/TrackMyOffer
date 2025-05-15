@@ -4,7 +4,6 @@ import { EducationEntry } from "./EducationEntry.ts";
 import { Experience } from "./Experience.ts";
 import { CV_Markdown } from "./CV_Markdown.ts";
 import { ReviewResult } from "./ReviewResult.ts";
-import { CoverLetterObj } from "./CoverLetterObj.ts";
 
 const host = import.meta.env.VITE_API_HOST ?? "localhost";
 const port = import.meta.env.VITE_API_PORT ?? "8080";
@@ -285,16 +284,15 @@ export async function createCV(jobDescription: string): Promise<CV_Markdown> {
     return response.json();
 }
 
-
-export async function requestCVReview(jobDescription: string): Promise<ReviewResult> {
+export async function requestMatchScore(jobDescription: string): Promise<ReviewResult> {
     const response = await fetch(`${API_BASE_URL}/features/v0/match-position`, {
-	method: 'POST',
+        method: 'POST',
         credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         },
-	body: JSON.stringify( { jobDescription } )
+        body: JSON.stringify({ jobDescription })
     });
     if (!response.ok) {
         throw new Error(`Failed to get a review: ${response.statusText}`);
