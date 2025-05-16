@@ -66,6 +66,12 @@ fun Application.module() {
             cookie.secure = true
             cookie.httpOnly = true
             cookie.extensions["SameSite"] = "None"
+
+            val domain = System.getenv("COOKIE_DOMAIN")
+            if (!domain.isNullOrEmpty()) {
+                cookie.domain = domain
+            }
+            cookie.maxAgeInSeconds = 3600 // Set an appropriate timeout (e.g., 1 hour)
         }
     }
 
