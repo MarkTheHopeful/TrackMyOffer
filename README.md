@@ -4,6 +4,12 @@ Look for the tasks in the "Projects" tab on github
 
 For parts description look into the corresponding subdirectories.
 
+## Requirements & Architecture 
+
+- The Requirements Book for the project is available via this [link](https://docs.google.com/document/d/1xXU2xOTpktsWVINS9sxt_Pv6vnwDQvh9NQTqpTrnQbo/edit?usp=sharing). 
+- The high-level architecture diagram is available via this [link](https://drive.google.com/file/d/1jBHv_NsWErqjyx7iRrGBuINruEsCgRWE/view?usp=sharing).
+  - A document with reasoning behind the chosen architecture design is available via this [link](https://docs.google.com/document/d/1OYZI9EdXdObnDyrL7oCGbjBhDP-Oa-lCwMkZBPdz6ZA/edit?usp=sharing).
+
 ## Run
 
 ### Docker
