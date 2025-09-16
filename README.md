@@ -2,7 +2,12 @@
 
 ## What is TrackMyOffer?
 
-<WIP>
+TrackMyOffer is a job application helper platform. It is a web platform that offers intelligent, tailored CV and cover letter creation. 
+
+It stores your comprehensive career history and project experience in a “Master CV” and dynamically selects the most relevant sections to match job requirements when applying for a specific position. 
+
+It also allows to check whether there is a "match" between a position provided and you, given all experience and information you provided.
+
 
 ## Project stucture
 
