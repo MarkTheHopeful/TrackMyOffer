@@ -11,13 +11,23 @@ It also allows to check whether there is a "match" between a position provided a
 
 ## Project stucture
 
+To the user, only from part, that is, Web Interface, is accessible, while everything else is abstracted and unseen to the user. Inside, the project is separated into three main modules:
+- Web Interface, serving as a front end and written in TypeScript using React
+- Back End, serving as a request dispatcher and handler of all utility functions, not related to work with CV itself, written in Kotlin using Ktor library
+- Features Provider, serving as the main logic handler behind all the CV work and AI interaction, separated into many specific functions for i.e. extraction of job position information given text or link, storage of users' experience and so forth
+
+Apart from what is implemented by us, several features are externalized, such as auth provider (implemented using Google OAuth) and AI models themselves, being served through OpenAI API.
+
+Communication between the three modules is done using HTTP protocol specified in openapi files.
+
+For more in-depth description of parts' architecture, use the following links: [Web Interface README](WebInterface/README.md), [Back End README](BackEnd/README.md) and [Feature Provider README](FeaturesProvider/README.md).
+
 ### Requirements & Architecture 
 
 - The Requirements Book for the project is available via this [link](https://docs.google.com/document/d/1xXU2xOTpktsWVINS9sxt_Pv6vnwDQvh9NQTqpTrnQbo/edit?usp=sharing). 
 - The high-level architecture diagram is available via this [link](https://drive.google.com/file/d/1jBHv_NsWErqjyx7iRrGBuINruEsCgRWE/view?usp=sharing).
   - A document with reasoning behind the chosen architecture design is available via this [link](https://docs.google.com/document/d/1OYZI9EdXdObnDyrL7oCGbjBhDP-Oa-lCwMkZBPdz6ZA/edit?usp=sharing).
 
-For parts description look into the corresponding subdirectories.
 
 ## How to run it
 
