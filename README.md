@@ -34,7 +34,7 @@ For more in-depth description of parts' architecture, use the following links: [
 ### Docker
 
 To correctly run all the subsystems, update .env files:
-- [FeaturesProvider/.env](FeaturesProvider/.env): put your API_KEY (otherwise AI features won't work) like this
+- [FeaturesProvider/.env](FeaturesProvider/.env): put your OpenRouter API_KEY (otherwise AI features won't work) like this:
 ```
 API_KEY=...
 ```
@@ -44,14 +44,19 @@ CLIENT_ID=...
 CLIENT_SECRET=...
 ```
 
-**MAKE SURE TO NOT COMMIT THE SECRETS AND KEYS**: the `.env` files are tracked! 
-
 Run
 ```
 docker compose up -d
 ```
 
+Or if something changed and the Docker image is not up to date, run:
+```
+docker compose up -d --build
+```
+
 It should run web, back, features provider and database for FP. 
+To read the logs run `docker compose logs`, or e.g. `docker compose logs web` to read the logs of the web service.
+There you will find on which port the services are running, by default you should be able to access the web service at `http://localhost:3000`.
 
 Alternatively (and I highly suggest that),
 go to [docker-compose.yaml](docker-compose.yaml) and hit the green run button near the `services` in IDEA.
@@ -69,7 +74,7 @@ Go to `WebInterface` subdirectory and ensure there is no `node_modules` present 
 
 ### Script
 
-To run all three services together, try out [run_local.sh](run_local.sh) script. Ensure to:
+To run all three services without Docker, try out [run_local.sh](run_local.sh) script. Ensure to:
 - put your model API key at the top of the script
 - install all the requirements for all three parts separately
 
