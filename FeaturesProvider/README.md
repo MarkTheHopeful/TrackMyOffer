@@ -114,6 +114,27 @@ To run the test suite:
    pytest
    ```
 
+## Evaluation
+
+The FeatureProvider test suite was executed in a clean virtual environment using Python 3.12.
+
+- Command:
+  ```bash
+  python3.12 -m venv venv312 && source venv312/bin/activate && pip install -r requirements.txt && pytest -q
+  ```
+
+- Result:
+  ```
+  24 passed, 1 xfailed in 7.85s
+  ```
+
+- Notes:
+  - The single xfail is an integration test that would contact the real AI model and is intentionally marked as expected-to-fail without network/API key.
+  - Environment: macOS (Darwin 24.x), Python 3.12.7, isolated venv. No Docker/Postgres needed for tests.
+  - Coverage highlights: Profile and Experience endpoints (create/list/error paths), cover-letter endpoint (mocked AI), cover-letter generator fallback, DB CRUD and relationships.
+  - Representative checks: correct HTTP status codes (200/201/404/422/503), response schemas via Pydantic models, prompt content passed to AI mock.
+  - See TESTING.md for details on structure, fixtures, mocking, and extending the suite.
+
 ### How to run database
 Prerequisites: **Docker Desktop**
 1. Make sure to download Docker from https://www.docker.com/get-started/.
