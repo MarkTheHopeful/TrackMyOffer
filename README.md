@@ -77,11 +77,7 @@ Logs from services will be available in `logs` directory
 
 ## How to test it
 
-<WIP>
-
-## How do we work on it
-
-<WIP>
+Tests are usually ran as part of CI workflows (described further in this README), both component and integration. However, if you want to test it locally, you can look at how tests are implemented in specific parts, as described in [Web Interface README](WebInterface/README.md), [Back End README](BackEnd/README.md) and [Feature Provider README](FeaturesProvider/README.md).
 
 ## Continuous Integration
 
@@ -132,3 +128,12 @@ docker-compose is used to run the application,
 and simple requests targeting all components and specific backend endpoints are executed to check reachability.
 
 Later verification of the connectivity between the frontend and backend should be added. 
+
+## How do we work on it
+
+Just like our project is split in three modules, our team is also split into three module-specific teams, who hold the knowledge and responsibility for their part. Each team has a representative for a single point of administration and management in the team. 
+
+For each sprint, 1-3 representatives gather together (everyone else is also welcomed to meetings, however are not required), discuss current state and vision of the project among with tasks to be done this sprint, after which the specific, split tasks are formulated and published to the teams. Representatives also actively participate in resolving the tasks.
+
+The tasks themselves are usually stored, assigned and manipulated in our canban board ("Projects" on GitHub), however the communication is done either in person or on a separate messaging platform.
+
