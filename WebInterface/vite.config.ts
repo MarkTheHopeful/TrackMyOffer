@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     server: {
-      allowedHosts: ["trackmyoffer.onrender.com"],
+      allowedHosts: ["trackmyoffer.onrender.com", "6ce54fc456a94f19a7ee22900dbbf76f.constructor.pro"],
       host: env.VITE_DEV_HOST || '127.0.0.1',
       port: parseInt(env.VITE_DEV_PORT || "5173")
     },
