@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => {
       port: parseInt(env.VITE_DEV_PORT || "5173")
     },
     preview: {
-      allowedHosts: ["trackmyoffer.onrender.com"]
+      allowedHosts: ["trackmyoffer.onrender.com", "6ce54fc456a94f19a7ee22900dbbf76f.constructor.pro"],
     }
   };
 });
