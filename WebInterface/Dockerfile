@@ -5,9 +5,9 @@ ARG A_VITE_API_HOST=localhost
 ARG A_VITE_API_PORT=4001
 ARG A_VITE_FULL_API_URL
 
-ENV VITE_API_HOST=https://610818a381f047fd918900aad498e2c7.constructor.pro/
+ENV VITE_API_HOST=https://610818a381f047fd918900aad498e2c7.constructor.pro
 ENV VITE_API_PORT=8111
-ENV VITE_FULL_API_URL=https://610818a381f047fd918900aad498e2c7.constructor.pro/
+ENV VITE_FULL_API_URL=https://610818a381f047fd918900aad498e2c7.constructor.pro
 
 # Install pnpm
 RUN npm install -g pnpm
