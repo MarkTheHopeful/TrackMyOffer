@@ -5,9 +5,9 @@ ARG A_VITE_API_HOST=localhost
 ARG A_VITE_API_PORT=4001
 ARG A_VITE_FULL_API_URL
 
-ENV VITE_API_HOST=$A_VITE_API_HOST
-ENV VITE_API_PORT=$A_VITE_API_PORT
-ENV VITE_FULL_API_URL=$A_VITE_FULL_API_URL
+ENV VITE_API_HOST=svc-backend.app-208f64cf.svc.cluster.local
+ENV VITE_API_PORT=8111
+ENV VITE_FULL_API_URL=svc-backend.app-208f64cf.svc.cluster.local:8111
 
 # Install pnpm
 RUN npm install -g pnpm
