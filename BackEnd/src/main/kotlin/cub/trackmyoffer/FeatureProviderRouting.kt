@@ -242,7 +242,27 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 parameter("notes", notes)
             }
             call.respondText(response.bodyAsText(), status = response.status)
-        }    }
+        }
+
+        post("/analyze-gaps") {
+            val profileId = userIdSupplier()
+
+            val extractorResponse = extractJobDescription(call)
+            if (extractorResponse.status != HttpStatusCode.OK) {
+                call.respond(extractorResponse.status, extractorResponse.body)
+                return@post
+            }
+
+            val response = httpClient.post("${config.remote}/api/analyze-gaps") {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    extractorResponse.body
+                )
+                parameter("profile_id", profileId)
+            }
+            call.respondText(response.bodyAsText(), status = response.status)
+        }
+    }
 
     route("/features") {
         route("/v0") {
