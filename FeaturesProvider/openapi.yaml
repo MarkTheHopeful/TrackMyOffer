@@ -396,6 +396,54 @@ paths:
                     type: string
                     example: "Profile with id 1 not found"
 
+  /api/analyze-gaps:
+    post:
+      summary: Analyze experience gaps
+      description: Identifies gaps between candidate's profile and job requirements with severity levels
+      operationId: analyzeGaps
+      parameters:
+        - name: profile_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 1
+          description: ID of the user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobDescriptionResponse'
+      responses:
+        '200':
+          description: Successfully analyzed gaps
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GapAnalysisResponse'
+        '404':
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Profile with id 1 not found"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: array
+                    items:
+                      type: object
+
 components:
   schemas:
     ProfileCreate:
@@ -559,3 +607,38 @@ components:
         description:
           type: string
           nullable: true
+
+    Gap:
+      type: object
+      required:
+        - gap_text
+        - severity
+        - suggestion
+      properties:
+        gap_text:
+          type: string
+          description: Description of the experience or responsibility gap
+          example: "Missing evidence of leadership experience"
+        severity:
+          type: string
+          description: Severity level of the gap
+          enum:
+            - Critical
+            - Important
+            - Nice-to-have
+          example: "Important"
+        suggestion:
+          type: string
+          description: Specific suggestion on how to address this gap
+          example: "Add details about team leadership roles in your experience section"
+
+    GapAnalysisResponse:
+      type: object
+      required:
+        - gaps
+      properties:
+        gaps:
+          type: array
+          description: List of identified gaps between candidate and job requirements
+          items:
+            $ref: '#/components/schemas/Gap'
