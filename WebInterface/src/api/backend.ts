@@ -4,7 +4,8 @@ import { EducationEntry } from "./EducationEntry.ts";
 import { Experience } from "./Experience.ts";
 import { CV_Markdown } from "./CV_Markdown.ts";
 import { ReviewResult } from "./ReviewResult.ts";
-import {ExportResponse} from "@/api/ExportResponse.ts";
+import { ExportResponse } from "@/api/ExportResponse.ts";
+import { GapAnalysisResult } from "./GapAnalysis.ts";
 
 // API base URL is injected at build time via Vite config (define.__API_BASE_URL__)
 const API_BASE_URL: string = __API_BASE_URL__;
@@ -307,6 +308,22 @@ export async function exportUserData(): Promise<ExportResponse> {
     });
     if (!response.ok) {
         throw new Error(`Failed to export data: ${response.statusText}`);
+   }
+   return response.json();
+}
+
+export async function analyzeGaps(jobDescription: string): Promise<GapAnalysisResult> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/analyze-gaps`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({ jobDescription })
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to analyze gaps: ${response.statusText}`);
     }
     return response.json();
 }
@@ -323,5 +340,4 @@ export async function deleteUserData(): Promise<void> {
         throw new Error(`Failed to delete account: ${response.statusText}`);
     }
 }
-
 
