@@ -266,13 +266,13 @@ export async function deleteEducation(educationId: number): Promise<void> {
 
 export async function createCV(jobDescription: string): Promise<CV_Markdown> {
     const response = await fetch(`${API_BASE_URL}/features/v0/build-cv`, {
-	method: 'POST',
+        method: 'POST',
         credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         },
-	body: JSON.stringify( { jobDescription } )
+        body: JSON.stringify({ jobDescription })
     });
     if (!response.ok) {
         throw new Error(`Failed to generate CV: ${response.statusText}`);
@@ -294,6 +294,33 @@ export async function requestMatchScore(jobDescription: string): Promise<ReviewR
         throw new Error(`Failed to get a review: ${response.statusText}`);
     }
     return response.json();
+}
+
+export async function exportUserData(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/user/export`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json',
+        },
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to export data: ${response.statusText}`);
+    }
+    return response.json();
+}
+
+export async function deleteUserData(): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/user/delete`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json',
+        },
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to delete account: ${response.statusText}`);
+    }
 }
 
 
