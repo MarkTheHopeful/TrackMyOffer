@@ -1,5 +1,6 @@
 package cub.trackmyoffer
 
+import CVWithAnonymous
 import CoverLetterRequest
 import EducationEntry
 import ExperienceEntry
@@ -196,7 +197,9 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
         }
 
         post("/build-cv") {
-            val extractorResponse = extractJobDescription(call)
+            val request = call.receive<CVWithAnonymous>()
+            val isAnonymous = request.isAnonymous
+            val extractorResponse = getJobDescription(request.jobDescription)
             if (extractorResponse.status != HttpStatusCode.OK) {
                 call.respond(extractorResponse.status, extractorResponse.body)
                 return@post
@@ -210,6 +213,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     extractorResponse.body
                 )
                 parameter("profile_id", profileId)
+                parameter("is_anonymous", isAnonymous)
             }
             call.respondText(response.bodyAsText(), status = response.status)
         }
