@@ -245,6 +245,8 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
 
             val textStyle = call.request.queryParameters["textStyle"]
             val notes = call.request.queryParameters["notes"]
+            val makeAnonymous = request.makeAnonymous
+            application.log.debug("/cover-letter: makeAnonymous=$makeAnonymous")
 
             val response = httpClient.post("${config.remote}/api/generate-cover-letter") {
                 contentType(ContentType.Application.Json)
@@ -254,6 +256,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 parameter("profile_id", profileId)
                 parameter("style", textStyle)
                 parameter("notes", notes)
+                parameter("makeAnonymous", makeAnonymous)
             }
             call.respondText(response.bodyAsText(), status = response.status)
         }    }

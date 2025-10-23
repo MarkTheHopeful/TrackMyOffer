@@ -93,6 +93,7 @@ interface GenerateCoverLetterRequest {
     jobDescription: string;
     motivations: string;
     tone: 'formal' | 'enthusiastic' | 'creative';
+    makeAnonymous: boolean;
 }
 
 export async function generateCoverLetter(request: GenerateCoverLetterRequest): Promise<string> {

@@ -44,8 +44,9 @@ data class WithJobDescription(
 )
 
 @Serializable
-data class CoverLetterRequest(
-    val jobDescription: String,
-    val motivations: String,
-    val tone: String,
-)
+ data class CoverLetterRequest(
+     val jobDescription: String,
+     val motivations: String,
+     val tone: String,
+     val makeAnonymous: Boolean = false,
+ )
