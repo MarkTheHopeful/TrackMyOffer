@@ -4,7 +4,6 @@ import requests
 from dotenv import load_dotenv
 from loguru import logger
 
-
 # Load environment variables from .env file
 load_dotenv()
 
@@ -12,8 +11,8 @@ API_URL = "https://openrouter.ai/api/v1/chat/completions"
 API_KEY = os.getenv("API_KEY")
 
 # MODEL_NAME = "deepseek/deepseek-v3-base:free"
-# MODEL_NAME = "google/gemini-2.0-flash-exp:free"
-MODEL_NAME = "nousresearch/deephermes-3-mistral-24b-preview:free"
+MODEL_NAME = "google/gemini-2.0-flash-exp:free"
+# MODEL_NAME = "nousresearch/deephermes-3-mistral-24b-preview:free"
 
 
 def request_model(prompt: str) -> str | None:
