@@ -22,20 +22,6 @@ data class Response(val status: HttpStatusCode, val body: String)
 data class FeatureProviderRoutingConfig(val remote: String)
 
 fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProviderRoutingConfig, utilityDatabase: UtilityDatabase) {
-    suspend fun extractUserId(call: RoutingCall): Int {
-        val userSession: UserSession =
-            call.sessions.get() ?: throw RuntimeException("Invalid session during request")
-
-        if (!validateToken(httpClient, userSession)) {
-            application.log.debug("Invalid or expired session, redirecting to login")
-            call.sessions.clear<UserSession>()
-            call.respondRedirect("/login")
-        }
-        val userInfo: UserInfo = getUserInfo(httpClient, userSession)
-
-        // Get or create profile ID from the utility database
-        return utilityDatabase.getOrCreateProfileId(userInfo.email, userInfo)
-    }
 
     suspend fun getJobDescription(jobDescription: String): Response {
         val response = httpClient.post("${config.remote}/api/extract-job-description") {
@@ -266,7 +252,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 }
             }
 
-            baseFeatureProviderRouting { extractUserId(call) }
+            baseFeatureProviderRouting { extractUserId(call, httpClient, utilityDatabase) }
         }
     }
 }
