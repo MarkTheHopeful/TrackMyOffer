@@ -272,3 +272,16 @@ def generate_cover_letter(
     except Exception as e:
         logger.error(f"Error generating cover letter: {e}", exc_info=True)  # Added exc_info for better logging
         raise HTTPException(status_code=500, detail="An unexpected error occurred while generating the cover letter.")
+
+@app.delete("/api/profile/{profile_id}", status_code=status.HTTP_200_OK)
+def delete_profile(profile_id: int, db: Session = Depends(get_db)):
+    """
+    Delete profile with given profile_id
+    404 on an invalid profile id
+    Otherwise 200
+    """
+    profile = db_manager.get_profile(db, profile_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
+    del_status = db_manager.delete_profile(db, profile_id)
+    return del_status
