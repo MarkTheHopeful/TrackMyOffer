@@ -23,6 +23,36 @@ It is supposed that at least part of the meaningful work is passed to an externa
 
 Btw, don't forget to update .gitignore
 
+## Architecture
+
+### Runtime stack
+- `FastAPI` application served by Uvicorn (see `main.py`) exposes the HTTP API that the Kotlin backend calls.
+- `SQLAlchemy` ORM talks to a PostgreSQL instance. Connection details are taken from `DB_*` environment variables and managed by `database/db_interface.py`.
+- `pydantic` models in `models.py` validate inbound payloads and define response schemas shared with the OpenAPI contract (`openapi.yaml`).
+- `requests` is used inside `features/ai_api.py` to call the external OpenRouter AI API; `python-dotenv` loads the `API_KEY` from `.env`.
+- `loguru` provides structured logging inside request handlers and feature modules.
+
+### Request lifecycle and integrations
+- The backend invokes Feature Provider over HTTP. Endpoints such as `/api/profile/{id}` or `/api/generate-cover-letter` are defined in `main.py` and mirrored in `openapi.yaml`.
+- Each request goes through dependency-injected SQLAlchemy sessions provided by `DatabaseManager`. The manager lazily creates tables on startup (unless running under pytest) and encapsulates CRUD helpers for profiles, education, and experience records.
+- Business logic lives in `features/`. Handlers in `main.py` gather domain data from the database, then delegate to the relevant feature module (job description parsing, CV generation, match review, cover letter, etc.).
+- All AI-facing flows call `features.ai_api.request_model`, which assembles prompts and sends them to OpenRouter. When the upstream service fails, each feature module returns deterministic fallbacks so the HTTP API remains responsive.
+- The service persists long-term user data in PostgreSQL (see `database/docker-compose.yml` for the local instance) and exposes only transient AI results back to the backend.
+
+### Internal modules
+- `main.py` – FastAPI app factory, request handlers, dependency wiring, and response shaping.
+- `database/db_interface.py` – SQLAlchemy declarative models (`Profile`, `Education`, `Experience`) plus session and CRUD utilities shared by features.
+- `models.py` – Pydantic request/response schemas reused across endpoints and tests.
+- `features/ai_api.py` – Thin client over OpenRouter chat completions API with timeout handling and logging.
+- `features/job_description.py`, `md_cv_generator.py`, `review_user_application.py`, `cover_letter_generator.py` – Prompt builders and post-processors for individual capabilities. They translate database records into structured prompts, parse AI responses, and provide graceful fallbacks.
+- `templates/` – Static cover-letter drafts and documentation kept for manual experiments and as references for future template-based fallbacks.
+- `tests/` – Pytest-based suite exercising CRUD flows, feature endpoints, and AI fallbacks with mocked HTTP calls.
+
+### Cross-service communication
+- Outbound: OpenRouter AI API over HTTPS, authenticated via bearer token from `.env`.
+- Inbound: REST calls from the backend service. Responses follow the schemas declared in `openapi.yaml`.
+- Data: PostgreSQL stores profile data. Feature Provider is stateless aside from database persistence; all other state is derived per-request.
+
 ## How to run
 
 ### Docker
@@ -114,6 +144,27 @@ To run the test suite:
    pytest
    ```
 
+## Evaluation
+
+The FeatureProvider test suite was executed in a clean virtual environment using Python 3.12.
+
+- Command:
+  ```bash
+  python3.12 -m venv venv312 && source venv312/bin/activate && pip install -r requirements.txt && pytest -q
+  ```
+
+- Result:
+  ```
+  24 passed, 1 xfailed in 7.85s
+  ```
+
+- Notes:
+  - The single xfail is an integration test that would contact the real AI model and is intentionally marked as expected-to-fail without network/API key.
+  - Environment: macOS (Darwin 24.x), Python 3.12.7, isolated venv. No Docker/Postgres needed for tests.
+  - Coverage highlights: Profile and Experience endpoints (create/list/error paths), cover-letter endpoint (mocked AI), cover-letter generator fallback, DB CRUD and relationships.
+  - Representative checks: correct HTTP status codes (200/201/404/422/503), response schemas via Pydantic models, prompt content passed to AI mock.
+  - See TESTING.md for details on structure, fixtures, mocking, and extending the suite.
+
 ### How to run database
 Prerequisites: **Docker Desktop**
 1. Make sure to download Docker from https://www.docker.com/get-started/.
@@ -153,4 +204,3 @@ Prerequisites: **Docker Desktop**
    ```sql
    SELECT * FROM profiles;
    ```
-
