@@ -9,6 +9,7 @@ export function CoverLetter() {
     const [jobDescription, setJobDescription] = useState('');
     const [motivations, setMotivations] = useState('');
     const [tone, setTone] = useState<ToneType>('formal');
+    const [makeAnonymous, setMakeAnonymous] = useState(false);
     const [generatedLetter, setGeneratedLetter] = useState('');
     const [generating, setGenerating] = useState(false);
     const [, setError] = useState<string | null>(null);
@@ -108,7 +109,22 @@ export function CoverLetter() {
                                 </button>
                             </div>
 
-                            <div className="mt-6">
+                            <div className="mt-6 space-y-4">
+                                <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+                                    <input
+                                        type="checkbox"
+                                        checked={makeAnonymous}
+                                        onChange={(e) => setMakeAnonymous(e.target.checked)}
+                                        disabled={generating}
+                                        className="mt-1 w-5 h-5 text-brand-600 rounded border-slate-300 focus:ring-brand-500"
+                                    />
+                                    <span>
+                                        <span className="block text-sm font-semibold text-slate-900">Make anonymous</span>
+                                        <span className="block text-xs text-slate-600">
+                                            Remove or mask personal identifiers (name, email, phone, address) in the generated letter.
+                                        </span>
+                                    </span>
+                                </label>
                                 <Button
                                     variant="primary"
                                     className="w-full"
