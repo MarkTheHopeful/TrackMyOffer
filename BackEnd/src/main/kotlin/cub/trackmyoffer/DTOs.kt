@@ -1,5 +1,3 @@
-package cub.trackmyoffer
-
 import kotlinx.serialization.*
 
 @Serializable
