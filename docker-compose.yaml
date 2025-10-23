@@ -3,10 +3,7 @@ services:
     build:
       context: ./WebInterface
       args:
-        - A_VITE_DEV_HOST=0.0.0.0
-        - A_VITE_DEV_PORT=3000
-        - A_VITE_API_HOST=localhost
-        - A_VITE_API_PORT=3001
+        - VITE_CONFIG=vite.config.ts
     ports:
       - "3000:3000"
     depends_on:

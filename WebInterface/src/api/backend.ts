@@ -5,12 +5,8 @@ import { Experience } from "./Experience.ts";
 import { CV_Markdown } from "./CV_Markdown.ts";
 import { ReviewResult } from "./ReviewResult.ts";
 
-const host = import.meta.env.VITE_API_HOST ?? "localhost";
-const port = import.meta.env.VITE_API_PORT ?? "8080";
-const fullUrl = import.meta.env.VITE_FULL_API_URL;
-const API_BASE_URL = fullUrl
-    ? fullUrl
-    : `http://${host}:${port}`;
+// API base URL is injected at build time via Vite config (define.__API_BASE_URL__)
+const API_BASE_URL: string = __API_BASE_URL__;
 
 export async function fetchHelloMessage(): Promise<string> {
     const response = await fetch(`${API_BASE_URL}/v0/hello`);

@@ -1,16 +1,10 @@
 # Build stage
 FROM node:20-slim AS build
 
-ARG A_VITE_API_HOST=localhost
-ARG A_VITE_API_PORT=4001
-ARG A_VITE_FULL_API_URL
-
-ENV VITE_API_HOST=https://610818a381f047fd918900aad498e2c7.constructor.pro
-ENV VITE_API_PORT=8111
-ENV VITE_FULL_API_URL=https://610818a381f047fd918900aad498e2c7.constructor.pro
-
 # Install pnpm
 RUN npm install -g pnpm
+
+ARG VITE_CONFIG=vite.config.prod.ts
 
 # Set working directory
 WORKDIR /app
@@ -24,17 +18,11 @@ RUN pnpm install dev
 # Copy the rest of the application
 COPY . .
 
-# Build the application
-RUN pnpm build
+# Build the application with production Vite config
+RUN pnpm build --config ${VITE_CONFIG}
 
 # Production stage
 FROM node:20-slim
-
-ARG A_VITE_DEV_HOST=0.0.0.0
-ARG A_VITE_DEV_PORT=5173
-
-ENV VITE_DEV_HOST=$A_VITE_DEV_HOST
-ENV VITE_DEV_PORT=$A_VITE_DEV_PORT
 
 # Install pnpm and vite
 RUN npm install -g pnpm vite
@@ -46,16 +34,12 @@ WORKDIR /app
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/package.json ./
 COPY --from=build /app/pnpm-lock.yaml ./
-COPY --from=build /app/vite.config.ts ./
 
 # Install only production dependencies
 RUN pnpm install dev
 
-# Expose the port
-EXPOSE $VITE_DEV_PORT
-
-
-RUN echo "api host: env ${VITE_API_HOST} arg ${A_VITE_API_HOST}"
+# Expose the fixed preview port
+EXPOSE 3000
 
 # Run the application
-CMD exec pnpm preview --host ${VITE_DEV_HOST} --port ${VITE_DEV_PORT}
+CMD exec pnpm preview --host 0.0.0.0 --port 3000
