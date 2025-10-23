@@ -14,12 +14,19 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
 data class Response(val status: HttpStatusCode, val body: String)
 
 data class FeatureProviderRoutingConfig(val remote: String)
+
+@Serializable
+private data class BuildCvBody(
+    val jobDescription: String,
+    val makeAnonymous: Boolean? = null,
+)
 
 fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProviderRoutingConfig, utilityDatabase: UtilityDatabase) {
     suspend fun extractUserId(call: RoutingCall): Int {
@@ -48,8 +55,8 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
     }
 
     suspend fun extractJobDescription(call: RoutingCall): Response {
-        val jobDescription = call.receive<WithJobDescription>().jobDescription
-        return getJobDescription(jobDescription)
+        val req = call.receive<WithJobDescription>()
+        return getJobDescription(req.jobDescription)
     }
     
     fun Route.baseFeatureProviderRouting(userIdSupplier: suspend RoutingContext.() -> Int) {
@@ -196,7 +203,8 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
         }
 
         post("/build-cv") {
-            val extractorResponse = extractJobDescription(call)
+            val req = call.receive<BuildCvBody>()
+            val extractorResponse = getJobDescription(req.jobDescription)
             if (extractorResponse.status != HttpStatusCode.OK) {
                 call.respond(extractorResponse.status, extractorResponse.body)
                 return@post
@@ -210,6 +218,10 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     extractorResponse.body
                 )
                 parameter("profile_id", profileId)
+                if (req.makeAnonymous != null) {
+                    application.log.debug("make anonymous: ${req.makeAnonymous}")
+                    parameter("makeAnonymous", req.makeAnonymous)
+                }
             }
             call.respondText(response.bodyAsText(), status = response.status)
         }

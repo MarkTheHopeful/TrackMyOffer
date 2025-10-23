@@ -15,8 +15,7 @@ RUN npm install -g pnpm
 # Set working directory
 WORKDIR /app
 
-# Copy package.json and pnpm-lock.yaml
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 
 # Install dependencies
 RUN pnpm install dev
@@ -45,7 +44,6 @@ WORKDIR /app
 # Copy built assets from the build stage
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/package.json ./
-COPY --from=build /app/pnpm-lock.yaml ./
 COPY --from=build /app/vite.config.ts ./
 
 # Install only production dependencies

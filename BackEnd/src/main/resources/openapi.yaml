@@ -414,7 +414,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/WithJobDescription'
+              $ref: '#/components/schemas/BuildCvBody'
       responses:
         '200':
           description: Successful operation
@@ -680,6 +680,18 @@ components:
         jobDescription:
           type: string
           example: "Job description text or URL"
+      required:
+        - jobDescription
+    BuildCvBody:
+      type: object
+      properties:
+        jobDescription:
+          type: string
+          example: "Job description text or URL"
+        makeAnonymous:
+          type: boolean
+          description: "If true, anonymize personal details in generated CV"
+          default: false
       required:
         - jobDescription
     CoverLetterRequest:
