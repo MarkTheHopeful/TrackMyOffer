@@ -4,6 +4,7 @@ import { EducationEntry } from "./EducationEntry.ts";
 import { Experience } from "./Experience.ts";
 import { CV_Markdown } from "./CV_Markdown.ts";
 import { ReviewResult } from "./ReviewResult.ts";
+import {ExportResponse} from "@/api/ExportResponse.ts";
 
 // API base URL is injected at build time via Vite config (define.__API_BASE_URL__)
 const API_BASE_URL: string = __API_BASE_URL__;
@@ -296,7 +297,7 @@ export async function requestMatchScore(jobDescription: string): Promise<ReviewR
     return response.json();
 }
 
-export async function exportUserData(): Promise<any> {
+export async function exportUserData(): Promise<ExportResponse> {
     const response = await fetch(`${API_BASE_URL}/user/export`, {
         method: 'GET',
         credentials: 'include',
