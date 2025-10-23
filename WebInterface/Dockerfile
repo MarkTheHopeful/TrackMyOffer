@@ -22,10 +22,13 @@ COPY . .
 RUN pnpm build --config ${VITE_CONFIG}
 
 # Production stage
-FROM node:20-slim
+FROM node:20
+
+# Accept build arg for which Vite config was used and reuse it here to provide config for preview
+ARG VITE_CONFIG=vite.config.prod.ts
 
 # Install pnpm and vite
-RUN npm install -g pnpm vite
+RUN npm install -g pnpm vite typescript
 
 # Set working directory
 WORKDIR /app
@@ -34,9 +37,12 @@ WORKDIR /app
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/package.json ./
 COPY --from=build /app/pnpm-lock.yaml ./
+COPY --from=build /app/tsconfig.json ./tsconfig.json
+COPY --from=build /app/tsconfig.node.json ./tsconfig.node.json
+COPY --from=build /app/tsconfig.app.json ./tsconfig.app.json
+COPY --from=build /app/${VITE_CONFIG} ./vite.config.ts
 
-# Install only production dependencies
-RUN pnpm install dev
+RUN pnpm install
 
 # Expose the fixed preview port
 EXPOSE 3000
