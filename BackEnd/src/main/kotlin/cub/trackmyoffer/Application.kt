@@ -101,5 +101,6 @@ fun Application.module() {
         backendRouting()
         authRouting(httpClient)
         featureProviderRouting(httpClient, FeatureProviderRoutingConfig(fProviderUrl), utilityDatabase)
+        userRouting(httpClient, utilityDatabase)
     }
 }
