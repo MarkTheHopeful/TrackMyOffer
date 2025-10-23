@@ -325,6 +325,130 @@ paths:
                     type: string
                     example: "Service is currently unavailable"
 
+  /api/rewrite-achievement:
+    post:
+      summary: Rewrite achievement statement
+      description: Rewrites and enhances an achievement statement to make it more impactful
+      operationId: rewriteAchievement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - achievement_text
+              properties:
+                achievement_text:
+                  type: string
+                  description: The original achievement statement to rewrite
+                  example: "I helped improve the team's productivity"
+                style:
+                  type: string
+                  description: The style of rewriting
+                  enum: ["professional", "concise", "impactful", "quantitative"]
+                  default: "professional"
+                  example: "professional"
+                context:
+                  type: string
+                  description: Additional context about the achievement
+                  example: "This was during my role as a project manager"
+      responses:
+        '200':
+          description: Successfully rewritten achievement
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  original_achievement:
+                    type: string
+                    example: "I helped improve the team's productivity"
+                  rewritten_achievement:
+                    type: string
+                    example: "Enhanced team productivity by implementing streamlined workflows, resulting in a 25% increase in project delivery efficiency"
+                  style:
+                    type: string
+                    example: "professional"
+        '400':
+          description: Bad request - empty or invalid achievement text
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Achievement text cannot be empty"
+        '503':
+          description: AI service unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "An unexpected error occurred while rewriting the achievement statement."
+
+  /api/rewrite-achievements:
+    post:
+      summary: Batch rewrite achievement statements
+      description: Rewrites and enhances multiple achievement statements in one request
+      operationId: rewriteAchievements
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - achievements
+              properties:
+                achievements:
+                  type: array
+                  items:
+                    type: string
+                  example:
+                    - "Improved system reliability by helping the team"
+                    - "Worked on automation"
+                style:
+                  type: string
+                  enum: ["professional", "concise", "impactful", "quantitative"]
+                  default: "professional"
+                context:
+                  type: string
+                  example: "During my role as a project manager"
+      responses:
+        '200':
+          description: Successfully rewritten achievements
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        original_achievement:
+                          type: string
+                        rewritten_achievement:
+                          type: string
+                        style:
+                          type: string
+        '400':
+          description: Bad request - empty or invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "At least one achievement must be provided"
+
   /api/experience:
     post:
       summary: Create experience entry
