@@ -1,5 +1,9 @@
 package cub.trackmyoffer
 
+import AchievementRewriteRequest
+import AchievementRewriteResponse
+import AchievementsRewriteRequest
+import AchievementsRewriteResponse
 import CoverLetterRequest
 import EducationEntry
 import ExperienceEntry
@@ -256,6 +260,27 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 parameter("notes", notes)
             }
             call.respondText(response.bodyAsText(), status = response.status)
+        }
+
+        post("/rewrite-achievement") {
+            val request = call.receive<AchievementRewriteRequest>()
+
+            val style = request.style ?: "professional"
+            val context = request.context ?: ""
+
+            val response = httpClient.post("${config.remote}/api/rewrite-achievement") {
+                contentType(ContentType.Application.Json)
+                parameter("achievement_text", request.achievementText)
+                parameter("style", style)
+                parameter("context", context)
+            }
+
+            if (response.status == HttpStatusCode.OK) {
+                val responseData = response.bodyAsText()
+                call.respondText(responseData, status = response.status)
+            } else {
+                call.respond(response.status, response.bodyAsText())
+            }
         }    }
 
     route("/features") {
@@ -267,6 +292,21 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
             }
 
             baseFeatureProviderRouting { extractUserId(call) }
+        }
+
+        post("/rewrite-achievements") {
+            val request = call.receive<AchievementsRewriteRequest>()
+
+            val response = httpClient.post("${config.remote}/api/rewrite-achievements") {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }
+
+            if (response.status == HttpStatusCode.OK) {
+                call.respondText(response.bodyAsText(), status = response.status)
+            } else {
+                call.respond(response.status, response.bodyAsText())
+            }
         }
     }
 }

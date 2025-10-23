@@ -552,6 +552,90 @@ paths:
               schema:
                 type: string
           content: { }
+  /features/v0/rewrite-achievement:
+    post:
+      summary: Rewrite achievement statement endpoint
+      description: Rewrites and enhances user-provided achievement statements to make them more impactful
+      operationId: rewriteAchievement
+      security:
+        - googleOAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AchievementRewriteRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AchievementRewriteResponse'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Invalid request payload"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Error rewriting achievement"
+        '302':
+          description: Redirect to login on expired or missing session
+          headers:
+            Location:
+              description: Login URL
+              schema:
+                type: string
+          content: { }
+  /features/v0/rewrite-achievements:
+    post:
+      summary: Batch rewrite achievement statements
+      description: Rewrites and enhances multiple user-provided achievement statements
+      operationId: rewriteAchievements
+      security:
+        - googleOAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AchievementsRewriteRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AchievementsRewriteResponse'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Invalid request payload"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Error rewriting achievements"
+        '302':
+          description: Redirect to login on expired or missing session
+          headers:
+            Location:
+              description: Login URL
+              schema:
+                type: string
+          content: { }
 components:
   schemas:
     EducationEntry:
@@ -696,6 +780,78 @@ components:
           example: "professional"
       required:
         - jobDescription
+    AchievementRewriteRequest:
+      type: object
+      properties:
+        achievementText:
+          type: string
+          example: "I helped improve the team's productivity"
+        style:
+          type: string
+          enum: ["professional", "concise", "impactful", "quantitative"]
+          example: "professional"
+        context:
+          type: string
+          example: "This was during my role as a project manager"
+      required:
+        - achievementText
+    AchievementRewriteResponse:
+      type: object
+      properties:
+        original_achievement:
+          type: string
+          example: "I helped improve the team's productivity"
+        rewritten_achievement:
+          type: string
+          example: "Enhanced team productivity by implementing streamlined workflows, resulting in a 25% increase in project delivery efficiency"
+        style:
+          type: string
+          example: "professional"
+      required:
+        - original_achievement
+        - rewritten_achievement
+        - style
+    AchievementsRewriteRequest:
+      type: object
+      properties:
+        achievements:
+          type: array
+          items:
+            type: string
+          example:
+            - "Improved system reliability"
+            - "Helped the team deliver faster"
+        style:
+          type: string
+          enum: ["professional", "concise", "impactful", "quantitative"]
+          example: "professional"
+        context:
+          type: string
+          example: "During my role as a project manager"
+      required:
+        - achievements
+    AchievementsRewriteItem:
+      type: object
+      properties:
+        original_achievement:
+          type: string
+        rewritten_achievement:
+          type: string
+        style:
+          type: string
+      required:
+        - original_achievement
+        - rewritten_achievement
+        - style
+    AchievementsRewriteResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AchievementsRewriteItem'
+      required:
+        - results
     UserInfo:
       type: object
       properties:

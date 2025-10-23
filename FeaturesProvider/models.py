@@ -96,3 +96,19 @@ class GeneratedCV(BaseModel):
 class ReviewResponse(BaseModel):
     matchScore: int
     suggestions: List[str]
+
+
+class AchievementsRewriteItem(BaseModel):
+    original_achievement: str
+    rewritten_achievement: str
+    style: str
+
+
+class AchievementsRewriteRequest(BaseModel):
+    achievements: List[str]
+    style: Optional[str] = "professional"
+    context: Optional[str] = ""
+
+
+class AchievementsRewriteResponse(BaseModel):
+    results: List[AchievementsRewriteItem]
