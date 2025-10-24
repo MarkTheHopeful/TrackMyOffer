@@ -199,7 +199,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     extractorResponse.body
                 )
                 parameter("profile_id", profileId)
-                parameter("is_anonymous", isAnonymous)
+                parameter("makeAnonymous", isAnonymous)
             }
             call.respondText(response.bodyAsText(), status = response.status)
         }

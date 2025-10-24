@@ -208,16 +208,23 @@ def extract_job_description(job_description_raw: JobDescriptionReceive):
 
 
 @app.post("/api/build-cv", response_model=GeneratedCV)
-def generate_cv(profile_id: int, job_description: JobDescriptionResponse, db: Session = Depends(get_db)):
+def generate_cv(profile_id: int, job_description: JobDescriptionResponse, makeAnonymous: bool = False, db: Session = Depends(get_db)):
     """
     Generates a tailored cv for a given user and job_description (already parsed)
     """
+    from features.pii import anonymize_text
+
     profile = db_manager.get_profile(db, profile_id)
     if not profile:
         raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
     educations = db_manager.get_educations(db, profile_id)
     experiences = db_manager.get_experiences(db, profile_id)
-    return md_cv_from_user_and_job(profile, educations, experiences, job_description)
+    cv = md_cv_from_user_and_job(profile, educations, experiences, job_description)
+    if makeAnonymous:
+        full_name = f"{profile.first_name or ''} {profile.last_name or ''}".strip()
+        names = [full_name] if full_name else []
+        cv.cv_text = anonymize_text(cv.cv_text, names_to_mask=names)
+    return cv
 
 
 @app.post("/api/match-position", response_model=ReviewResponse)
@@ -241,9 +248,12 @@ def generate_cover_letter(
     job_description: JobDescriptionResponse,
     style: str = "professional",
     notes: str = "",
+    makeAnonymous: bool = False,
     db: Session = Depends(get_db),
 ):
     """Generate a cover letter based on profile and job description"""
+
+    from features.pii import anonymize_text
 
     profile = db_manager.get_profile(db, profile_id)
     if not profile:
@@ -265,6 +275,11 @@ def generate_cover_letter(
         )
         # Added type: ignore for style as generate_cover_letter_data expects LetterStyle
         # but we are passing a string. This is functionally fine for this use case.
+
+        if makeAnonymous:
+            full_name = f"{profile.first_name or ''} {profile.last_name or ''}".strip()
+            names = [full_name] if full_name else []
+            full_cover_letter = anonymize_text(full_cover_letter, names_to_mask=names)
 
         return {
             "cover_letter": full_cover_letter,
