@@ -1,6 +1,7 @@
 package cub.trackmyoffer
 
 import CoverLetterRequest
+import CvGenerationRequest
 import EducationEntry
 import ExperienceEntry
 import ProfileData
@@ -182,7 +183,8 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
         }
 
         post("/build-cv") {
-            val extractorResponse = extractJobDescription(call)
+            val cvRequest = call.receive<CvGenerationRequest>()
+            val extractorResponse = getJobDescription(cvRequest.jobDescription)
             if (extractorResponse.status != HttpStatusCode.OK) {
                 call.respond(extractorResponse.status, extractorResponse.body)
                 return@post
@@ -196,6 +198,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     extractorResponse.body
                 )
                 parameter("profile_id", profileId)
+                cvRequest.region?.takeIf { it.isNotBlank() }?.let { parameter("region", it) }
             }
             call.respondText(response.bodyAsText(), status = response.status)
         }

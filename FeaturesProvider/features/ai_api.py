@@ -15,20 +15,20 @@ MODEL_NAME = "google/gemini-2.0-flash-exp:free"
 # MODEL_NAME = "nousresearch/deephermes-3-mistral-24b-preview:free"
 
 
-def request_model(prompt: str) -> str | None:
+def request_model(prompt: str, system_prompt: str | None = None) -> str | None:
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json",
     }
 
+    messages = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+    messages.append({"role": "user", "content": prompt})
+
     data = {
         "model": MODEL_NAME,
-        "messages": [
-            {
-                "role": "user",
-                "content": prompt,
-            }
-        ],
+        "messages": messages,
         "stream": False,
     }
 

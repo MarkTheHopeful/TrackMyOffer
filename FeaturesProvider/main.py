@@ -208,7 +208,12 @@ def extract_job_description(job_description_raw: JobDescriptionReceive):
 
 
 @app.post("/api/build-cv", response_model=GeneratedCV)
-def generate_cv(profile_id: int, job_description: JobDescriptionResponse, db: Session = Depends(get_db)):
+def generate_cv(
+    profile_id: int,
+    job_description: JobDescriptionResponse,
+    region: str | None = None,
+    db: Session = Depends(get_db),
+):
     """
     Generates a tailored cv for a given user and job_description (already parsed)
     """
@@ -217,7 +222,7 @@ def generate_cv(profile_id: int, job_description: JobDescriptionResponse, db: Se
         raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
     educations = db_manager.get_educations(db, profile_id)
     experiences = db_manager.get_experiences(db, profile_id)
-    return md_cv_from_user_and_job(profile, educations, experiences, job_description)
+    return md_cv_from_user_and_job(profile, educations, experiences, job_description, region=region)
 
 
 @app.post("/api/match-position", response_model=ReviewResponse)
