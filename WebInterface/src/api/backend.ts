@@ -309,8 +309,8 @@ export async function exportUserData(): Promise<ExportResponse> {
     });
     if (!response.ok) {
         throw new Error(`Failed to export data: ${response.statusText}`);
-   }
-   return response.json();
+    }
+    return response.json();
 }
 
 export async function analyzeGaps(jobDescription: string): Promise<GapAnalysisResult> {
