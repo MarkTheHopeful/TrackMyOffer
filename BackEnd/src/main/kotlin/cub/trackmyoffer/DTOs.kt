@@ -51,7 +51,8 @@ data class WithJobDescription(
      val makeAnonymous: Boolean = false,
  )
 
+@Serializable
 data class CVWithAnonymous(
     val jobDescription: String,
-    val isAnonymous: Boolean = false,
+    val makeAnonymous: Boolean = false,
 )

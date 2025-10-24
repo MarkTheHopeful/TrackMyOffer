@@ -184,7 +184,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
 
         post("/build-cv") {
             val request = call.receive<CVWithAnonymous>()
-            val isAnonymous = request.isAnonymous
+            val isAnonymous = request.makeAnonymous
             val extractorResponse = getJobDescription(request.jobDescription)
             if (extractorResponse.status != HttpStatusCode.OK) {
                 call.respond(extractorResponse.status, extractorResponse.body)
