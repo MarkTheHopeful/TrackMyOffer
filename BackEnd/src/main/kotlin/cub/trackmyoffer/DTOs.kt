@@ -44,6 +44,12 @@ data class WithJobDescription(
 )
 
 @Serializable
+data class CVWithAnonymous(
+    val jobDescription: String,
+    val isAnonymous: Boolean = false,
+)
+
+@Serializable
 data class CoverLetterRequest(
     val jobDescription: String,
     val motivations: String,
