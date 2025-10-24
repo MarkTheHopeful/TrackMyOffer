@@ -287,7 +287,6 @@ def delete_profile(profile_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
     del_status = db_manager.delete_profile(db, profile_id)
     return del_status
-<<<<<<< HEAD
 
 @app.post("/api/analyze-gaps", response_model=GapAnalysisResponse)
 async def analyze_experience_gaps(
@@ -311,5 +310,3 @@ async def analyze_experience_gaps(
 
     result = analyze_gaps(profile, educations, experiences, job_description)
     return result
-=======
->>>>>>> 4e69cc4 ([Backend] exporting/deleting user info)

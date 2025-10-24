@@ -14,10 +14,6 @@ import io.ktor.server.sessions.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
-<<<<<<< HEAD
-
-=======
->>>>>>> 4e69cc4 ([Backend] exporting/deleting user info)
 
 
 @Serializable

@@ -102,11 +102,7 @@ fun Application.module() {
     routing {
         backendRouting()
         authRouting(httpClient)
-<<<<<<< HEAD
         featureProviderRouting(httpClient, FeatureProviderRoutingConfig(fProviderUrl), utilityDatabase)
-=======
-        featureProviderRouting(httpClient, featureProviderRoutingConfig, utilityDatabase)
->>>>>>> 4e69cc4 ([Backend] exporting/deleting user info)
         userRouting(httpClient, utilityDatabase, featureProviderRoutingConfig)
     }
 }
