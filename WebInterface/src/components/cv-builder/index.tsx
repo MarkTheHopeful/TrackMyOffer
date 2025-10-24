@@ -14,6 +14,7 @@ interface ExperienceWithSelection extends Experience {
 export function CVBuilder() {
   const [experiences, setExperiences] = useState<ExperienceWithSelection[]>([]);
   const [jobDescription, setJobDescription] = useState('');
+  const [makeAnonymous, setMakeAnonymous] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
@@ -78,7 +79,7 @@ export function CVBuilder() {
   const handleGenerateCV = async () => {
     setGeneratingCV(true);
     try {
-      const result = await createCV(jobDescription);
+      const result = await createCV(jobDescription, makeAnonymous);
       setGeneratedCV(result.cv_text);
     } catch (err) {
       console.error('Error generating CV:', err);
@@ -250,6 +251,21 @@ export function CVBuilder() {
             placeholder="Paste job description or enter URL..."
             disabled={isLoading || generatingCV}
           />
+          <label className="flex items-start gap-2 mb-4 text-sm text-slate-700">
+            <input
+              type="checkbox"
+              checked={makeAnonymous}
+              onChange={(e) => setMakeAnonymous(e.target.checked)}
+              disabled={isLoading || generatingCV}
+              className="mt-1 w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500"
+            />
+            <span>
+              Make anonymous
+              <span className="block text-xs text-slate-500">
+                Remove personal identifiers (name, address, email, photo) from the generated CV.
+              </span>
+            </span>
+          </label>
           <Button 
             variant="primary" 
             className="w-full" 
