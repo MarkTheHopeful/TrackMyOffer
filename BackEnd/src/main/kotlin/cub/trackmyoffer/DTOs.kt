@@ -50,3 +50,8 @@ data class WithJobDescription(
      val tone: String,
      val makeAnonymous: Boolean = false,
  )
+
+data class CVWithAnonymous(
+    val jobDescription: String,
+    val isAnonymous: Boolean = false,
+)

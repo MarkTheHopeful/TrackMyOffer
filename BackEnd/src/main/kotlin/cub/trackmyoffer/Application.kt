@@ -97,9 +97,12 @@ fun Application.module() {
         }
     }
 
+    val featureProviderRoutingConfig = FeatureProviderRoutingConfig(fProviderUrl)
+
     routing {
         backendRouting()
         authRouting(httpClient)
-        featureProviderRouting(httpClient, FeatureProviderRoutingConfig(fProviderUrl), utilityDatabase)
+        featureProviderRouting(httpClient, featureProviderRoutingConfig, utilityDatabase)
+        userRouting(httpClient, utilityDatabase, featureProviderRoutingConfig)
     }
 }

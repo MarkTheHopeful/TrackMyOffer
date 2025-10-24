@@ -5,6 +5,7 @@ from typing import List
 from database.db_interface import DatabaseManager
 from fastapi import Depends, FastAPI, HTTPException, status
 from features import (
+    analyze_gaps,
     generate_cover_letter_data,
     job_description_from_text,
     md_cv_from_user_and_job,
@@ -18,6 +19,7 @@ from models import (
     EducationResponse,
     ExperienceCreate,
     ExperienceResponse,
+    GapAnalysisResponse,
     GeneratedCV,
     JobDescriptionReceive,
     JobDescriptionResponse,
@@ -272,3 +274,39 @@ def generate_cover_letter(
     except Exception as e:
         logger.error(f"Error generating cover letter: {e}", exc_info=True)  # Added exc_info for better logging
         raise HTTPException(status_code=500, detail="An unexpected error occurred while generating the cover letter.")
+
+@app.delete("/api/profile/{profile_id}", status_code=status.HTTP_200_OK)
+def delete_profile(profile_id: int, db: Session = Depends(get_db)):
+    """
+    Delete profile with given profile_id
+    404 on an invalid profile id
+    Otherwise 200
+    """
+    profile = db_manager.get_profile(db, profile_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
+    del_status = db_manager.delete_profile(db, profile_id)
+    return del_status
+
+@app.post("/api/analyze-gaps", response_model=GapAnalysisResponse)
+async def analyze_experience_gaps(
+    profile_id: int,
+    job_description: JobDescriptionResponse,
+    db: Session = Depends(get_db)
+):
+    """
+    Analyze gaps between candidate's profile and job requirements.
+    Returns gaps categorized by severity: Critical, Important, Nice-to-have.
+
+    Given profile id and job_description (already parsed),
+    identify small experience or responsibility gaps where the candidate could add more information.
+    """
+    profile = db_manager.get_profile(db, profile_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
+
+    educations = db_manager.get_educations(db, profile_id)
+    experiences = db_manager.get_experiences(db, profile_id)
+
+    result = analyze_gaps(profile, educations, experiences, job_description)
+    return result

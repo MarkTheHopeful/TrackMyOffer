@@ -1,5 +1,6 @@
 package cub.trackmyoffer
 
+import CVWithAnonymous
 import CoverLetterRequest
 import EducationEntry
 import ExperienceEntry
@@ -22,20 +23,6 @@ data class Response(val status: HttpStatusCode, val body: String)
 data class FeatureProviderRoutingConfig(val remote: String)
 
 fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProviderRoutingConfig, utilityDatabase: UtilityDatabase) {
-    suspend fun extractUserId(call: RoutingCall): Int {
-        val userSession: UserSession =
-            call.sessions.get() ?: throw RuntimeException("Invalid session during request")
-
-        if (!validateToken(httpClient, userSession)) {
-            application.log.debug("Invalid or expired session, redirecting to login")
-            call.sessions.clear<UserSession>()
-            call.respondRedirect("/login")
-        }
-        val userInfo: UserInfo = getUserInfo(httpClient, userSession)
-
-        // Get or create profile ID from the utility database
-        return utilityDatabase.getOrCreateProfileId(userInfo.email, userInfo)
-    }
 
     suspend fun getJobDescription(jobDescription: String): Response {
         val response = httpClient.post("${config.remote}/api/extract-job-description") {
@@ -196,7 +183,9 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
         }
 
         post("/build-cv") {
-            val extractorResponse = extractJobDescription(call)
+            val request = call.receive<CVWithAnonymous>()
+            val isAnonymous = request.isAnonymous
+            val extractorResponse = getJobDescription(request.jobDescription)
             if (extractorResponse.status != HttpStatusCode.OK) {
                 call.respond(extractorResponse.status, extractorResponse.body)
                 return@post
@@ -210,6 +199,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                     extractorResponse.body
                 )
                 parameter("profile_id", profileId)
+                parameter("is_anonymous", isAnonymous)
             }
             call.respondText(response.bodyAsText(), status = response.status)
         }
@@ -259,7 +249,27 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 parameter("makeAnonymous", makeAnonymous)
             }
             call.respondText(response.bodyAsText(), status = response.status)
-        }    }
+        }
+
+        post("/analyze-gaps") {
+            val profileId = userIdSupplier()
+
+            val extractorResponse = extractJobDescription(call)
+            if (extractorResponse.status != HttpStatusCode.OK) {
+                call.respond(extractorResponse.status, extractorResponse.body)
+                return@post
+            }
+
+            val response = httpClient.post("${config.remote}/api/analyze-gaps") {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    extractorResponse.body
+                )
+                parameter("profile_id", profileId)
+            }
+            call.respondText(response.bodyAsText(), status = response.status)
+        }
+    }
 
     route("/features") {
         route("/v0") {
@@ -269,7 +279,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 }
             }
 
-            baseFeatureProviderRouting { extractUserId(call) }
+            baseFeatureProviderRouting { extractUserId(call, httpClient, utilityDatabase) }
         }
     }
 }

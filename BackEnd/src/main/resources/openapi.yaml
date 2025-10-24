@@ -405,7 +405,7 @@ paths:
   /features/v0/build-cv:
     post:
       summary: Build CV endpoint
-      description: Generates a customized CV based on a job description
+      description: Generates a customized CV based on a job description and an anonymous flag
       operationId: buildCV
       security:
         - googleOAuth: [ ]
@@ -414,7 +414,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/WithJobDescription'
+              $ref: '#/components/schemas/CVWithAnonymous'
       responses:
         '200':
           description: Successful operation
@@ -544,6 +544,48 @@ paths:
               schema:
                 type: string
                 example: "Error generating cover letter"
+        '302':
+          description: Redirect to login on expired or missing session
+          headers:
+            Location:
+              description: Login URL
+              schema:
+                type: string
+          content: { }
+  /features/v0/analyze-gaps:
+    post:
+      summary: Analyze experience gaps endpoint
+      description: Identifies gaps between candidate's profile and job requirements with severity levels
+      operationId: analyzeGaps
+      security:
+        - googleOAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WithJobDescription'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GapAnalysisResponse'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Invalid request payload"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Error analyzing gaps"
         '302':
           description: Redirect to login on expired or missing session
           headers:
@@ -682,6 +724,17 @@ components:
           example: "Job description text or URL"
       required:
         - jobDescription
+    CVWithAnonymous:
+      type: object
+      properties:
+        jobDescription:
+          type: string
+          example: "Job description text or URL"
+        isAnonymous:
+          type: boolean
+          example: false
+      required:
+        - jobDescription
     CoverLetterRequest:
       type: object
       properties:
@@ -745,3 +798,36 @@ components:
           nullable: true
       required:
         - isAuthenticated
+    Gap:
+      type: object
+      required:
+        - gap_text
+        - severity
+        - suggestion
+      properties:
+        gap_text:
+          type: string
+          description: Description of the experience or responsibility gap
+          example: "Missing evidence of leadership experience"
+        severity:
+          type: string
+          description: Severity level of the gap
+          enum:
+            - Critical
+            - Important
+            - Nice-to-have
+          example: "Important"
+        suggestion:
+          type: string
+          description: Specific suggestion on how to address this gap
+          example: "Add details about team leadership roles in your experience section"
+    GapAnalysisResponse:
+      type: object
+      required:
+        - gaps
+      properties:
+        gaps:
+          type: array
+          description: List of identified gaps between candidate and job requirements
+          items:
+            $ref: '#/components/schemas/Gap'
