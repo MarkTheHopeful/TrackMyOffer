@@ -747,6 +747,10 @@ components:
         tone:
           type: string
           example: "professional"
+        makeAnonymous:
+          type: boolean
+          description: "If true, personal identifiers will be removed or masked in the generated letter"
+          default: false
       required:
         - jobDescription
     UserInfo:

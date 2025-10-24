@@ -22,7 +22,8 @@ export function CoverLetter() {
             const letter = await generateCoverLetter({
                 jobDescription,
                 motivations,
-                tone
+                tone,
+                makeAnonymous,
             });
             setGeneratedLetter(letter);
         } catch (err) {
