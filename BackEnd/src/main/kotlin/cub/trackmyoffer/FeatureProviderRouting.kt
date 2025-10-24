@@ -32,6 +32,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
             call.respondRedirect("/login")
         }
         val userInfo: UserInfo = getUserInfo(httpClient, userSession)
+        utilityDatabase.recordUserActivity(userInfo.email)
 
         // Get or create profile ID from the utility database
         return utilityDatabase.getOrCreateProfileId(userInfo.email, userInfo)

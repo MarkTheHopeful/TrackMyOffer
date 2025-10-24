@@ -99,7 +99,7 @@ fun Application.module() {
 
     routing {
         backendRouting()
-        authRouting(httpClient)
+        authRouting(httpClient, utilityDatabase)
         featureProviderRouting(httpClient, FeatureProviderRoutingConfig(fProviderUrl), utilityDatabase)
     }
 }

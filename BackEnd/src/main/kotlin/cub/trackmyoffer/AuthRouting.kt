@@ -13,7 +13,7 @@ import io.ktor.server.sessions.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-fun Route.authRouting(httpClient: HttpClient) {
+fun Route.authRouting(httpClient: HttpClient, utilityDatabase: UtilityDatabase) {
     val viteUrl = environment.config.propertyOrNull("ktor.frontend_vite.url")?.getString() ?: "http://localhost:5000"
 
     authenticate("google-oauth") {
@@ -27,7 +27,10 @@ fun Route.authRouting(httpClient: HttpClient) {
 
             currentPrincipal?.let { principal ->
                 principal.state?.let { state ->
-                    call.sessions.set(UserSession(state, principal.accessToken))
+                    val session = UserSession(state, principal.accessToken)
+                    call.sessions.set(session)
+                    val userInfo: UserInfo = getUserInfo(httpClient, session)
+                    utilityDatabase.recordUserActivity(userInfo.email)
                     call.respondRedirect("/home")
                     application.log.info("OAuth callback successful, session created")
                     return@get // Ensure no further response is sent
@@ -73,6 +76,7 @@ fun Route.authRouting(httpClient: HttpClient) {
         if (userSession != null) {
             if (validateToken(httpClient, userSession)) {
                 val userInfo: UserInfo = getUserInfo(httpClient, userSession)
+                utilityDatabase.recordUserActivity(userInfo.email)
                 application.log.debug("Auth status check: authenticated for user ${userInfo.email}")
                 call.respond(
                     AuthStatusResponse(
@@ -99,6 +103,26 @@ fun Route.authRouting(httpClient: HttpClient) {
                 )
             )
         }
+    }
+
+    get("/auth/streak") {
+        val userSession: UserSession? = call.sessions.get()
+        if (userSession == null) {
+            application.log.debug("Streak check: not authenticated")
+            call.respond(HttpStatusCode.Unauthorized)
+            return@get
+        }
+
+        if (!validateToken(httpClient, userSession)) {
+            application.log.debug("Streak check: token invalid or expired")
+            call.sessions.clear<UserSession>()
+            call.respond(HttpStatusCode.Unauthorized)
+            return@get
+        }
+
+        val userInfo: UserInfo = getUserInfo(httpClient, userSession)
+        val currentStreak = utilityDatabase.getCurrentStreak(userInfo.email)
+        call.respond(StreakResponse(currentStreak = currentStreak))
     }
 }
 
@@ -153,4 +177,9 @@ data class UserInfo(
 data class AuthStatusResponse(
     val isAuthenticated: Boolean,
     val userData: UserInfo?
+)
+
+@Serializable
+data class StreakResponse(
+    val currentStreak: Int
 )

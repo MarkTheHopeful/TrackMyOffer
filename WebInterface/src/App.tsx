@@ -1,13 +1,13 @@
 import React from 'react';
 import { Navigation } from './components/navigation';
 import { Button } from './components/ui/button';
-import { BellIcon, FileTextIcon, Sparkles, SearchIcon, UserIcon, ServerIcon } from 'lucide-react';
+import { BellIcon, FileTextIcon, FlameIcon, Sparkles, SearchIcon, UserIcon, ServerIcon } from 'lucide-react';
 import { CVBuilder } from './components/cv-builder';
 import { ApiDemo } from './components/ApiDemo';
 import { JobMatchScore } from './components/JobMatchScore';
 import { CoverLetter } from './components/CoverLetter';
 import { ProfileForm } from './components/profile';
-import { checkAuthStatus, authentify, logout } from './api/backend';
+import { checkAuthStatus, authentify, logout, fetchCurrentStreak } from './api/backend';
 import { LandingPage } from './components/LandingPage';
 import { PrivacyAndTerms } from "@/components/PrivacyAndTerms.tsx";
 
@@ -23,27 +23,66 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
   const [userData, setUserData] = React.useState<UserData | null>(null);
+  const [activityStreak, setActivityStreak] = React.useState<number | null>(null);
   const [imageError, setImageError] = React.useState(false);
 
   React.useEffect(() => {
-    console.log('Checking auth status...');
-    checkAuthStatus().then((status) => {
-      console.log('Auth status:', status.authenticated);
-      setIsLoggedIn(status.authenticated);
-      if (status.authenticated && status.user) {
-        const data = status.user;
-        setUserData({
-          id: String(data.id || ''),
-          email: data.email || '',
-          name: data.username || '',
-          picture: data.picture || ''
-        });
+    let isMounted = true;
+
+    const loadAuthState = async () => {
+      console.log('Checking auth status...');
+      try {
+        const status = await checkAuthStatus();
+        if (!isMounted) {
+          return;
+        }
+
+        console.log('Auth status:', status.authenticated);
+        setIsLoggedIn(status.authenticated);
+
+        if (status.authenticated && status.user) {
+          const data = status.user;
+          setUserData({
+            id: String(data.id || ''),
+            email: data.email || '',
+            name: data.username || '',
+            picture: data.picture || ''
+          });
+
+          try {
+            const streakValue = await fetchCurrentStreak();
+            if (isMounted) {
+              setActivityStreak(streakValue);
+            }
+          } catch (streakError) {
+            console.error('Streak fetch failed', streakError);
+            if (isMounted) {
+              setActivityStreak(null);
+            }
+          }
+        } else if (isMounted) {
+          setUserData(null);
+          setActivityStreak(null);
+        }
+      } catch (err) {
+        console.error('Auth check failed', err);
+        if (isMounted) {
+          setIsLoggedIn(false);
+          setUserData(null);
+          setActivityStreak(null);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
-      setIsLoading(false);
-    }).catch((err) => {
-      console.error('Auth check failed', err);
-      setIsLoading(false);
-    });
+    };
+
+    loadAuthState();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Add logging for activeView and isLoggedIn changes
@@ -168,6 +207,14 @@ function App() {
                           'Welcome'}
           </h1>
           <div className="flex items-center space-x-4">
+            {activityStreak !== null && (
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 text-brand-700 border border-brand-200">
+                <FlameIcon className="w-4 h-4" />
+                <span className="text-sm font-medium">
+                  {activityStreak} day{activityStreak === 1 ? '' : 's'}
+                </span>
+              </div>
+            )}
             <button className="p-2 hover:bg-brand-50 rounded-full text-slate-600 hover:text-brand-600 transition-colors">
               <BellIcon className="w-6 h-6" />
             </button>

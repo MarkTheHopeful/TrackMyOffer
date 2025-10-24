@@ -59,6 +59,28 @@ export async function checkAuthStatus(): Promise<{ authenticated: boolean; user?
     return { authenticated: false };
 }
 
+export async function fetchCurrentStreak(): Promise<number> {
+    const response = await fetch(`${API_BASE_URL}/auth/streak`, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+        },
+        credentials: 'include',
+        mode: 'cors'
+    });
+
+    if (response.status === 401) {
+        return 0;
+    }
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch streak: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return typeof data.currentStreak === 'number' ? data.currentStreak : 0;
+}
+
 export async function logout(): Promise<void> {
     try {
         const response = await fetch(`${API_BASE_URL}/logout`, {
