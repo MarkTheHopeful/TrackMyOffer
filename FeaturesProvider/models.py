@@ -96,3 +96,13 @@ class GeneratedCV(BaseModel):
 class ReviewResponse(BaseModel):
     matchScore: int
     suggestions: List[str]
+
+
+class Gap(BaseModel):
+    gap_text: str = Field(..., description="Description of the experience or responsibility gap")
+    severity: str = Field(..., description="Severity level: Critical, Important, or Nice-to-have")
+    suggestion: str = Field(..., description="Specific suggestion on how to address this gap")
+
+
+class GapAnalysisResponse(BaseModel):
+    gaps: List[Gap] = Field(..., description="List of identified gaps between candidate and job requirements")

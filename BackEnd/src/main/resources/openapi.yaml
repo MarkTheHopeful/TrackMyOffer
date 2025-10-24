@@ -552,6 +552,48 @@ paths:
               schema:
                 type: string
           content: { }
+  /features/v0/analyze-gaps:
+    post:
+      summary: Analyze experience gaps endpoint
+      description: Identifies gaps between candidate's profile and job requirements with severity levels
+      operationId: analyzeGaps
+      security:
+        - googleOAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WithJobDescription'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GapAnalysisResponse'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Invalid request payload"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Error analyzing gaps"
+        '302':
+          description: Redirect to login on expired or missing session
+          headers:
+            Location:
+              description: Login URL
+              schema:
+                type: string
+          content: { }
 components:
   schemas:
     EducationEntry:
@@ -741,3 +783,36 @@ components:
           nullable: true
       required:
         - isAuthenticated
+    Gap:
+      type: object
+      required:
+        - gap_text
+        - severity
+        - suggestion
+      properties:
+        gap_text:
+          type: string
+          description: Description of the experience or responsibility gap
+          example: "Missing evidence of leadership experience"
+        severity:
+          type: string
+          description: Severity level of the gap
+          enum:
+            - Critical
+            - Important
+            - Nice-to-have
+          example: "Important"
+        suggestion:
+          type: string
+          description: Specific suggestion on how to address this gap
+          example: "Add details about team leadership roles in your experience section"
+    GapAnalysisResponse:
+      type: object
+      required:
+        - gaps
+      properties:
+        gaps:
+          type: array
+          description: List of identified gaps between candidate and job requirements
+          items:
+            $ref: '#/components/schemas/Gap'

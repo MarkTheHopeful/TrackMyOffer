@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusIcon, Trash2Icon, SaveIcon, CopyIcon, DownloadIcon } from 'lucide-react';
+import { PlusIcon, Trash2Icon, SaveIcon, CopyIcon, DownloadIcon, AlertCircleIcon } from 'lucide-react';
 import { Experience } from '@/api/Experience';
-import { getExperiences, createExperience, deleteExperience, createCV } from '@/api/backend';
+import { getExperiences, createExperience, deleteExperience, createCV, analyzeGaps } from '@/api/backend';
+import { Gap } from '@/api/GapAnalysis';
 
 interface ExperienceWithSelection extends Experience {
   selected: boolean;
@@ -20,6 +21,8 @@ export function CVBuilder() {
   const [hasChanges, setHasChanges] = useState(false);
   const [generatedCV, setGeneratedCV] = useState('');
   const [generatingCV, setGeneratingCV] = useState(false);
+  const [analyzingGaps, setAnalyzingGaps] = useState(false);
+  const [gaps, setGaps] = useState<Gap[]>([]);
 
   useEffect(() => {
     loadExperiences();
@@ -86,6 +89,20 @@ export function CVBuilder() {
       setError('Failed to generate tailored CV. Please try again.');
     } finally {
       setGeneratingCV(false);
+    }
+  };
+
+  const handleAnalyzeGaps = async () => {
+    setAnalyzingGaps(true);
+    setError(null);
+    try {
+      const result = await analyzeGaps(jobDescription);
+      setGaps(result.gaps);
+    } catch (err) {
+      console.error('Error analyzing gaps:', err);
+      setError('Failed to analyze gaps. Please try again.');
+    } finally {
+      setAnalyzingGaps(false);
     }
   };
 
@@ -249,7 +266,7 @@ export function CVBuilder() {
             rows={4}
             className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 mb-4"
             placeholder="Paste job description or enter URL..."
-            disabled={isLoading || generatingCV}
+            disabled={isLoading || generatingCV || analyzingGaps}
           />
           <label className="flex items-start gap-2 mb-4 text-sm text-slate-700">
             <input
@@ -266,16 +283,65 @@ export function CVBuilder() {
               </span>
             </span>
           </label>
-          <Button 
-            variant="primary" 
-            className="w-full" 
-            disabled={isLoading || generatingCV || !jobDescription} 
-            onClick={handleGenerateCV}
-          >
-            {generatingCV ? 'Generating...' : 'Generate Tailored CV'}
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              variant="secondary"
+              className="flex-1"
+              disabled={isLoading || generatingCV || analyzingGaps || !jobDescription}
+              onClick={handleAnalyzeGaps}
+            >
+              <AlertCircleIcon className="w-4 h-4 mr-2" />
+              {analyzingGaps ? 'Analyzing...' : 'Analyze Gaps'}
+            </Button>
+            <Button
+              variant="primary"
+              className="flex-1"
+              disabled={isLoading || generatingCV || analyzingGaps || !jobDescription}
+              onClick={handleGenerateCV}
+            >
+              {generatingCV ? 'Generating...' : 'Generate Tailored CV'}
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* Gap Analysis Section */}
+      {gaps.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold text-slate-900 mb-4">Experience Gaps Analysis</h2>
+          <div className="bg-white rounded-xl p-6 shadow-lg shadow-slate-200/50 border border-slate-200">
+            <p className="text-slate-600 mb-4">
+              We've identified some areas where you could add more information to strengthen your application:
+            </p>
+            <div className="space-y-3">
+              {gaps.map((gap, index) => (
+                <div key={index} className="border border-slate-200 rounded-lg p-4 hover:border-brand-300 transition-colors">
+                  <div className="flex items-start gap-3">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${
+                      gap.severity === 'Critical'
+                        ? 'bg-red-100 text-red-800'
+                        : gap.severity === 'Important'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-green-100 text-green-800'
+                    }`}>
+                      {gap.severity}
+                    </span>
+                    <div className="flex-1">
+                      <p className="text-slate-900 font-medium mb-1">{gap.gap_text}</p>
+                      <p className="text-slate-600 text-sm">{gap.suggestion}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-800">
+                💡 <strong>Tip:</strong> After addressing these gaps in your profile, generate a tailored CV to see how your improvements match the job requirements.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Generated CV Section - Full Width */}
       {generatedCV && (
