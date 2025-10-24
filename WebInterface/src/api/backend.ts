@@ -4,8 +4,12 @@ import { EducationEntry } from "./EducationEntry.ts";
 import { Experience } from "./Experience.ts";
 import { CV_Markdown } from "./CV_Markdown.ts";
 import { ReviewResult } from "./ReviewResult.ts";
+<<<<<<< HEAD
 import { ExportResponse } from "@/api/ExportResponse.ts";
 import { GapAnalysisResult } from "./GapAnalysis.ts";
+=======
+import {ExportResponse} from "@/api/ExportResponse.ts";
+>>>>>>> 9582b0d ([Backend] fixing any types)
 
 // API base URL is injected at build time via Vite config (define.__API_BASE_URL__)
 const API_BASE_URL: string = __API_BASE_URL__;
