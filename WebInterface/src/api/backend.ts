@@ -264,7 +264,20 @@ export async function deleteEducation(educationId: number): Promise<void> {
     }
 }
 
-export async function createCV(jobDescription: string, makeAnonymous = false): Promise<CV_Markdown> {
+export async function createCV(
+    jobDescription: string,
+    makeAnonymous = false,
+    region?: string | null
+): Promise<CV_Markdown> {
+    const payload: Record<string, unknown> = {
+        jobDescription,
+        makeAnonymous,
+    };
+
+    if (region) {
+        payload.region = region;
+    }
+
     const response = await fetch(`${API_BASE_URL}/features/v0/build-cv`, {
         method: 'POST',
         credentials: 'include',
@@ -272,7 +285,7 @@ export async function createCV(jobDescription: string, makeAnonymous = false): P
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         },
-        body: JSON.stringify({ jobDescription, makeAnonymous })
+        body: JSON.stringify(payload)
     });
     if (!response.ok) {
         throw new Error(`Failed to generate CV: ${response.statusText}`);

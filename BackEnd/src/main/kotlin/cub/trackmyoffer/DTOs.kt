@@ -49,3 +49,10 @@ data class CoverLetterRequest(
     val motivations: String,
     val tone: String,
 )
+
+@Serializable
+data class CvGenerationRequest(
+    val jobDescription: String,
+    val makeAnonymous: Boolean = false,
+    val region: String? = null,
+)
