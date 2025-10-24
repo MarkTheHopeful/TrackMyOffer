@@ -220,6 +220,27 @@ paths:
               schema:
                 type: string
           content: { }
+  /auth/streak:
+    get:
+      summary: Get current activity streak
+      description: Returns the number of consecutive days the authenticated user has been active.
+      operationId: getLoginStreak
+      security:
+        - googleOAuth: [ ]
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currentStreak:
+                    type: integer
+                    description: Number of consecutive active days.
+                    example: 4
+        '401':
+          description: Unauthorized or expired session
     get:
       summary: Get education entries
       description: Retrieves all education entries for the authenticated user
