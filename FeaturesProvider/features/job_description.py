@@ -2,6 +2,7 @@ from loguru import logger
 from models import JobDescriptionResponse
 
 from .ai_api import request_model
+from .web_scraper import scrape_url, ScrapingError
 
 
 def text_job_position_from_link(link_as_text: str) -> str:
@@ -16,12 +17,23 @@ def text_job_position_from_link(link_as_text: str) -> str:
     - Job description
     All in text form, possible to parse for human and an LLM
     """
-    # FIXME: Your code goes here...
-    return """
-    SomeCorp Ltd, located on Mockers avenue 48, 03523 Berlin, looks for a Senior Software Engineer for their project SuperMocker. 
-    
-    Minimum 10 years of experience with Python is mandatory, architectural knowledge is highly recommended. 
-    """.strip()
+    logger.info(f"Attempting to scrape job posting from URL: {link_as_text}")
+
+    try:
+        extracted_text = scrape_url(link_as_text)
+
+        if not extracted_text:
+            raise ValueError("No content extracted from URL")
+
+        logger.info(f"Successfully extracted {len(extracted_text)} characters from URL")
+        return extracted_text
+
+    except ScrapingError as e:
+        logger.error(f"Scraping failed for URL {link_as_text}: {str(e)}")
+        raise ValueError(f"Failed to scrape job posting: {str(e)}")
+    except Exception as e:
+        logger.error(f"Unexpected error scraping URL {link_as_text}: {str(e)}")
+        raise ValueError(f"Unexpected error: {str(e)}")
 
 
 def job_description_from_text(job_description_as_text: str) -> JobDescriptionResponse:
