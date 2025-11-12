@@ -61,15 +61,8 @@ def rewrite_achievement_statement(
 
     response = request_model(prompt)
     if response is None:
-        # Provide a fallback if AI fails
-        logger.warning("AI service unavailable, using basic enhancement")
-        # Simple enhancement: capitalize first letter and add period if needed
-        enhanced = achievement_text.strip()
-        if not enhanced.endswith('.'):
-            enhanced += '.'
-        return enhanced[0].upper() + enhanced[1:] if enhanced else achievement_text
+        return "AI service unavailable, please try again later."
 
-    # Clean up the response - remove any extra whitespace or quotes
     rewritten = response.strip()
     if rewritten.startswith('"') and rewritten.endswith('"'):
         rewritten = rewritten[1:-1]

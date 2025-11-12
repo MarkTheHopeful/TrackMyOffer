@@ -18,7 +18,7 @@ const NavItem = ({ icon, label, active, onClick }: NavItemProps) => (
         : 'text-slate-600 hover:bg-brand-50 hover:text-brand-600'
     )}
   >
-    {icon}
+    <span className="flex-shrink-0">{icon}</span>
     <span className="font-medium whitespace-nowrap">{label}</span>
   </button>
 );
@@ -30,7 +30,7 @@ interface NavigationProps {
 
 export const Navigation = ({ activeView, setActiveView }: NavigationProps) => {
   return (
-    <nav className="w-64 bg-white border-r border-slate-200 p-4">
+    <nav className="w-72 bg-white border-r border-slate-200 p-4">
       <div className="flex items-center gap-3 px-4 py-3 mb-6">
         <Sparkles className="w-8 h-8 text-brand-500" />
         <span className="text-xl font-semibold bg-gradient-to-r from-brand-600 to-accent-600 bg-clip-text text-transparent">
