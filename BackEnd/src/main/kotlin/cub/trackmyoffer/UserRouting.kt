@@ -62,7 +62,9 @@ fun Route.userRouting(httpClient: HttpClient, utilityDatabase: UtilityDatabase, 
     }
 
     suspend fun deleteUser(call: RoutingCall) {
-        val userId = extractUserId(call, httpClient, utilityDatabase)
+        val userSession: UserSession = call.sessions.get() ?: throw RuntimeException("Invalid session during request")
+        val userInfo: UserInfo = getUserInfo(httpClient, userSession)
+        val userId = utilityDatabase.getOrCreateProfileId(userInfo.email, userInfo)
 
         val userResponse = extractExportResponse(call)
 
@@ -78,6 +80,8 @@ fun Route.userRouting(httpClient: HttpClient, utilityDatabase: UtilityDatabase, 
 
         val profileDeleteResponse = httpClient.delete("${config.remote}/api/profile/${userId}")
         checkResponse(profileDeleteResponse)
+
+        utilityDatabase.deleteMappingByEmail(userInfo.email)
 
         call.sessions.clear<UserSession>()
     }

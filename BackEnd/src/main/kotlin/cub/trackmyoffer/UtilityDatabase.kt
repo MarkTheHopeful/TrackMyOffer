@@ -33,6 +33,12 @@ object UserProfiles : Table() {
  */
 class UtilityDatabase(private val httpClient: HttpClient, private val featureProviderUrl: String) {
 
+    fun deleteMappingByEmail(email: String) {
+        transaction {
+            UserProfiles.deleteWhere { UserProfiles.email eq email }
+        }
+    }
+
     /**
      * Initializes the database connection and creates the necessary tables.
      */
@@ -105,6 +111,28 @@ class UtilityDatabase(private val httpClient: HttpClient, private val featurePro
                 .singleOrNull()
         }
 
+        if (existingProfileId != null) {
+            return try {
+                val resp = httpClient.get("$featureProviderUrl/api/profile/$existingProfileId") {}
+                if (resp.status.isSuccess()) {
+                    existingProfileId
+                } else if (resp.status == HttpStatusCode.NotFound) {
+                    deleteMappingByEmail(email)
+                    val newId = createNewProfile(userInfo)
+                    transaction {
+                        UserProfiles.insert {
+                            it[UserProfiles.email] = email
+                            it[profileId] = newId
+                        }
+                    }
+                    newId
+                } else {
+                    throw RuntimeException("Feature provider returned ${resp.status} while verifying profile $existingProfileId")
+                }
+            } catch (e: Exception) {
+                throw e
+            }
+        }
         // If the email exists, return the profile ID
         if (existingProfileId != null) {
             return existingProfileId
