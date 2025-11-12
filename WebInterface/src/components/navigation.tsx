@@ -1,4 +1,4 @@
-import { BriefcaseIcon, FileTextIcon, HomeIcon, SettingsIcon, Sparkles, ServerIcon, PenIcon, UserIcon } from 'lucide-react';
+import { BriefcaseIcon, FileTextIcon, HomeIcon, SettingsIcon, Sparkles, ServerIcon, PenIcon, UserIcon, ZapIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface NavItemProps {
@@ -18,19 +18,19 @@ const NavItem = ({ icon, label, active, onClick }: NavItemProps) => (
         : 'text-slate-600 hover:bg-brand-50 hover:text-brand-600'
     )}
   >
-    {icon}
-    <span className="font-medium">{label}</span>
+    <span className="flex-shrink-0">{icon}</span>
+    <span className="font-medium whitespace-nowrap">{label}</span>
   </button>
 );
 
 interface NavigationProps {
   activeView: string;
-  setActiveView: (view: 'home' | 'cv-builder' | 'job-match-score' | 'cover-letter' | 'api-demo' | 'profile' | 'privacy-and-terms') => void;
+  setActiveView: (view: 'home' | 'cv-builder' | 'job-match-score' | 'cover-letter' | 'api-demo' | 'profile' | 'privacy-and-terms' | 'amplify-achievements') => void;
 }
 
 export const Navigation = ({ activeView, setActiveView }: NavigationProps) => {
   return (
-    <nav className="w-64 bg-white border-r border-slate-200 p-4">
+    <nav className="w-72 bg-white border-r border-slate-200 p-4">
       <div className="flex items-center gap-3 px-4 py-3 mb-6">
         <Sparkles className="w-8 h-8 text-brand-500" />
         <span className="text-xl font-semibold bg-gradient-to-r from-brand-600 to-accent-600 bg-clip-text text-transparent">
@@ -69,6 +69,12 @@ export const Navigation = ({ activeView, setActiveView }: NavigationProps) => {
           onClick={() => setActiveView('cover-letter')}
         />
         <NavItem
+          icon={<ZapIcon size={20} />}
+          label="Amplify Achievements"
+          active={activeView === 'amplify-achievements'}
+          onClick={() => setActiveView('amplify-achievements')}
+        />
+        <NavItem
           icon={<ServerIcon size={20} />}
           label="API Demo"
           active={activeView === 'api-demo'}
@@ -80,10 +86,10 @@ export const Navigation = ({ activeView, setActiveView }: NavigationProps) => {
           active={activeView === 'settings'}
         />
         <NavItem
-            icon={<FileTextIcon size={20} />}
-            label="Privacy and Terms"
-            active={activeView === 'privacy-and-terms'}
-            onClick={() => setActiveView('privacy-and-terms')}
+          icon={<FileTextIcon size={20} />}
+          label="Privacy and Terms"
+          active={activeView === 'privacy-and-terms'}
+          onClick={() => setActiveView('privacy-and-terms')}
         />
       </div>
     </nav>
