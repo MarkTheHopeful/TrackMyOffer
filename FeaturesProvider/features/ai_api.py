@@ -7,12 +7,12 @@ from loguru import logger
 # Load environment variables from .env file
 load_dotenv()
 
-API_URL = "https://openrouter.ai/api/v1/chat/completions"
+API_URL = "https://api.openai.com/v1/chat/completions"
 API_KEY = os.getenv("API_KEY")
+API_TIMEOUT = 20
 
-# MODEL_NAME = "deepseek/deepseek-v3-base:free"
-MODEL_NAME = "google/gemini-2.0-flash-exp:free"
-# MODEL_NAME = "nousresearch/deephermes-3-mistral-24b-preview:free"
+# MODEL_NAME = "gpt-4o"
+MODEL_NAME = "gpt-4o-mini"
 
 
 def request_model(prompt: str) -> str | None:
@@ -33,11 +33,12 @@ def request_model(prompt: str) -> str | None:
     }
 
     try:
-        response = requests.post(API_URL, headers=headers, json=data, timeout=5)
+        response = requests.post(API_URL, headers=headers, json=data, timeout=API_TIMEOUT)
 
         if response.status_code == 200:
             json_response = response.json()
-            if "choices" in json_response:
+            logger.info(f"API Response: {json_response}")
+            if "choices" in json_response and len(json_response["choices"]) > 0:
                 return json_response["choices"][0]["message"]["content"]
 
         logger.error(f"API Error: {response.status_code}, Response: {response.text}")
