@@ -14,7 +14,7 @@ class TestRewriteAchievementStatement:
         """Test basic enhancement fallback when AI service fails"""
         with patch('features.achievement_rewriter.request_model', return_value=None):
             result = rewrite_achievement_statement("i helped the team")
-            assert result == "I helped the team."
+            assert result == "AI service unavailable, please try again later."
 
     def test_ai_response_processing(self):
         """Test that AI response is properly processed"""
