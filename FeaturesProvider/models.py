@@ -106,3 +106,17 @@ class Gap(BaseModel):
 
 class GapAnalysisResponse(BaseModel):
     gaps: List[Gap] = Field(..., description="List of identified gaps between candidate and job requirements")
+class AchievementsRewriteItem(BaseModel):
+    original_achievement: str
+    rewritten_achievement: str
+    style: str
+
+
+class AchievementsRewriteRequest(BaseModel):
+    achievements: List[str]
+    style: Optional[str] = "professional"
+    context: Optional[str] = ""
+
+
+class AchievementsRewriteResponse(BaseModel):
+    results: List[AchievementsRewriteItem]

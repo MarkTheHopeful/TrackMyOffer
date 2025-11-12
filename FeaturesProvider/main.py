@@ -11,6 +11,7 @@ from features import (
     md_cv_from_user_and_job,
     request_model,
     review_from_user_and_job,
+    rewrite_achievement_statement,
     text_job_position_from_link,
 )
 from loguru import logger
@@ -23,6 +24,9 @@ from models import (
     GeneratedCV,
     JobDescriptionReceive,
     JobDescriptionResponse,
+    AchievementsRewriteRequest,
+    AchievementsRewriteResponse,
+    AchievementsRewriteItem,
     ProfileCreate,
     ProfileResponse,
     ReviewResponse,
@@ -325,3 +329,68 @@ async def analyze_experience_gaps(
 
     result = analyze_gaps(profile, educations, experiences, job_description)
     return result
+
+@app.post("/api/rewrite-achievement")
+def rewrite_achievement(
+    achievement_text: str,
+    style: str = "professional",
+    context: str = "",
+):
+    """Rewrite and enhance an achievement statement to make it more impactful"""
+
+    if not achievement_text.strip():
+        raise HTTPException(status_code=400, detail="Achievement text cannot be empty")
+
+    try:
+        rewritten_achievement = rewrite_achievement_statement(
+            achievement_text=achievement_text,
+            style=style,  # type: ignore
+            context=context,
+        )
+
+        return {
+            "original_achievement": achievement_text,
+            "rewritten_achievement": rewritten_achievement,
+            "style": style,
+        }
+    except Exception as e:
+        logger.error(f"Error rewriting achievement: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="An unexpected error occurred while rewriting the achievement statement.")
+
+
+@app.post("/api/rewrite-achievements", response_model=AchievementsRewriteResponse)
+def rewrite_achievements(
+    payload: AchievementsRewriteRequest,
+):
+    """Batch rewrite and enhance multiple achievement statements"""
+
+    if not payload.achievements or len(payload.achievements) == 0:
+        raise HTTPException(status_code=400, detail="At least one achievement must be provided")
+
+    results: list[AchievementsRewriteItem] = []
+    for original in payload.achievements:
+        if not original or not original.strip():
+            # Keep empty ones as-is with a simple message
+            results.append(
+                AchievementsRewriteItem(
+                    original_achievement=original,
+                    rewritten_achievement="Please provide an achievement statement to rewrite.",
+                    style=payload.style or "professional",
+                )
+            )
+            continue
+
+        rewritten = rewrite_achievement_statement(
+            achievement_text=original,
+            style=payload.style or "professional",  # type: ignore
+            context=payload.context or "",
+        )
+        results.append(
+            AchievementsRewriteItem(
+                original_achievement=original,
+                rewritten_achievement=rewritten,
+                style=payload.style or "professional",
+            )
+        )
+
+    return AchievementsRewriteResponse(results=results)

@@ -56,3 +56,36 @@ data class CVWithAnonymous(
     val jobDescription: String,
     val makeAnonymous: Boolean = false,
 )
+
+@Serializable
+data class AchievementRewriteRequest(
+    val achievementText: String,
+    val style: String? = null,
+    val context: String? = null,
+)
+
+@Serializable
+data class AchievementRewriteResponse(
+    @SerialName("original_achievement") val originalAchievement: String,
+    @SerialName("rewritten_achievement") val rewrittenAchievement: String,
+    val style: String,
+)
+
+@Serializable
+data class AchievementsRewriteRequest(
+    val achievements: List<String>,
+    val style: String? = null,
+    val context: String? = null,
+)
+
+@Serializable
+data class AchievementsRewriteItem(
+    @SerialName("original_achievement") val originalAchievement: String,
+    @SerialName("rewritten_achievement") val rewrittenAchievement: String,
+    val style: String,
+)
+
+@Serializable
+data class AchievementsRewriteResponse(
+    val results: List<AchievementsRewriteItem>
+)
