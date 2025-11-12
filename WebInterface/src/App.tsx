@@ -7,6 +7,7 @@ import { ApiDemo } from './components/ApiDemo';
 import { JobMatchScore } from './components/JobMatchScore';
 import { CoverLetter } from './components/CoverLetter';
 import { ProfileForm } from './components/profile';
+import { AmplifyAchievements } from './components/AmplifyAchievements';
 import { checkAuthStatus, authentify, logout } from './api/backend';
 import { LandingPage } from './components/LandingPage';
 import { PrivacyAndTerms } from "@/components/PrivacyAndTerms.tsx";
@@ -19,7 +20,7 @@ interface UserData {
 }
 
 function App() {
-  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'job-match-score' | 'cover-letter' | 'api-demo' | 'profile' | 'privacy-and-terms'>('home');
+  const [activeView, setActiveView] = React.useState<'home' | 'cv-builder' | 'job-match-score' | 'cover-letter' | 'api-demo' | 'profile' | 'privacy-and-terms' | 'amplify-achievements'>('home');
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
   const [userData, setUserData] = React.useState<UserData | null>(null);
@@ -84,6 +85,8 @@ function App() {
         return <JobMatchScore />;
       case 'cover-letter':
         return <CoverLetter />;
+      case 'amplify-achievements':
+        return <AmplifyAchievements />;
       case 'api-demo':
         return <ApiDemo />;
       case 'profile':
@@ -164,8 +167,9 @@ function App() {
                   activeView === 'profile' ? 'Profile' :
                     activeView === 'job-match-score' ? 'Job Match Score' :
                       activeView === 'cover-letter' ? 'Cover Letter' :
-                        activeView === 'privacy-and-terms' ? 'Privacy And Terms' :
-                          'Welcome'}
+                        activeView === 'amplify-achievements' ? 'Amplify Achievements' :
+                          activeView === 'privacy-and-terms' ? 'Privacy And Terms' :
+                            'Welcome'}
           </h1>
           <div className="flex items-center space-x-4">
             <button className="p-2 hover:bg-brand-50 rounded-full text-slate-600 hover:text-brand-600 transition-colors">

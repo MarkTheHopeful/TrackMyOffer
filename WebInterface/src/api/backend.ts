@@ -342,3 +342,35 @@ export async function deleteUserData(): Promise<void> {
     }
 }
 
+interface AchievementsRewriteRequest {
+    achievements: string[];
+    style?: string;
+    context?: string;
+}
+
+interface AchievementsRewriteItem {
+    original_achievement: string;
+    rewritten_achievement: string;
+    style: string;
+}
+
+interface AchievementsRewriteResponse {
+    results: AchievementsRewriteItem[];
+}
+
+export async function rewriteAchievements(request: AchievementsRewriteRequest): Promise<AchievementsRewriteResponse> {
+    const response = await fetch(`${API_BASE_URL}/features/v0/rewrite-achievements`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify(request),
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to rewrite achievements: ${response.statusText}`);
+    }
+    return response.json();
+}
+

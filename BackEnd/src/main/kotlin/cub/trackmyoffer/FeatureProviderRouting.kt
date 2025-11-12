@@ -273,23 +273,17 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
             }
             call.respondText(response.bodyAsText(), status = response.status)
         }
-        
-        post("/rewrite-achievement") {
-            val request = call.receive<AchievementRewriteRequest>()
 
-            val style = request.style ?: "professional"
-            val context = request.context ?: ""
+        post("/rewrite-achievements") {
+            val request = call.receive<AchievementsRewriteRequest>()
 
-            val response = httpClient.post("${config.remote}/api/rewrite-achievement") {
+            val response = httpClient.post("${config.remote}/api/rewrite-achievements") {
                 contentType(ContentType.Application.Json)
-                parameter("achievement_text", request.achievementText)
-                parameter("style", style)
-                parameter("context", context)
+                setBody(request)
             }
 
             if (response.status == HttpStatusCode.OK) {
-                val responseData = response.bodyAsText()
-                call.respondText(responseData, status = response.status)
+                call.respondText(response.bodyAsText(), status = response.status)
             } else {
                 call.respond(response.status, response.bodyAsText())
             }
@@ -305,21 +299,6 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
             }
 
             baseFeatureProviderRouting { extractUserId(call, httpClient, utilityDatabase) }
-        }
-
-        post("/rewrite-achievements") {
-            val request = call.receive<AchievementsRewriteRequest>()
-
-            val response = httpClient.post("${config.remote}/api/rewrite-achievements") {
-                contentType(ContentType.Application.Json)
-                setBody(request)
-            }
-
-            if (response.status == HttpStatusCode.OK) {
-                call.respondText(response.bodyAsText(), status = response.status)
-            } else {
-                call.respond(response.status, response.bodyAsText())
-            }
         }
     }
 }

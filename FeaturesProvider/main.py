@@ -330,34 +330,6 @@ async def analyze_experience_gaps(
     result = analyze_gaps(profile, educations, experiences, job_description)
     return result
 
-@app.post("/api/rewrite-achievement")
-def rewrite_achievement(
-    achievement_text: str,
-    style: str = "professional",
-    context: str = "",
-):
-    """Rewrite and enhance an achievement statement to make it more impactful"""
-
-    if not achievement_text.strip():
-        raise HTTPException(status_code=400, detail="Achievement text cannot be empty")
-
-    try:
-        rewritten_achievement = rewrite_achievement_statement(
-            achievement_text=achievement_text,
-            style=style,  # type: ignore
-            context=context,
-        )
-
-        return {
-            "original_achievement": achievement_text,
-            "rewritten_achievement": rewritten_achievement,
-            "style": style,
-        }
-    except Exception as e:
-        logger.error(f"Error rewriting achievement: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="An unexpected error occurred while rewriting the achievement statement.")
-
-
 @app.post("/api/rewrite-achievements", response_model=AchievementsRewriteResponse)
 def rewrite_achievements(
     payload: AchievementsRewriteRequest,
