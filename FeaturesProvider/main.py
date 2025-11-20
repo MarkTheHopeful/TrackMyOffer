@@ -212,7 +212,13 @@ def extract_job_description(job_description_raw: JobDescriptionReceive):
 
 
 @app.post("/api/build-cv", response_model=GeneratedCV)
-def generate_cv(profile_id: int, job_description: JobDescriptionResponse, makeAnonymous: bool = False, db: Session = Depends(get_db)):
+def generate_cv(
+    profile_id: int,
+    job_description: JobDescriptionResponse,
+    region: str | None = None,
+    makeAnonymous: bool = False,
+    db: Session = Depends(get_db),
+):
     """
     Generates a tailored cv for a given user and job_description (already parsed)
     """
@@ -223,13 +229,12 @@ def generate_cv(profile_id: int, job_description: JobDescriptionResponse, makeAn
         raise HTTPException(status_code=404, detail=f"Profile with id {profile_id} not found")
     educations = db_manager.get_educations(db, profile_id)
     experiences = db_manager.get_experiences(db, profile_id)
-    cv = md_cv_from_user_and_job(profile, educations, experiences, job_description)
+    cv = md_cv_from_user_and_job(profile, educations, experiences, job_description, region=region)
     if makeAnonymous:
         full_name = f"{profile.first_name or ''} {profile.last_name or ''}".strip()
         names = [full_name] if full_name else []
         cv.cv_text = anonymize_text(cv.cv_text, names_to_mask=names)
     return cv
-
 
 @app.post("/api/match-position", response_model=ReviewResponse)
 async def review_cv(profile_id: int, job_description: JobDescriptionResponse, db: Session = Depends(get_db)):

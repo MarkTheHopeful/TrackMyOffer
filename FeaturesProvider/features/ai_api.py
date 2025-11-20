@@ -17,24 +17,31 @@ API_TIMEOUT = 20
 MODEL_NAME = "gpt-4o-mini"
 
 
-def _request_model(prompt: str, api_url: str, api_key: str, api_timeout: int, service_name: str) -> str | None:
+def _request_model(
+    prompt: str,
+    api_url: str,
+    api_key: str,
+    api_timeout: int,
+    service_name: str,
+    system_prompt: str | None = None
+) -> str | None:
     if not api_key:
         logger.warning(f"{service_name} API key not set, skipping {service_name}")
         return None
-    
+
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
     }
 
+    messages = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+    messages.append({"role": "user", "content": prompt})
+
     data = {
         "model": MODEL_NAME,
-        "messages": [
-            {
-                "role": "user",
-                "content": prompt,
-            }
-        ],
+        "messages": messages,
         "stream": False,
     }
 
@@ -59,7 +66,7 @@ def request_model(prompt: str) -> str | None:
     result = _request_model(prompt, OPENAI_API_URL, OPENAI_API_KEY, API_TIMEOUT, "OpenAI")
     if result is not None:
         return result
-    
+
     logger.info("OpenAI failed, falling back to OpenRouter")
     return _request_model(prompt, OPENROUTER_API_URL, OPENROUTER_API_KEY, API_TIMEOUT, "OpenRouter")
 
