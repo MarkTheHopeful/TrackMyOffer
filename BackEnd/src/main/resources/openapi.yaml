@@ -678,6 +678,46 @@ paths:
               schema:
                 type: string
           content: { }
+  /features/v0/salary-estimation:
+    get:
+      summary: Get salary estimation
+      description: Gets salary estimate based on cv and job description
+      operationId: salaryEstimation
+      security:
+        - googleOAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalaryEstimation'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Generated salary estimation
+                properties:
+                  salary_estimation:
+                    type: string
+                    example: "Generated salary estimation"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Error getting salary estimation"
+        '302':
+          description: Redirect to login on expired or missing session
+          headers:
+            Location:
+              description: Login URL
+              schema:
+                type: string
+          content: { }
 components:
   schemas:
     EducationEntry:
@@ -909,6 +949,18 @@ components:
             $ref: '#/components/schemas/AchievementsRewriteItem'
       required:
         - results
+    SalaryEstimation:
+      type: object
+      properties:
+        jobDescription:
+          type: string
+          example: "Job description text or URL"
+        cv:
+          type: string
+          example: "CV text or URL"
+      required:
+        - jobDescription
+        - cv
     UserInfo:
       type: object
       properties:
