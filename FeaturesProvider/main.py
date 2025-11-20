@@ -205,10 +205,40 @@ def get_experiences(profile_id: int, db: Session = Depends(get_db)):
 @app.post("/api/extract-job-description", response_model=JobDescriptionResponse)
 def extract_job_description(job_description_raw: JobDescriptionReceive):
     jd_text = job_description_raw.jobDescription
-    if jd_text.startswith("https://") or jd_text.startswith("http://"):
-        jd_text = text_job_position_from_link(jd_text)
 
-    return job_description_from_text(jd_text)
+    # Check if input is a URL
+    if jd_text.startswith("https://") or jd_text.startswith("http://"):
+        try:
+            logger.info(f"URL detected, attempting to extract content from: {jd_text}")
+            jd_text = text_job_position_from_link(jd_text)
+        except ValueError as e:
+            # Scraping failed, return user-friendly error
+            logger.error(f"Failed to extract job posting from URL: {str(e)}")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Unable to extract job posting from URL: {str(e)}"
+            )
+        except Exception as e:
+            logger.error(f"Unexpected error during URL extraction: {str(e)}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="An unexpected error occurred while processing the URL. Please try pasting the job description text manually."
+            )
+
+    try:
+        return job_description_from_text(jd_text)
+    except ValueError as e:
+        logger.error(f"Failed to parse job description: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to parse job description: {str(e)}"
+        )
+    except Exception as e:
+        logger.error(f"Unexpected error during job description parsing: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred while parsing the job description."
+        )
 
 
 @app.post("/api/build-cv", response_model=GeneratedCV)
