@@ -44,16 +44,10 @@ data class WithJobDescription(
 )
 
 @Serializable
- data class CoverLetterRequest(
-     val jobDescription: String,
-     val motivations: String,
-     val tone: String,
-     val makeAnonymous: Boolean = false,
- )
-
-@Serializable
-data class CVWithAnonymous(
+data class CoverLetterRequest(
     val jobDescription: String,
+    val motivations: String,
+    val tone: String,
     val makeAnonymous: Boolean = false,
 )
 
@@ -88,4 +82,11 @@ data class AchievementsRewriteItem(
 @Serializable
 data class AchievementsRewriteResponse(
     val results: List<AchievementsRewriteItem>
+)
+
+@Serializable
+data class CvGenerationRequest(
+    val jobDescription: String,
+    val makeAnonymous: Boolean = false,
+    val region: String? = null,
 )

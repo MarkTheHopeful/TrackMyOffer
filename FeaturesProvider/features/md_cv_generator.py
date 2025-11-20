@@ -3,6 +3,7 @@ from loguru import logger
 from models import GeneratedCV, JobDescriptionResponse
 
 from .ai_api import request_model
+from .prompt_templates import get_system_prompt
 from .review_user_application import _format_education, _format_experience
 
 
@@ -11,6 +12,7 @@ def md_cv_from_user_and_job(
     educations: list[Education],
     experiences: list[Experience],
     job_description: JobDescriptionResponse,
+    region: str | None = None,
 ) -> GeneratedCV:
     """
     Given the full information about a user, generate a tailored markdown CV
@@ -21,46 +23,35 @@ def md_cv_from_user_and_job(
     - job_description
     """
 
+    system_prompt = get_system_prompt(region)
+
     # Create a comprehensive prompt for the AI model
-    prompt = f"""
-    Create a professional, tailored Markdown CV for a job application based on the following information:
-    
-    CANDIDATE INFORMATION:
-    Full Name: {profile.first_name} {profile.last_name}
-    Email: {profile.email}
-    Location: {profile.city or ""}, {profile.state or ""}, {profile.country or ""}
-    Phone: {profile.phone or "Not provided"}
-    LinkedIn: {profile.linkedin_url or "Not provided"}
-    GitHub: {profile.github_url or "Not provided"}
-    Personal Website: {profile.personal_website or "Not provided"}
-    Other URL: {profile.other_url or "Not provided"}
-    About Me: {profile.about_me or "Not provided"}
-    
-    EDUCATION:
-    {_format_education(educations)}
-    
-    WORK EXPERIENCE:
-    {_format_experience(experiences)}
-    
-    TARGET JOB:
-    Company: {job_description.company_name}
-    Position: {job_description.title}
-    Job Description: {job_description.description}
-    
-    INSTRUCTIONS:
-    1. Create a professional-looking Markdown CV tailored specifically for this job position.
-    2. Highlight skills and experiences that are most relevant to the job description.
-    3. Structure the CV with clear headings (use Markdown formatting).
-    4. Include all contact information in a professional header.
-    5. Focus on achievements and quantifiable results in experience descriptions.
-    6. Make sure the CV is well-organized and easy to read.
-    7. Adapt the candidate's background to emphasize relevance to this specific job.
-    
-    RETURN ONLY THE MARKDOWN CV, without any explanations or additional text.
-    """
+    user_prompt = (
+        "Use the candidate information below to produce a localized CV tailored to the target role. "
+        "Structure the response as a complete document and focus on relevance to the job description.\n\n"
+        "CANDIDATE INFORMATION:\n"
+        f"Full Name: {profile.first_name} {profile.last_name}\n"
+        f"Email: {profile.email}\n"
+        f"Location: {profile.city or ''}, {profile.state or ''}, {profile.country or ''}\n"
+        f"Phone: {profile.phone or 'Not provided'}\n"
+        f"LinkedIn: {profile.linkedin_url or 'Not provided'}\n"
+        f"GitHub: {profile.github_url or 'Not provided'}\n"
+        f"Personal Website: {profile.personal_website or 'Not provided'}\n"
+        f"Other URL: {profile.other_url or 'Not provided'}\n"
+        f"About Me: {profile.about_me or 'Not provided'}\n\n"
+        "EDUCATION:\n"
+        f"{_format_education(educations)}\n\n"
+        "WORK EXPERIENCE:\n"
+        f"{_format_experience(experiences)}\n\n"
+        "TARGET JOB:\n"
+        f"Company: {job_description.company_name}\n"
+        f"Position: {job_description.title}\n"
+        f"Job Description: {job_description.description}\n\n"
+        "Return only the completed document."
+    )
 
     # Call the AI model
-    cv_text = request_model(prompt)
+    cv_text = request_model(user_prompt, system_prompt=system_prompt)
 
     # Handle potential API failures
     if not cv_text:

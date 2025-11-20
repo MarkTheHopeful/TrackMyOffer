@@ -1,11 +1,8 @@
 package cub.trackmyoffer
 
-import CVWithAnonymous
-import AchievementRewriteRequest
-import AchievementRewriteResponse
 import AchievementsRewriteRequest
-import AchievementsRewriteResponse
 import CoverLetterRequest
+import CvGenerationRequest
 import EducationEntry
 import ExperienceEntry
 import ProfileData
@@ -18,7 +15,6 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.sessions.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -187,9 +183,9 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
         }
 
         post("/build-cv") {
-            val request = call.receive<CVWithAnonymous>()
-            val isAnonymous = request.makeAnonymous
-            val extractorResponse = getJobDescription(request.jobDescription)
+            val cvRequest = call.receive<CvGenerationRequest>()
+            val isAnonymous = cvRequest.makeAnonymous
+            val extractorResponse = getJobDescription(cvRequest.jobDescription)
             if (extractorResponse.status != HttpStatusCode.OK) {
                 call.respond(extractorResponse.status, extractorResponse.body)
                 return@post
@@ -204,6 +200,7 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
                 )
                 parameter("profile_id", profileId)
                 parameter("makeAnonymous", isAnonymous)
+                cvRequest.region?.takeIf { it.isNotBlank() }?.let { parameter("region", it) }
             }
             call.respondText(response.bodyAsText(), status = response.status)
         }
