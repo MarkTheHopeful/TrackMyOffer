@@ -62,13 +62,13 @@ def _request_model(
     return None
 
 
-def request_model(prompt: str) -> str | None:
-    result = _request_model(prompt, OPENAI_API_URL, OPENAI_API_KEY, API_TIMEOUT, "OpenAI")
+def request_model(prompt: str, system_prompt: str | None = None) -> str | None:
+    result = _request_model(prompt, OPENAI_API_URL, OPENAI_API_KEY, API_TIMEOUT, "OpenAI", system_prompt=system_prompt)
     if result is not None:
         return result
 
     logger.info("OpenAI failed, falling back to OpenRouter")
-    return _request_model(prompt, OPENROUTER_API_URL, OPENROUTER_API_KEY, API_TIMEOUT, "OpenRouter")
+    return _request_model(prompt, OPENROUTER_API_URL, OPENROUTER_API_KEY, API_TIMEOUT, "OpenRouter", system_prompt=system_prompt)
 
 
 if __name__ == "__main__":
