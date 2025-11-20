@@ -89,3 +89,9 @@ data class AchievementsRewriteItem(
 data class AchievementsRewriteResponse(
     val results: List<AchievementsRewriteItem>
 )
+
+@Serializable
+data class SalaryEstimation(
+    val jobDescription: String,
+    val cv: String,
+)

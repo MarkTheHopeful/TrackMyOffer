@@ -1,14 +1,12 @@
 package cub.trackmyoffer
 
 import CVWithAnonymous
-import AchievementRewriteRequest
-import AchievementRewriteResponse
 import AchievementsRewriteRequest
-import AchievementsRewriteResponse
 import CoverLetterRequest
 import EducationEntry
 import ExperienceEntry
 import ProfileData
+import SalaryEstimation
 import WithJobDescription
 import io.ktor.client.*
 import io.ktor.client.request.*
@@ -18,7 +16,6 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.sessions.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -33,6 +30,16 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
             contentType(ContentType.Application.Json)
             setBody(buildJsonObject {
                 put("jobDescription", jobDescription)
+            }.toString())
+        }
+        return Response(response.status, response.bodyAsText())
+    }
+
+    suspend fun getCvDescription(cv: String): Response {
+        val response = httpClient.post("${config.remote}/api/extract-cv-description") {
+            contentType(ContentType.Application.Json)
+            setBody(buildJsonObject {
+                put("cv", cv)
             }.toString())
         }
         return Response(response.status, response.bodyAsText())
@@ -287,6 +294,31 @@ fun Route.featureProviderRouting(httpClient: HttpClient, config: FeatureProvider
             } else {
                 call.respond(response.status, response.bodyAsText())
             }
+        }
+
+        get("/salary-estimation") {
+            val request = call.receive<SalaryEstimation>()
+            val jobResponse = getJobDescription(request.jobDescription)
+            if (jobResponse.status != HttpStatusCode.OK) {
+                call.respond(jobResponse.status, jobResponse.body)
+                return@get
+            }
+            val cvResponse = getCvDescription(request.cv)
+            if (cvResponse.status != HttpStatusCode.OK) {
+                call.respond(cvResponse.status, cvResponse.body)
+                return@get
+            }
+
+            val response = httpClient.post("${config.remote}/api/salary-estimation") {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    buildJsonObject {
+                        put("jobDescription", jobResponse.body)
+                        put("cv", cvResponse.body)
+                    }
+                )
+            }
+            call.respondText(response.bodyAsText(), status = response.status)
         }
     }
 
